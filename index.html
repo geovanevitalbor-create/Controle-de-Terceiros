@@ -727,6 +727,7 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
         <button class="admin-tab dsub on" id="dsVisao" onclick="subAba('visao')">Visao Geral</button>
         <button class="admin-tab dsub" id="dsTerc" onclick="subAba('terceiros')">Terceiros</button>
         <button class="admin-tab dsub" id="dsPeca" onclick="subAba('pecas')">Pecas</button>
+        <button class="admin-tab dsub" id="dsPeriodo" onclick="subAba('periodo')">Periodo</button>
       </div>
       <div class="dash-filter" id="dashFilterTop">
         <div><label>Terceiro</label><select class="i" id="fTerc"><option value="">Todos</option></select></div>
@@ -813,6 +814,18 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
           </div>
         </div>
         <div id="pecaHistResult"></div>
+      </div>
+      <div id="dpPeriodo" style="display:none">
+        <div class="unit-group">
+          <div class="unit-group-ttl"><span class="tag tag-pecas">PERIODO</span>Movimentacao entre as datas selecionadas (peças)</div>
+          <div class="kpi-row">
+            <div class="kpi ka"><div class="kpi-bar"></div><div class="kpi-lbl">Levado</div><div class="kpi-val" id="kPerLevado">-</div></div>
+            <div class="kpi kg"><div class="kpi-bar"></div><div class="kpi-lbl">Devolvido</div><div class="kpi-val" id="kPerDevolvido">-</div></div>
+            <div class="kpi kf"><div class="kpi-bar"></div><div class="kpi-lbl">Refugo</div><div class="kpi-val" id="kPerRefugo">-</div></div>
+            <div class="kpi kr"><div class="kpi-bar"></div><div class="kpi-lbl">Repasse</div><div class="kpi-val" id="kPerRepasse">-</div></div>
+          </div>
+        </div>
+        <div class="tbl-box"><h3>Por Terceiro no Periodo</h3><div id="periodoLista" class="load">Selecione data inicio e fim, e clique Aplicar.</div></div>
       </div>
     </div>
     <div class="panel" id="pEtiq">
@@ -1654,20 +1667,53 @@ function cadAba(nome){
 }
 function subAba(name){
   document.querySelectorAll('#pDash .dsub').forEach(function(t){t.classList.remove('on');});
-  var map={visao:'dsVisao',terceiros:'dsTerc',pecas:'dsPeca'};
+  var map={visao:'dsVisao',terceiros:'dsTerc',pecas:'dsPeca',periodo:'dsPeriodo'};
   document.getElementById(map[name]).classList.add('on');
   document.getElementById('dashFilterTop').style.display=name==='pecas'?'none':'flex';
   document.getElementById('dpVisao').style.display=name==='visao'?'block':'none';
   document.getElementById('dpTerceiros').style.display=name==='terceiros'?'block':'none';
   document.getElementById('dpPecas').style.display=name==='pecas'?'block':'none';
+  document.getElementById('dpPeriodo').style.display=name==='periodo'?'block':'none';
   if(name==='terceiros') loadSaldo();
   else if(name==='pecas') initPecaHist();
+  else if(name==='periodo') loadPeriodo();
+}
+function loadPeriodo(){
+  var di=document.getElementById('fDi').value;
+  var df=document.getElementById('fDf').value;
+  var terc=document.getElementById('fTerc').value;
+  if(!di||!df){
+    document.getElementById('periodoLista').innerHTML='<div class="alert alert-warn">Selecione data inicio e data fim.</div>';
+    ['kPerLevado','kPerDevolvido','kPerRefugo','kPerRepasse'].forEach(function(id){document.getElementById(id).textContent='-';});
+    return;
+  }
+  document.getElementById('periodoLista').innerHTML='<div class="load">Carregando...</div>';
+  rpc('get_periodo',{p_di:di,p_df:df,p_terceiro:terc||null}).then(renderPeriodo).catch(function(e){
+    document.getElementById('periodoLista').innerHTML='<div class="alert alert-err">'+esc(e.message)+'</div>';
+  });
+}
+function renderPeriodo(d){
+  try{
+    document.getElementById('kPerLevado').innerHTML=fmtN(d.levado)+' <span class="unit">pecas</span>';
+    document.getElementById('kPerDevolvido').innerHTML=fmtN(d.devolvido)+' <span class="unit">pecas</span>';
+    document.getElementById('kPerRefugo').innerHTML=fmtN(d.refugo)+' <span class="unit">pecas</span>';
+    document.getElementById('kPerRepasse').innerHTML=fmtN(d.repasse)+' <span class="unit">pecas</span>';
+    var lst=d.porTerceiro||[];
+    if(!lst.length){document.getElementById('periodoLista').innerHTML='<div class="empty">Sem movimentacao no periodo.</div>';return;}
+    var html='<table><thead><tr><th>Terceiro</th><th>Levado</th><th>Devolvido</th><th>Refugo</th><th>Repasse</th></tr></thead><tbody>';
+    lst.forEach(function(t){
+      html+='<tr><td><b style="color:var(--text)">'+esc(t.nome)+'</b></td><td>'+fmtN(t.levado)+'</td><td style="color:var(--green)">'+fmtN(t.devolvido)+'</td><td style="color:var(--red)">'+fmtN(t.refugo)+'</td><td style="color:var(--rose)">'+fmtN(t.repasse)+'</td></tr>';
+    });
+    html+='</tbody></table>';
+    document.getElementById('periodoLista').innerHTML=html;
+  }catch(e){document.getElementById('periodoLista').innerHTML='<div class="alert alert-err">Erro ao renderizar.</div>';}
 }
 function loadDash(){
   var filtros={terceiro:document.getElementById('fTerc').value,status:document.getElementById('fStatus').value,
     num:document.getElementById('fNum').value,di:document.getElementById('fDi').value,df:document.getElementById('fDf').value};
   ['kSep','kFora','kInsp','kConf','kRep','kDevol','kPecs','kPecInsp','kPecConf','kPecRep','kPecDevol','kRefugo'].forEach(function(id){document.getElementById(id).textContent='...';});
   rpc('get_dash',{p_filtros:filtros}).then(renderDash).catch(function(e){console.error(e);});
+  if(document.getElementById('dsPeriodo').classList.contains('on')) loadPeriodo();
 }
 function limparDash(){['fTerc','fStatus','fNum','fDi','fDf'].forEach(function(id){document.getElementById(id).value='';});loadDash();}
 var ultimoDashData=null;
