@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -740,6 +741,7 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
             <option value="">Todos</option>
             <option value="Separacao">Separacao</option>
             <option value="Saida">Saida</option>
+            <option value="Recebido">Recebido</option>
             <option value="Inspecao">Inspecao</option>
             <option value="Repasse">Repasse</option>
             <option value="Refugo">Refugo</option>
@@ -982,6 +984,7 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
         </div>
         <div class="btn-row">
           <button class="btn btn-ghost btn-sm" onclick="relPreview()">Pre-visualizar</button>
+          <button class="btn btn-ghost btn-sm" onclick="relBaixarExcel()">Baixar Excel</button>
           <button class="btn btn-accent btn-sm" onclick="relDisparar()">Enviar Relatorios</button>
         </div>
         <div id="msgRel"></div>
@@ -1039,7 +1042,7 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
   </div>
 </div>
 <script>
-var sacosReg=[],chartD=null,chartB=null,chartDRT=null,chartBRT=null,cacheItems={},editingAll={},loginTipo='',ultimoSepForm=null;
+var sacosReg=[],chartD=null,chartB=null,chartDRT=null,chartBRT=null,cacheItems={},editingAll={},loginTipo='',ultimoSepForm=null,ultimoPreviewRel=null;
 var entSacoAtual=null,tipoEntradaAtual='conferencia';
 function ir(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');}
 function msg_(id,html){var e=document.getElementById(id);if(e)e.innerHTML=html;}
@@ -1668,7 +1671,7 @@ function buildRastrCard(i){
         '<div><div class="info-lbl">Refugo</div><div class="info-val">'+esc(String(c.refugo||0))+'</div></div>'+
         (c.qtdRepasse>0?'<div><div class="info-lbl">Qtd Repasse</div><div class="info-val" style="color:var(--rose)">'+esc(String(c.qtdRepasse))+'</div></div>':'')+
         (c.motivo?'<div><div class="info-lbl">Motivo</div><div class="info-val">'+esc(c.motivo)+'</div></div>':'')+
-        '<div><div class="info-lbl">Quem Entrou</div><div class="info-val">'+esc(c.quemEntrada||'-')+'</div></div>'+
+        '<div><div class="info-lbl">Quem Concluiu a Verificacao</div><div class="info-val">'+esc(c.quemEntrada||'-')+'</div></div>'+
         '<div><div class="info-lbl">Destino</div><div class="info-val">'+esc(c.destino||'-')+'</div></div>'+
       '</div></div>';
     });
@@ -2362,6 +2365,7 @@ function relPreview(){
       if(res.error) throw new Error(res.error.message);
       msg_('msgRel','');
       var list=res.data;
+      ultimoPreviewRel=list;
       if(!list||!list.length){document.getElementById('relPreviewBox').innerHTML='<div class="empty">Nenhum lancamento no periodo/terceiros selecionados.</div>';return;}
       var html=list.map(function(x){
         return '<div class="fbox"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">'+esc(x.terceiro)+' - '+esc(x.dia)+' - '+esc(x.titulo)+' <span style="color:var(--accent)">(PDF separado)</span></div><div style="background:#fff;border-radius:8px;padding:12px;overflow-x:auto">'+x.html+'</div></div>';
@@ -2369,6 +2373,33 @@ function relPreview(){
       document.getElementById('relPreviewBox').innerHTML='<div style="margin:14px 0 8px;font-size:12px;color:var(--text2)">'+list.length+' PDF(s) serao gerados no total:</div>'+html;
     }catch(e){document.getElementById('relPreviewBox').innerHTML='<div class="alert alert-err">Erro na previa.</div>';}
   }).catch(function(e){msg_('msgRel','<div class="alert alert-err">'+esc(e.message)+'</div>');});
+}
+function relBaixarExcel(){
+  if(!ultimoPreviewRel||!ultimoPreviewRel.length){msg_('msgRel','<div class="alert alert-warn">Gere a previa primeiro.</div>');return;}
+  var grupos={retiradas:[],entregues:[],repasses:[],refugos:[]};
+  ultimoPreviewRel.forEach(function(x){
+    if(!grupos[x.chave])return;
+    (x.linhas||[]).forEach(function(l){
+      if(x.chave==='retiradas'){
+        grupos.retiradas.push({Terceiro:x.terceiro,Dia:x.dia,Saco:l.saco,Peca:l.peca,Material:l.material,Lote:l.lote,Qtd:l.qtd});
+      }else if(x.chave==='entregues'){
+        grupos.entregues.push({Terceiro:x.terceiro,Dia:x.dia,Saco:l.saco,Peca:l.peca,Material:l.material,Lote:l.lote,'Qtd Devolvida':l.qtdDev,Diferenca:l.diferenca,Refugo:l.refugo,Motivo:l.motivo,'Recebido por':l.quem});
+      }else if(x.chave==='repasses'){
+        grupos.repasses.push({Terceiro:x.terceiro,Dia:x.dia,Saco:l.saco,Peca:l.peca,Material:l.material,Lote:l.lote,'Qtd Repasse':l.qtdRepasse,Motivo:l.motivo});
+      }else if(x.chave==='refugos'){
+        grupos.refugos.push({Terceiro:x.terceiro,Dia:x.dia,Saco:l.saco,Peca:l.peca,Material:l.material,Lote:l.lote,'Qtd Refugo':l.qtdRefugo,Motivo:l.motivo});
+      }
+    });
+  });
+  var nomes={retiradas:'Retiradas',entregues:'Entregues',repasses:'Repasses',refugos:'Refugos'};
+  var wb=XLSX.utils.book_new();
+  var teveAlgo=false;
+  Object.keys(grupos).forEach(function(k){
+    if(grupos[k].length){teveAlgo=true;XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(grupos[k]),nomes[k]);}
+  });
+  if(!teveAlgo){msg_('msgRel','<div class="alert alert-warn">Nao ha dados para exportar.</div>');return;}
+  var di=document.getElementById('relDi').value,df=document.getElementById('relDf').value||di;
+  XLSX.writeFile(wb,'Relatorios_'+di+'_a_'+df+'.xlsx');
 }
 function relDisparar(){
   var c=relColeta();
