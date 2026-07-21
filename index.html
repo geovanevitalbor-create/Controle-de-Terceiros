@@ -727,13 +727,14 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
   <div class="admin-panels">
     <div class="panel on" id="pDash">
       <div class="subtabs">
-        <button class="admin-tab dsub on" id="dsVisao" onclick="subAba('visao')">Visao Geral</button>
+        <button class="admin-tab dsub on" id="dsRT" onclick="subAba('tempo_real')">Tempo Real</button>
+        <button class="admin-tab dsub" id="dsVisao" onclick="subAba('visao')">Historico</button>
         <button class="admin-tab dsub" id="dsTerc" onclick="subAba('terceiros')">Terceiros</button>
         <button class="admin-tab dsub" id="dsPeca" onclick="subAba('pecas')">Pecas</button>
       </div>
-      <div class="dash-filter" id="dashFilterTop">
+      <div class="dash-filter" id="dashFilterTop" style="display:none">
         <div><label>Terceiro</label><select class="i" id="fTerc"><option value="">Todos</option></select></div>
-        <div><label>Peca</label><input class="i" id="fPeca" placeholder="Ex: 40.156-B" onkeydown="if(event.key==='Enter')loadDash()"></div>
+        <div><label>Peca</label><select class="i" id="fPeca"><option value="">Todos</option></select></div>
         <div><label>Tipo de Lancamento</label>
           <select class="i" id="fLanc">
             <option value="">Todos</option>
@@ -760,46 +761,63 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
         <div><label>&nbsp;</label><button class="btn btn-accent btn-sm" onclick="loadDash()" style="padding:10px 16px">Aplicar</button></div>
         <div><label>&nbsp;</label><button class="btn btn-ghost btn-sm" onclick="limparDash()" style="padding:10px 13px">Limpar</button></div>
       </div>
-      <div id="dpVisao">
+      <div id="dpTempoReal">
+        <div class="dash-filter" id="rtFilterTop">
+          <div><label>Terceiro</label><select class="i" id="fTercRT"><option value="">Todos</option></select></div>
+          <div><label>Peca</label><select class="i" id="fPecaRT"><option value="">Todos</option></select></div>
+          <div><label>Status</label>
+            <select class="i" id="fStatusRT">
+              <option value="">Todos</option><option value="Separado">Separado</option>
+              <option value="Em terceiro">Em terceiro</option>
+              <option value="Em Inspecao">Em Inspecao</option>
+              <option value="Conferido/Finalizado">Recebido</option>
+              <option value="Repasse">Repasse</option><option value="Devolucao">Devolucao</option>
+            </select>
+          </div>
+          <div><label>&nbsp;</label><button class="btn btn-accent btn-sm" onclick="loadTempoReal()" style="padding:10px 16px">Aplicar</button></div>
+          <div><label>&nbsp;</label><button class="btn btn-ghost btn-sm" onclick="limparTempoReal()" style="padding:10px 13px">Limpar</button></div>
+        </div>
         <div class="unit-group">
-          <div class="unit-group-ttl"><span class="tag tag-periodo">PERIODO</span>Enviado no periodo filtrado</div>
-          <div class="kpi-row" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr))">
+          <div class="unit-group-ttl"><span class="tag tag-sacos">SACOS</span>Quantidade de sacos por status, agora</div>
+          <div class="kpi-row">
+            <div class="kpi kp"><div class="kpi-bar"></div><div class="kpi-lbl">Separados</div><div class="kpi-val" id="rtSep">-</div></div>
+            <div class="kpi ka"><div class="kpi-bar"></div><div class="kpi-lbl">Em Terceiro</div><div class="kpi-val" id="rtFora">-</div></div>
+            <div class="kpi ki"><div class="kpi-bar"></div><div class="kpi-lbl">Em Inspecao</div><div class="kpi-val" id="rtInsp">-</div></div>
+            <div class="kpi kg"><div class="kpi-bar"></div><div class="kpi-lbl">Recebidos</div><div class="kpi-val" id="rtConf">-</div></div>
+            <div class="kpi kr"><div class="kpi-bar"></div><div class="kpi-lbl">Repasse</div><div class="kpi-val" id="rtRep">-</div></div>
+            <div class="kpi ks"><div class="kpi-bar"></div><div class="kpi-lbl">Devolucao</div><div class="kpi-val" id="rtDevol">-</div></div>
+          </div>
+        </div>
+        <div class="unit-group">
+          <div class="unit-group-ttl"><span class="tag tag-pecas">PECAS (UNIDADES)</span>Pecas fora e em processo, agora</div>
+          <div class="kpi-row">
+            <div class="kpi ka"><div class="kpi-bar"></div><div class="kpi-lbl">Pecas Em Terceiro</div><div class="kpi-val" id="rtPecs">-</div></div>
+            <div class="kpi ki"><div class="kpi-bar"></div><div class="kpi-lbl">Pecas Em Inspecao</div><div class="kpi-val" id="rtPecInsp">-</div></div>
+          </div>
+        </div>
+        <div class="chart-row" style="grid-template-columns:1fr 1fr">
+          <div class="chart-box"><h3>Status Atual (sacos)</h3><div class="chart-h"><canvas id="cDonutRT"></canvas></div></div>
+          <div class="chart-box"><h3>Pecas em Terceiro Agora (por terceiro)</h3><div class="chart-h"><canvas id="cBarraRT"></canvas></div></div>
+        </div>
+      </div>
+      <div id="dpVisao" style="display:none">
+        <div class="unit-group">
+          <div class="unit-group-ttl"><span class="tag tag-periodo">PERIODO</span>Lancamentos no periodo filtrado</div>
+          <div class="kpi-row">
+            <div class="kpi kp"><div class="kpi-bar"></div><div class="kpi-lbl">Separacoes</div><div class="kpi-val" id="kSeparacoes">-</div></div>
             <div class="kpi kt"><div class="kpi-bar"></div><div class="kpi-lbl">Sacos Enviados</div><div class="kpi-val" id="kSacosEnv">-</div></div>
             <div class="kpi kt"><div class="kpi-bar"></div><div class="kpi-lbl">Pecas Enviadas</div><div class="kpi-val" id="kPecEnv">-</div></div>
-          </div>
-          <p style="font-size:11px;color:var(--text3);margin-top:8px;line-height:1.5">Enviado conta tudo que saiu da fabrica no periodo selecionado e nao muda depois, mesmo que o saco ja tenha voltado. Os cards abaixo mostram a situacao ATUAL dos sacos: quando um saco retorna, ele sai de "Em Terceiro" e entra em "Recebidos"/"Repasse"/"Devolucao" — por isso esses numeros vao mudando e nao precisam bater com o Enviado.</p>
-        </div>
-        <div class="unit-group">
-          <div class="unit-group-ttl"><span class="tag tag-sacos">SACOS</span>Quantidade de sacos por status</div>
-          <div class="kpi-row">
-            <div class="kpi kp"><div class="kpi-bar"></div><div class="kpi-lbl">Separados</div><div class="kpi-val" id="kSep">-</div></div>
-            <div class="kpi ka"><div class="kpi-bar"></div><div class="kpi-lbl">Em Terceiro</div><div class="kpi-val" id="kFora">-</div></div>
-            <div class="kpi ki"><div class="kpi-bar"></div><div class="kpi-lbl">Em Inspecao</div><div class="kpi-val" id="kInsp">-</div></div>
-            <div class="kpi kg"><div class="kpi-bar"></div><div class="kpi-lbl">Recebidos</div><div class="kpi-val" id="kConf">-</div></div>
-            <div class="kpi kr"><div class="kpi-bar"></div><div class="kpi-lbl">Repasse</div><div class="kpi-val" id="kRep">-</div></div>
-            <div class="kpi ks"><div class="kpi-bar"></div><div class="kpi-lbl">Devolucao</div><div class="kpi-val" id="kDevol">-</div></div>
-          </div>
-        </div>
-        <div class="unit-group">
-          <div class="unit-group-ttl"><span class="tag tag-pecas">PECAS (UNIDADES)</span>Total de pecas unitarias por situacao</div>
-          <div class="kpi-row">
-            <div class="kpi ka"><div class="kpi-bar"></div><div class="kpi-lbl">Pecas Em Terceiro</div><div class="kpi-val" id="kPecs">-</div></div>
-            <div class="kpi ki"><div class="kpi-bar"></div><div class="kpi-lbl">Pecas Em Inspecao</div><div class="kpi-val" id="kPecInsp">-</div></div>
+            <div class="kpi kg"><div class="kpi-bar"></div><div class="kpi-lbl">Sacos Recebidos</div><div class="kpi-val" id="kSacosReceb">-</div></div>
             <div class="kpi kg"><div class="kpi-bar"></div><div class="kpi-lbl">Pecas Recebidas</div><div class="kpi-val" id="kPecConf">-</div></div>
             <div class="kpi kr"><div class="kpi-bar"></div><div class="kpi-lbl">Pecas em Repasse</div><div class="kpi-val" id="kPecRep">-</div></div>
-            <div class="kpi ks"><div class="kpi-bar"></div><div class="kpi-lbl">Pecas Devolvidas</div><div class="kpi-val" id="kPecDevol">-</div></div>
             <div class="kpi kf"><div class="kpi-bar"></div><div class="kpi-lbl">Pecas Refugadas</div><div class="kpi-val" id="kRefugo">-</div></div>
+            <div class="kpi ks"><div class="kpi-bar"></div><div class="kpi-lbl">Sacos Devolucao</div><div class="kpi-val" id="kSacosDevol">-</div></div>
+            <div class="kpi ks"><div class="kpi-bar"></div><div class="kpi-lbl">Pecas Devolvidas</div><div class="kpi-val" id="kPecDevol">-</div></div>
           </div>
         </div>
-        <div class="chart-row">
-          <div class="chart-box"><h3>Status Atual (sacos)</h3><div class="chart-h"><canvas id="cDonut"></canvas></div></div>
-          <div class="chart-box"><h3>Pecas por Terceiro (unidades)</h3><div class="chart-h"><canvas id="cBarra"></canvas></div></div>
+        <div class="chart-row" style="grid-template-columns:1fr 1fr">
+          <div class="chart-box"><h3>Movimentacao por Terceiro (periodo)</h3><div class="chart-h"><canvas id="cBarra"></canvas></div></div>
           <div class="chart-box"><h3>Refugo por Terceiro (unidades)</h3><div class="chart-h"><canvas id="cRefugo"></canvas></div></div>
-        </div>
-        <div class="tbl-box"><h3>Sacos Mais Antigos <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(em terceiro/inspecao/repasse)</span></h3>
-          <table><thead><tr><th>ID</th><th>Terceiro</th><th>Peca</th><th>Qtd (pecas)</th><th>Dias</th><th>Status</th></tr></thead>
-          <tbody id="tSacos"></tbody></table>
-          <div class="pg" id="pgSacos"></div>
         </div>
         <div class="tbl-box"><h3>Historico de Lancamentos</h3>
           <table><thead><tr><th>ID</th><th>Terceiro</th><th>Peca</th><th>Tipo</th><th>Qtd</th><th>Repasse</th><th>Refugo</th><th>Data</th><th>Status</th></tr></thead>
@@ -1005,7 +1023,7 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
   </div>
 </div>
 <script>
-var sacosReg=[],chartD=null,chartB=null,cacheItems={},editingAll={},loginTipo='',ultimoSepForm=null;
+var sacosReg=[],chartD=null,chartB=null,chartDRT=null,chartBRT=null,cacheItems={},editingAll={},loginTipo='',ultimoSepForm=null;
 var entSacoAtual=null,tipoEntradaAtual='conferencia';
 function ir(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');}
 function msg_(id,html){var e=document.getElementById(id);if(e)e.innerHTML=html;}
@@ -1040,7 +1058,7 @@ function fazerLogin(){
         fecharLogin();loginTipo='';
         if(tipo==='separacao') ir('scMenuSep');
         else if(tipo==='inspecao') ir('scMenuInsp');
-        else if(tipo==='admin'){ir('scAdmin');loadDash();}
+        else if(tipo==='admin'){ir('scAdmin');loadTempoReal();}
       } else msg_('msgLogin','<div class="alert alert-err">Senha incorreta.</div>');
     }catch(err){msg_('msgLogin','<div class="alert alert-err">Erro: '+esc(err.message)+'</div>');}
   }).catch(function(e){msg_('msgLogin','<div class="alert alert-err">'+esc((e&&e.message)||String(e))+'</div>');});
@@ -1099,7 +1117,13 @@ supabase.from('materia_prima').select('tipo').order('tipo').then(function(res){
   try{var l=(res.data||[]).map(function(m){return m.tipo;});var s=document.getElementById('sMat');l.forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;s.appendChild(o);});}catch(e){}
 });
 supabase.from('ferramentas').select('codigo').order('codigo').then(function(res){
-  try{var l=(res.data||[]).map(function(f){return f.codigo;});var s=document.getElementById('sPeca');l.forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=p;s.appendChild(o);});}catch(e){}
+  try{
+    var l=(res.data||[]).map(function(f){return f.codigo;});
+    ['sPeca','fPeca','fPecaRT'].forEach(function(sid){
+      var s=document.getElementById(sid);
+      l.forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=p;s.appendChild(o);});
+    });
+  }catch(e){}
 });
 function ajQtd(d){var el=document.getElementById('sQtd');el.value=Math.max(1,Math.min(20,(parseInt(el.value)||1)+d));}
 function salvarSep(){
@@ -1656,7 +1680,7 @@ function aba(btn,panelId){
   document.querySelectorAll('.admin-tab:not(.dsub)').forEach(function(t){t.classList.remove('on');});
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on');});
   btn.classList.add('on');document.getElementById(panelId).classList.add('on');
-  if(panelId==='pDash'){subAba('visao');loadDash();}
+  if(panelId==='pDash'){subAba('tempo_real');}
   else if(panelId==='pEtiq') adminInitEtiq();
   else if(panelId==='pCad') cadAba('ferr');
   else if(panelId==='pRev'){document.getElementById('revId').value='';document.getElementById('revResult').innerHTML='';}
@@ -1677,23 +1701,58 @@ function cadAba(nome){
 }
 function subAba(name){
   document.querySelectorAll('#pDash .dsub').forEach(function(t){t.classList.remove('on');});
-  var map={visao:'dsVisao',terceiros:'dsTerc',pecas:'dsPeca'};
+  var map={tempo_real:'dsRT',visao:'dsVisao',terceiros:'dsTerc',pecas:'dsPeca'};
   document.getElementById(map[name]).classList.add('on');
-  document.getElementById('dashFilterTop').style.display=name==='pecas'?'none':'flex';
+  document.getElementById('dashFilterTop').style.display=(name==='visao'||name==='terceiros')?'flex':'none';
+  document.getElementById('dpTempoReal').style.display=name==='tempo_real'?'block':'none';
   document.getElementById('dpVisao').style.display=name==='visao'?'block':'none';
   document.getElementById('dpTerceiros').style.display=name==='terceiros'?'block':'none';
   document.getElementById('dpPecas').style.display=name==='pecas'?'block':'none';
-  if(name==='terceiros') loadSaldo();
+  if(name==='tempo_real') loadTempoReal();
+  else if(name==='terceiros') loadSaldo();
   else if(name==='pecas') initPecaHist();
 }
 function loadDash(){
   var filtros={terceiro:document.getElementById('fTerc').value,status:document.getElementById('fStatus').value,
     num:document.getElementById('fNum').value,di:document.getElementById('fDi').value,df:document.getElementById('fDf').value,
     peca:document.getElementById('fPeca').value,lanc:document.getElementById('fLanc').value};
-  ['kSep','kFora','kInsp','kConf','kRep','kDevol','kPecs','kPecInsp','kPecConf','kPecRep','kPecDevol','kRefugo'].forEach(function(id){document.getElementById(id).textContent='...';});
+  ['kSeparacoes','kSacosEnv','kPecEnv','kSacosReceb','kPecConf','kPecRep','kRefugo','kSacosDevol','kPecDevol'].forEach(function(id){document.getElementById(id).textContent='...';});
   rpc('get_dash',{p_filtros:filtros}).then(renderDash).catch(function(e){console.error(e);});
 }
 function limparDash(){['fTerc','fStatus','fNum','fDi','fDf','fPeca','fLanc'].forEach(function(id){document.getElementById(id).value='';});loadDash();}
+function loadTempoReal(){
+  var filtros={terceiro:document.getElementById('fTercRT').value,status:document.getElementById('fStatusRT').value,
+    peca:document.getElementById('fPecaRT').value,num:'',di:'',df:'',lanc:''};
+  ['rtSep','rtFora','rtInsp','rtConf','rtRep','rtDevol','rtPecs','rtPecInsp'].forEach(function(id){document.getElementById(id).textContent='...';});
+  rpc('get_dash',{p_filtros:filtros}).then(renderTempoReal).catch(function(e){console.error(e);});
+}
+function limparTempoReal(){['fTercRT','fStatusRT','fPecaRT'].forEach(function(id){document.getElementById(id).value='';});loadTempoReal();}
+function renderTempoReal(d){
+  try{
+    var t=d.tots;
+    document.getElementById('rtSep').innerHTML=fmtN(t.separado)+' <span class="unit">sacos</span>';
+    document.getElementById('rtFora').innerHTML=fmtN(t.emTerceiro)+' <span class="unit">sacos</span>';
+    document.getElementById('rtInsp').innerHTML=fmtN(t.inspecao)+' <span class="unit">sacos</span>';
+    document.getElementById('rtConf').innerHTML=fmtN(t.conferido)+' <span class="unit">sacos</span>';
+    document.getElementById('rtRep').innerHTML=fmtN(t.repasse)+' <span class="unit">sacos</span>';
+    document.getElementById('rtDevol').innerHTML=fmtN(t.devolucao)+' <span class="unit">sacos</span>';
+    document.getElementById('rtPecs').innerHTML=fmtN(t.pecasFora)+' <span class="unit">pecas</span>';
+    document.getElementById('rtPecInsp').innerHTML=fmtN(t.pecasInspecao)+' <span class="unit">pecas</span>';
+    var dc=document.getElementById('cDonutRT').getContext('2d');
+    if(chartDRT) chartDRT.destroy();
+    chartDRT=new Chart(dc,{type:'doughnut',data:{
+      labels:d.porStatus.map(function(s){return s.label;}),
+      datasets:[{data:d.porStatus.map(function(s){return s.v;}),
+        backgroundColor:d.porStatus.map(function(s){return s.cor;}),borderWidth:2,borderColor:'#101512'}]
+    },options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{color:'#9aa39d',font:{size:10,family:'Inter'},boxWidth:9,padding:8}},tooltip:{callbacks:{label:function(c){var tt=c.dataset.data.reduce(function(a,b){return a+b;},0);var p=tt?Math.round(c.parsed/tt*100):0;return c.label+': '+fmtN(c.parsed)+' sacos ('+p+'%)';}}}}}});
+    var bc=document.getElementById('cBarraRT').getContext('2d');
+    if(chartBRT) chartBRT.destroy();
+    chartBRT=new Chart(bc,{type:'bar',data:{
+      labels:d.porTerc.map(function(t){return t.nome;}),
+      datasets:[{label:'Pecas Em Terceiro',data:d.porTerc.map(function(t){return t.dados.pecasFora||0;}),backgroundColor:'rgba(245,158,11,.8)',borderRadius:4}]
+    },options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{color:'#9aa39d',font:{size:9}},grid:{color:'rgba(255,255,255,.06)'}},y:{beginAtZero:true,ticks:{color:'#9aa39d',font:{size:9},callback:function(v){return fmtN(v);}},grid:{color:'rgba(255,255,255,.06)'}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return fmtN(c.parsed.y)+' pecas';}}}}}});
+  }catch(err){console.error(err);}
+}
 var ultimoDashData=null;
 var dashPg={sacos:{data:[],page:1,per:10},filt:{data:[],page:1,per:10}};
 function pgBar(elId,st,renderFn){
@@ -1745,27 +1804,15 @@ function renderDash(d){
   try{
     ultimoDashData=d;renderSaldoTerc(d);
     var t=d.tots;
+    document.getElementById('kSeparacoes').innerHTML=fmtN(t.separacoes||0)+' <span class="unit">sacos</span>';
     document.getElementById('kSacosEnv').innerHTML=fmtN(t.sacosEnviados||0)+' <span class="unit">sacos</span>';
     document.getElementById('kPecEnv').innerHTML=fmtN(t.pecasEnviadas||0)+' <span class="unit">pecas</span>';
-    document.getElementById('kSep').innerHTML=fmtN(t.separado)+' <span class="unit">sacos</span>';
-    document.getElementById('kFora').innerHTML=fmtN(t.emTerceiro)+' <span class="unit">sacos</span>';
-    document.getElementById('kInsp').innerHTML=fmtN(t.inspecao)+' <span class="unit">sacos</span>';
-    document.getElementById('kConf').innerHTML=fmtN(t.conferido)+' <span class="unit">sacos</span>';
-    document.getElementById('kRep').innerHTML=fmtN(t.repasse)+' <span class="unit">sacos</span>';
-    document.getElementById('kDevol').innerHTML=fmtN(t.devolucao)+' <span class="unit">sacos</span>';
-    document.getElementById('kPecs').innerHTML=fmtN(t.pecasFora)+' <span class="unit">pecas</span>';
-    document.getElementById('kPecInsp').innerHTML=fmtN(t.pecasInspecao)+' <span class="unit">pecas</span>';
+    document.getElementById('kSacosReceb').innerHTML=fmtN(t.sacosRecebidos||0)+' <span class="unit">sacos</span>';
     document.getElementById('kPecConf').innerHTML=fmtN(t.pecasConferidas||0)+' <span class="unit">pecas</span>';
     document.getElementById('kPecRep').innerHTML=fmtN(t.pecasRepasse||0)+' <span class="unit">pecas</span>';
-    document.getElementById('kPecDevol').innerHTML=fmtN(t.pecasDevolucao||0)+' <span class="unit">pecas</span>';
     document.getElementById('kRefugo').innerHTML=fmtN(t.refugoTotal||0)+' <span class="unit">pecas</span>';
-    var dc=document.getElementById('cDonut').getContext('2d');
-    if(chartD) chartD.destroy();
-    chartD=new Chart(dc,{type:'doughnut',data:{
-      labels:d.porStatus.map(function(s){return s.label;}),
-      datasets:[{data:d.porStatus.map(function(s){return s.v;}),
-        backgroundColor:d.porStatus.map(function(s){return s.cor;}),borderWidth:2,borderColor:'#101512'}]
-    },options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{color:'#9aa39d',font:{size:10,family:'Inter'},boxWidth:9,padding:8}},tooltip:{callbacks:{label:function(c){var tt=c.dataset.data.reduce(function(a,b){return a+b;},0);var p=tt?Math.round(c.parsed/tt*100):0;return c.label+': '+fmtN(c.parsed)+' sacos ('+p+'%)';}}}}}});
+    document.getElementById('kSacosDevol').innerHTML=fmtN(t.sacosDevolucao||0)+' <span class="unit">sacos</span>';
+    document.getElementById('kPecDevol').innerHTML=fmtN(t.pecasDevolucao||0)+' <span class="unit">pecas</span>';
     var gopts=function(extra){
       var base={responsive:true,maintainAspectRatio:false,
         scales:{x:{stacked:true,ticks:{color:'#9aa39d',font:{size:9}},grid:{color:'rgba(255,255,255,.06)'}},
@@ -1781,7 +1828,6 @@ function renderDash(d){
     chartB=new Chart(bc,{type:'bar',data:{
       labels:d.porTerc.map(function(t){return t.nome;}),
       datasets:[
-        {label:'Em terceiro',data:d.porTerc.map(function(t){return t.dados.pecasFora||0;}),backgroundColor:'rgba(245,158,11,.8)'},
         {label:'Retornado',data:d.porTerc.map(function(t){return t.retornado||0;}),backgroundColor:'rgba(22,163,74,.75)'},
         {label:'Repasse',data:d.porTerc.map(function(t){return t.repasse||0;}),backgroundColor:'rgba(139,92,246,.8)'},
         {label:'Devolucao',data:d.porTerc.map(function(t){return t.devolucao||0;}),backgroundColor:'rgba(37,99,235,.8)'}
@@ -1794,9 +1840,8 @@ function renderDash(d){
       labels:d.porTerc.map(function(t){return t.nome;}),
       datasets:[{label:'Refugo',data:d.porTerc.map(function(t){return t.refugo||0;}),backgroundColor:'rgba(220,38,38,.8)',borderRadius:4}]
     },options:gopts({plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return 'Refugo: '+fmtN(c.parsed.y)+' pecas';}}}},scales:{x:{stacked:false,ticks:{color:'#9aa39d',font:{size:9}},grid:{color:'rgba(255,255,255,.06)'}},y:{stacked:false,beginAtZero:true,ticks:{color:'#9aa39d',font:{size:9},callback:function(v){return fmtN(v);}},grid:{color:'rgba(255,255,255,.06)'}}}})});
-    dashPg.sacos.data=d.sacos||[];dashPg.sacos.page=1;
     dashPg.filt.data=d.sacosFiltrados||[];dashPg.filt.page=1;
-    renderPgSacos();renderPgFilt();
+    renderPgFilt();
     var tot=d.motivos.reduce(function(a,x){return a+x.v;},0);
     document.getElementById('divMotivos').innerHTML=tot===0
       ?'<div class="empty">Sem divergencias no periodo</div>'
@@ -1979,6 +2024,12 @@ function recarregarFerramentasSelect(){
       s.innerHTML='<option value="">Selecione...</option>';
       l.forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=p;s.appendChild(o);});
       if(cv) s.value=cv;
+      ['fPeca','fPecaRT'].forEach(function(sid){
+        var sf=document.getElementById(sid),cvf=sf.value;
+        sf.innerHTML='<option value="">Todos</option>';
+        l.forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=p;sf.appendChild(o);});
+        if(cvf) sf.value=cvf;
+      });
     }catch(err){}
   });
 }
