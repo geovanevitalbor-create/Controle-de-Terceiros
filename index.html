@@ -1022,6 +1022,13 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
     <div id="msgAdminExcl" style="margin-top:8px"></div>
   </div>
 </div>
+<div class="login-overlay" id="lancDetailModal">
+  <div class="login-modal" style="max-width:640px;max-height:85vh;overflow-y:auto;text-align:left">
+    <h3 style="margin-bottom:14px">Historico do Saco</h3>
+    <div id="lancDetailBody"></div>
+    <button class="btn btn-ghost" onclick="document.getElementById('lancDetailModal').classList.remove('open')" style="margin-top:14px">Fechar</button>
+  </div>
+</div>
 <script>
 var sacosReg=[],chartD=null,chartB=null,chartDRT=null,chartBRT=null,cacheItems={},editingAll={},loginTipo='',ultimoSepForm=null;
 var entSacoAtual=null,tipoEntradaAtual='conferencia';
@@ -1795,10 +1802,20 @@ function renderPgFilt(){
     ?rows.map(function(s){
         var rep=s.qtdRep?fmtN(s.qtdRep):'-';
         var ref=s.qtdRef?fmtN(s.qtdRef):'-';
-        return '<tr><td style="font-size:10px;color:var(--accent)">'+esc(s.id)+'</td><td>'+esc(s.ter)+'</td><td>'+esc(s.pec)+'</td><td>'+esc(s.tipo||'-')+'</td><td>'+fmtN(s.qtd)+'</td><td>'+rep+'</td><td>'+ref+'</td><td>'+esc(s.data||'-')+'</td><td>'+badgeStatus_(s.st)+'</td></tr>';
+        return '<tr style="cursor:pointer" onclick="verHistoricoSaco(\''+s.id+'\')" title="Ver historico completo"><td style="font-size:10px;color:var(--accent)">'+esc(s.id)+'</td><td>'+esc(s.ter)+'</td><td>'+esc(s.pec)+'</td><td>'+esc(s.tipo||'-')+'</td><td>'+fmtN(s.qtd)+'</td><td>'+rep+'</td><td>'+ref+'</td><td>'+esc(s.data||'-')+'</td><td>'+badgeStatus_(s.st)+'</td></tr>';
       }).join('')
     :'<tr><td colspan="9" class="empty">Nenhum lancamento para o filtro</td></tr>';
   pgBar('pgFilt',dashPg.filt,renderPgFilt);
+}
+function verHistoricoSaco(id){
+  document.getElementById('lancDetailBody').innerHTML='<div class="load">Carregando...</div>';
+  document.getElementById('lancDetailModal').classList.add('open');
+  rpc('buscar_saco_publico',{p_saco_id:id}).then(function(r){
+    try{
+      if(!r||r.erro){document.getElementById('lancDetailBody').innerHTML='<div class="alert alert-err">'+esc((r&&r.erro)||'Erro')+'</div>';return;}
+      document.getElementById('lancDetailBody').innerHTML=buildRastrCard(r.info);
+    }catch(err){document.getElementById('lancDetailBody').innerHTML='<div class="alert alert-err">Erro: '+esc(err.message)+'</div>';}
+  }).catch(function(e){document.getElementById('lancDetailBody').innerHTML='<div class="alert alert-err">'+esc((e&&e.message)||String(e))+'</div>';});
 }
 function renderDash(d){
   try{
