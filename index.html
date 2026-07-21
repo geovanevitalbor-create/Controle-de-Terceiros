@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 <title>Controle de Terceiros</title>
 <link rel="icon" type="image/x-icon" href="assets/fiveicon.ico">
-">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -734,6 +733,18 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
       </div>
       <div class="dash-filter" id="dashFilterTop">
         <div><label>Terceiro</label><select class="i" id="fTerc"><option value="">Todos</option></select></div>
+        <div><label>Peca</label><input class="i" id="fPeca" placeholder="Ex: 40.156-B" onkeydown="if(event.key==='Enter')loadDash()"></div>
+        <div><label>Tipo de Lancamento</label>
+          <select class="i" id="fLanc">
+            <option value="">Todos</option>
+            <option value="Separacao">Separacao</option>
+            <option value="Saida">Saida</option>
+            <option value="Recebimento">Recebimento</option>
+            <option value="Repasse">Repasse</option>
+            <option value="Refugo">Refugo</option>
+            <option value="Devolucao">Devolucao</option>
+          </select>
+        </div>
         <div><label>Status</label>
           <select class="i" id="fStatus">
             <option value="">Todos</option><option value="Separado">Separado</option>
@@ -790,8 +801,8 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
           <tbody id="tSacos"></tbody></table>
           <div class="pg" id="pgSacos"></div>
         </div>
-        <div class="tbl-box"><h3>Sacos do Filtro</h3>
-          <table><thead><tr><th>ID</th><th>Terceiro</th><th>Peca</th><th>Qtd (pecas)</th><th>Data Sep.</th><th>Data Recebimento</th><th>Dias Fora</th><th>Status</th></tr></thead>
+        <div class="tbl-box"><h3>Historico de Lancamentos</h3>
+          <table><thead><tr><th>ID</th><th>Terceiro</th><th>Peca</th><th>Tipo</th><th>Qtd</th><th>Repasse</th><th>Refugo</th><th>Data</th><th>Status</th></tr></thead>
           <tbody id="tFiltrados"></tbody></table>
           <div class="pg" id="pgFilt"></div>
         </div>
@@ -1677,11 +1688,12 @@ function subAba(name){
 }
 function loadDash(){
   var filtros={terceiro:document.getElementById('fTerc').value,status:document.getElementById('fStatus').value,
-    num:document.getElementById('fNum').value,di:document.getElementById('fDi').value,df:document.getElementById('fDf').value};
+    num:document.getElementById('fNum').value,di:document.getElementById('fDi').value,df:document.getElementById('fDf').value,
+    peca:document.getElementById('fPeca').value,lanc:document.getElementById('fLanc').value};
   ['kSep','kFora','kInsp','kConf','kRep','kDevol','kPecs','kPecInsp','kPecConf','kPecRep','kPecDevol','kRefugo'].forEach(function(id){document.getElementById(id).textContent='...';});
   rpc('get_dash',{p_filtros:filtros}).then(renderDash).catch(function(e){console.error(e);});
 }
-function limparDash(){['fTerc','fStatus','fNum','fDi','fDf'].forEach(function(id){document.getElementById(id).value='';});loadDash();}
+function limparDash(){['fTerc','fStatus','fNum','fDi','fDf','fPeca','fLanc'].forEach(function(id){document.getElementById(id).value='';});loadDash();}
 var ultimoDashData=null;
 var dashPg={sacos:{data:[],page:1,per:10},filt:{data:[],page:1,per:10}};
 function pgBar(elId,st,renderFn){
@@ -1722,10 +1734,11 @@ function renderPgFilt(){
   var rows=pgSlice(dashPg.filt);
   document.getElementById('tFiltrados').innerHTML=rows.length
     ?rows.map(function(s){
-        var df=(s.diasFora===null||s.diasFora===undefined)?'-':('<span class="dc '+(s.diasFora>7?'old':s.diasFora>3?'mid':'ok')+'">'+s.diasFora+'d</span>');
-        return '<tr><td style="font-size:10px;color:var(--accent)">'+esc(s.id)+'</td><td>'+esc(s.ter)+'</td><td>'+esc(s.pec)+'</td><td>'+fmtN(s.qtd)+'</td><td>'+esc(s.data||'-')+'</td><td>'+esc(s.dataRec||'-')+'</td><td>'+df+'</td><td>'+badgeStatus_(s.st)+'</td></tr>';
+        var rep=s.qtdRep?fmtN(s.qtdRep):'-';
+        var ref=s.qtdRef?fmtN(s.qtdRef):'-';
+        return '<tr><td style="font-size:10px;color:var(--accent)">'+esc(s.id)+'</td><td>'+esc(s.ter)+'</td><td>'+esc(s.pec)+'</td><td>'+esc(s.tipo||'-')+'</td><td>'+fmtN(s.qtd)+'</td><td>'+rep+'</td><td>'+ref+'</td><td>'+esc(s.data||'-')+'</td><td>'+badgeStatus_(s.st)+'</td></tr>';
       }).join('')
-    :'<tr><td colspan="8" class="empty">Nenhum saco para o filtro</td></tr>';
+    :'<tr><td colspan="9" class="empty">Nenhum lancamento para o filtro</td></tr>';
   pgBar('pgFilt',dashPg.filt,renderPgFilt);
 }
 function renderDash(d){
