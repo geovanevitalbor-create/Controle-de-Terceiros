@@ -859,12 +859,15 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
       </div>
     </div>
     <div class="panel" id="pEtiq">
-      <div class="ph" style="margin-bottom:16px"><h1>Etiquetas Separadas</h1><div class="sub">Visualizar e reimprimir etiquetas em status Separado</div></div>
-      <div class="fbox">
-        <div class="row2">
-          <div><label>Filtrar por Terceiro</label><select class="i" id="etiqFiltTerc" onchange="adminCarregarEtiq()"><option value="">Todos</option></select></div>
-          <div style="display:flex;align-items:flex-end"><button class="btn btn-accent btn-sm" style="margin-bottom:1px" onclick="adminCarregarEtiq()">Atualizar</button></div>
-        </div>
+      <div class="ph" style="margin-bottom:16px"><h1>Reimpressao de Etiquetas</h1><div class="sub">Buscar qualquer etiqueta ja gerada, em qualquer status, ver historico e reimprimir</div></div>
+      <div class="dash-filter" id="etiqFilterTop">
+        <div><label>QR Code / No Etiqueta</label><input class="i" id="etiqFiltQr" placeholder="Ex: 397 ou SC-260717-1929" onkeydown="if(event.key==='Enter')adminCarregarEtiq()"></div>
+        <div><label>Terceiro</label><select class="i" id="etiqFiltTerc" onchange="adminCarregarEtiq()"><option value="">Todos</option></select></div>
+        <div><label>Peca</label><select class="i" id="etiqFiltPeca" onchange="adminCarregarEtiq()"><option value="">Todas</option></select></div>
+        <div><label>Data inicio</label><input class="i" type="date" id="etiqFiltDi" style="padding:9px 11px"></div>
+        <div><label>Data fim</label><input class="i" type="date" id="etiqFiltDf" style="padding:9px 11px"></div>
+        <div><label>&nbsp;</label><button class="btn btn-accent btn-sm" onclick="adminCarregarEtiq()" style="padding:10px 16px">Aplicar</button></div>
+        <div><label>&nbsp;</label><button class="btn btn-ghost btn-sm" onclick="etiqLimparFiltro()" style="padding:10px 13px">Limpar</button></div>
       </div>
       <div id="etiqLista" class="load">Carregando...</div>
     </div>
@@ -1056,7 +1059,8 @@ function fmtDT(iso){
 function mapSacoSeparado_(r){
   return{row:r.id,num:r.num,id:r.saco_id,dataSep:fmtDT(r.data_label),terceiro:r.terceiro,
     operador:r.operador,matricula:r.matricula||'',peca:r.peca,material:r.material||'',
-    qtdPecas:Number(r.qtd)||0,lote:r.lote||'',turno:r.turno||'',ordem:r.ordem||'',fabricante:r.fabricante||''};
+    qtdPecas:Number(r.qtd)||0,lote:r.lote||'',turno:r.turno||'',ordem:r.ordem||'',fabricante:r.fabricante||'',
+    status:r.status||''};
 }
 function abrirLogin(tipo){
   loginTipo=tipo;
@@ -2194,22 +2198,47 @@ function adminInitEtiq(){
       l.forEach(function(t){var o=document.createElement('option');o.value=t;o.textContent=t;s.appendChild(o);});
     }catch(e){}
   });
+  supabase.from('ferramentas').select('codigo').order('codigo').then(function(res){
+    try{
+      var l=(res.data||[]).map(function(f){return f.codigo;});
+      var s=document.getElementById('etiqFiltPeca');
+      s.innerHTML='<option value="">Todas</option>';
+      l.forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=p;s.appendChild(o);});
+    }catch(e){}
+  });
+  adminCarregarEtiq();
+}
+function etiqLimparFiltro(){
+  ['etiqFiltQr','etiqFiltTerc','etiqFiltPeca','etiqFiltDi','etiqFiltDf'].forEach(function(id){document.getElementById(id).value='';});
   adminCarregarEtiq();
 }
 function adminCarregarEtiq(){
   var terc=document.getElementById('etiqFiltTerc').value;
+  var peca=document.getElementById('etiqFiltPeca').value;
+  var qr=document.getElementById('etiqFiltQr').value.trim();
+  var di=document.getElementById('etiqFiltDi').value;
+  var df=document.getElementById('etiqFiltDf').value;
   document.getElementById('etiqLista').innerHTML='<div class="load">Carregando...</div>';
-  var q=supabase.from('saidas').select('*').eq('status','Separado').order('id');
+  var q=supabase.from('saidas').select('*').order('id',{ascending:false}).limit(300);
   if(terc) q=q.eq('terceiro',terc);
+  if(peca) q=q.eq('peca',peca);
+  if(qr){
+    var numVal=Number(qr);
+    var numFiltro=isNaN(numVal)?-1:numVal;
+    q=q.or('saco_id.ilike.%'+qr+'%,num.eq.'+numFiltro);
+  }
+  if(di) q=q.gte('data_label',di+'T00:00:00');
+  if(df) q=q.lte('data_label',df+'T23:59:59');
   q.then(function(res){
     try{
+      if(res.error) throw new Error(res.error.message);
       var sacos=(res.data||[]).map(mapSacoSeparado_);
-      if(!sacos.length){document.getElementById('etiqLista').innerHTML='<div class="empty">Nenhuma etiqueta em "Separado".</div>';return;}
-      var html='<table><thead><tr><th>No</th><th>ID</th><th>Peca</th><th>Terceiro</th><th>Qtd</th><th>Operador</th><th>Data Sep.</th><th>Acao</th></tr></thead><tbody>';
+      if(!sacos.length){document.getElementById('etiqLista').innerHTML='<div class="empty">Nenhuma etiqueta encontrada para o filtro.</div>';return;}
+      var html='<table><thead><tr><th>No</th><th>ID</th><th>Peca</th><th>Terceiro</th><th>Qtd</th><th>Operador</th><th>Data Sep.</th><th>Status</th><th>Acao</th></tr></thead><tbody>';
       sacos.forEach(function(s){
-        html+='<tr><td>'+esc(String(s.num))+'</td><td style="font-size:10px;color:var(--accent)">'+esc(s.id)+'</td><td>'+esc(s.peca)+'</td><td>'+esc(s.terceiro)+'</td><td>'+esc(String(s.qtdPecas))+'</td><td>'+esc(s.operador||'-')+(s.matricula?' <span style="color:var(--text3);font-size:10px">RE:'+esc(s.matricula)+'</span>':'')+'</td><td>'+esc(s.dataSep)+'</td>'+
-          '<td><button class="cb edit" data-saco=\''+esc(JSON.stringify(s))+'\' onclick=\'adminReimprimirEtiq(JSON.parse(this.dataset.saco))\'>Reimprimir</button> '+
-          '<button class="cb del" onclick="adminExcluirSaco(\''+esc(s.id)+'\')">Excluir</button></td></tr>';
+        html+='<tr style="cursor:pointer" onclick="verHistoricoSaco(\''+s.id+'\')" title="Ver historico completo"><td>'+esc(String(s.num))+'</td><td style="font-size:10px;color:var(--accent)">'+esc(s.id)+'</td><td>'+esc(s.peca)+'</td><td>'+esc(s.terceiro)+'</td><td>'+esc(String(s.qtdPecas))+'</td><td>'+esc(s.operador||'-')+(s.matricula?' <span style="color:var(--text3);font-size:10px">RE:'+esc(s.matricula)+'</span>':'')+'</td><td>'+esc(s.dataSep)+'</td><td>'+badgeStatus_(s.status)+'</td>'+
+          '<td><button class="cb edit" data-saco=\''+esc(JSON.stringify(s))+'\' onclick=\'event.stopPropagation();adminReimprimirEtiq(JSON.parse(this.dataset.saco))\'>Reimprimir</button> '+
+          '<button class="cb del" onclick="event.stopPropagation();adminExcluirSaco(\''+esc(s.id)+'\')">Excluir</button></td></tr>';
       });
       html+='</tbody></table>';
       document.getElementById('etiqLista').innerHTML=html;
