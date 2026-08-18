@@ -822,7 +822,7 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
           <div class="chart-box"><h3>Refugo por Terceiro (unidades)</h3><div class="chart-h"><canvas id="cRefugo"></canvas></div></div>
         </div>
         <div class="tbl-box"><h3>Historico de Lancamentos</h3>
-          <table><thead><tr><th>ID</th><th>Terceiro</th><th>Peca</th><th>Tipo</th><th>Qtd</th><th>Repasse</th><th>Refugo</th><th>Data</th><th>Status</th></tr></thead>
+         <table><thead><tr><th>ID</th><th>Terceiro</th><th>Peca</th><th>Tipo</th><th>Qtd</th><th>Repasse</th><th>Refugo</th><th>Data</th><th>Status</th><th>Motivo</th></tr></thead>
           <tbody id="tFiltrados"></tbody></table>
           <div class="pg" id="pgFilt"></div>
         </div>
@@ -1818,9 +1818,9 @@ function renderPgFilt(){
     ?rows.map(function(s){
         var rep=s.qtdRep?fmtN(s.qtdRep):'-';
         var ref=s.qtdRef?fmtN(s.qtdRef):'-';
-        return '<tr style="cursor:pointer" onclick="verHistoricoSaco(\''+s.id+'\')" title="Ver historico completo"><td style="font-size:10px;color:var(--accent)">'+esc(s.id)+'</td><td>'+esc(s.ter)+'</td><td>'+esc(s.pec)+'</td><td>'+esc(s.tipo||'-')+'</td><td>'+fmtN(s.qtd)+'</td><td>'+rep+'</td><td>'+ref+'</td><td>'+esc(s.data||'-')+'</td><td>'+badgeStatus_(s.st)+'</td></tr>';
+        return '<tr style="cursor:pointer" onclick="verHistoricoSaco(\''+s.id+'\')" title="Ver historico completo"><td style="font-size:10px;color:var(--accent)">'+esc(s.id)+'</td><td>'+esc(s.ter)+'</td><td>'+esc(s.pec)+'</td><td>'+esc(s.tipo||'-')+'</td><td>'+fmtN(s.qtd)+'</td><td>'+rep+'</td><td>'+ref+'</td><td>'+esc(s.data||'-')+'</td><td>'+badgeStatus_(s.st)+'</td><td style="font-size:11px;color:var(--text3)">'+esc(s.motivoSt||'-')+'</td></tr>';
       }).join('')
-    :'<tr><td colspan="9" class="empty">Nenhum lancamento para o filtro</td></tr>';
+    :'<tr><td colspan="10" class="empty">Nenhum lancamento para o filtro</td></tr>';
   pgBar('pgFilt',dashPg.filt,renderPgFilt);
 }
 function verHistoricoSaco(id){
