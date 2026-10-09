@@ -229,6 +229,14 @@ select.i option{background:#0a0f0c;color:#eef2ef}
 .mt-card-val{font-size:26px;font-weight:800;letter-spacing:-.5px;color:var(--text);padding-left:10px;font-variant-numeric:tabular-nums}
 .mt-card-val .unit{font-size:10px;font-weight:600;color:var(--text3);margin-left:3px;text-transform:none;letter-spacing:0}
 .mt-card-hint{font-size:10px;color:var(--text3);padding-left:10px}
+table.mt-corr{font-size:12px}
+table.mt-corr td.mt-cell{text-align:center;padding:7px 10px}
+table.mt-corr td.mt-cell span{display:block;line-height:1.5;font-variant-numeric:tabular-nums}
+table.mt-corr .mt-up{color:var(--amber2);font-weight:600}
+table.mt-corr .mt-down{color:var(--green);font-weight:600}
+table.mt-corr tbody tr:not(:last-child):hover td{background:rgba(255,255,255,.025)}
+.mt-legend{display:flex;gap:18px;margin-top:11px;font-size:10.5px;color:var(--text3)}
+.mt-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
 .chart-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:18px}
 @media(max-width:900px){.chart-row{grid-template-columns:1fr}}
 .chart-box{background:var(--surf);border:1px solid var(--bdr);border-radius:11px;box-shadow:var(--sh);padding:16px 16px 12px;display:flex;flex-direction:column}
@@ -2250,12 +2258,9 @@ function construirTabelaMatriz_(titulo,dias,pecas,campo){
   return html;
 }
 function construirTabelaCorrelacao_(titulo,dias,pecas,campoA,campoB,rotA,rotB){
-  var html='<div class="tbl-box" style="margin-top:14px"><h3>'+esc(titulo)+'</h3><table><thead>';
-  html+='<tr><th rowspan="2">Peca</th>';
-  dias.forEach(function(dd){html+='<th colspan="2" style="text-align:center">'+esc(dd)+'</th>';});
-  html+='<th colspan="2" style="text-align:center">Total</th></tr><tr>';
-  dias.forEach(function(){html+='<th>'+esc(rotA)+'</th><th>'+esc(rotB)+'</th>';});
-  html+='<th>'+esc(rotA)+'</th><th>'+esc(rotB)+'</th></tr></thead><tbody>';
+  var html='<div class="tbl-box" style="margin-top:14px"><h3>'+esc(titulo)+'</h3><table class="mt-corr"><thead><tr><th>Peca</th>';
+  dias.forEach(function(dd){html+='<th style="text-align:center">'+esc(dd)+'</th>';});
+  html+='<th style="text-align:center">Total</th></tr></thead><tbody>';
   var totColA=dias.map(function(){return 0;}),totColB=dias.map(function(){return 0;}),totGeralA=0,totGeralB=0;
   pecas.forEach(function(p){
     var valsA=p[campoA]||{},valsB=p[campoB]||{};
@@ -2264,15 +2269,19 @@ function construirTabelaCorrelacao_(titulo,dias,pecas,campoA,campoB,rotA,rotB){
     dias.forEach(function(dd,ix){
       var a=Number(valsA[dd])||0,b=Number(valsB[dd])||0;
       totLinhaA+=a;totLinhaB+=b;totColA[ix]+=a;totColB[ix]+=b;
-      html+='<td>'+(a?fmtN(a):'-')+'</td><td>'+(b?fmtN(b):'-')+'</td>';
+      html+='<td class="mt-cell"><span class="mt-up">'+(a?fmtN(a):'-')+'</span><span class="mt-down">'+(b?fmtN(b):'-')+'</span></td>';
     });
     totGeralA+=totLinhaA;totGeralB+=totLinhaB;
-    html+='<td><b>'+fmtN(totLinhaA)+'</b></td><td><b>'+fmtN(totLinhaB)+'</b></td></tr>';
+    html+='<td class="mt-cell"><span class="mt-up"><b>'+fmtN(totLinhaA)+'</b></span><span class="mt-down"><b>'+fmtN(totLinhaB)+'</b></span></td></tr>';
   });
   html+='<tr style="border-top:2px solid var(--bdr2)"><td><b>TOTAL</b></td>';
-  dias.forEach(function(dd,ix){html+='<td><b>'+(totColA[ix]?fmtN(totColA[ix]):'-')+'</b></td><td><b>'+(totColB[ix]?fmtN(totColB[ix]):'-')+'</b></td>';});
-  html+='<td><b>'+fmtN(totGeralA)+'</b></td><td><b>'+fmtN(totGeralB)+'</b></td></tr>';
-  html+='</tbody></table></div>';
+  dias.forEach(function(dd,ix){
+    html+='<td class="mt-cell"><span class="mt-up"><b>'+(totColA[ix]?fmtN(totColA[ix]):'-')+'</b></span><span class="mt-down"><b>'+(totColB[ix]?fmtN(totColB[ix]):'-')+'</b></span></td>';
+  });
+  html+='<td class="mt-cell"><span class="mt-up"><b>'+fmtN(totGeralA)+'</b></span><span class="mt-down"><b>'+fmtN(totGeralB)+'</b></span></td></tr>';
+  html+='</tbody></table>';
+  html+='<div class="mt-legend"><span><i class="mt-dot" style="background:var(--amber2)"></i>'+esc(rotA)+'</span><span><i class="mt-dot" style="background:var(--green)"></i>'+esc(rotB)+'</span></div>';
+  html+='</div>';
   return html;
 }
 function somaTotalCampoMatriz_(pecas,campo){
