@@ -732,6 +732,7 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
         <button class="admin-tab dsub" id="dsVisao" onclick="subAba('visao')">Historico</button>
         <button class="admin-tab dsub" id="dsTerc" onclick="subAba('terceiros')">Terceiros</button>
         <button class="admin-tab dsub" id="dsPeca" onclick="subAba('pecas')">Pecas</button>
+        <button class="admin-tab dsub" id="dsMatriz" onclick="subAba('matriz')">Matriz</button>
       </div>
       <div class="dash-filter" id="dashFilterTop" style="display:none">
         <div><label>Terceiro</label><select class="i" id="fTerc"><option value="">Todos</option></select></div>
@@ -780,26 +781,31 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
           <div><label>&nbsp;</label><button class="btn btn-ghost btn-sm" onclick="limparTempoReal()" style="padding:10px 13px">Limpar</button></div>
         </div>
         <div class="unit-group">
-          <div class="unit-group-ttl"><span class="tag tag-sacos">SACOS</span>Quantidade de sacos por status, agora</div>
-          <div class="kpi-row">
-            <div class="kpi kp"><div class="kpi-bar"></div><div class="kpi-lbl">Separados</div><div class="kpi-val" id="rtSep">-</div></div>
-            <div class="kpi ka"><div class="kpi-bar"></div><div class="kpi-lbl">Em Terceiro</div><div class="kpi-val" id="rtFora">-</div></div>
-            <div class="kpi ki"><div class="kpi-bar"></div><div class="kpi-lbl">Em Inspecao</div><div class="kpi-val" id="rtInsp">-</div></div>
-            <div class="kpi kg"><div class="kpi-bar"></div><div class="kpi-lbl">Recebidos</div><div class="kpi-val" id="rtConf">-</div></div>
-            <div class="kpi kr"><div class="kpi-bar"></div><div class="kpi-lbl">Repasse</div><div class="kpi-val" id="rtRep">-</div></div>
-            <div class="kpi ks"><div class="kpi-bar"></div><div class="kpi-lbl">Devolucao</div><div class="kpi-val" id="rtDevol">-</div></div>
+          <div class="unit-group-ttl" style="justify-content:space-between">
+            <span style="display:flex;align-items:center;gap:8px"><span class="tag tag-sacos" id="rtUnidadeTag">SACOS</span>Quantidade por status, agora</span>
+            <span style="display:flex;gap:6px">
+              <button class="btn btn-ghost btn-sm" id="btnRtSacos" onclick="setRtUnidade('sacos')" style="padding:5px 12px">Sacos</button>
+              <button class="btn btn-ghost btn-sm" id="btnRtPecas" onclick="setRtUnidade('pecas')" style="padding:5px 12px">Pecas</button>
+            </span>
           </div>
-        </div>
-        <div class="unit-group">
-          <div class="unit-group-ttl"><span class="tag tag-pecas">PECAS (UNIDADES)</span>Pecas fora e em processo, agora</div>
           <div class="kpi-row">
-            <div class="kpi ka"><div class="kpi-bar"></div><div class="kpi-lbl">Pecas Em Terceiro</div><div class="kpi-val" id="rtPecs">-</div></div>
-            <div class="kpi ki"><div class="kpi-bar"></div><div class="kpi-lbl">Pecas Em Inspecao</div><div class="kpi-val" id="rtPecInsp">-</div></div>
+            <div class="kpi kp" style="cursor:pointer" onclick="abrirListaStatus('Separado','Separados')"><div class="kpi-bar"></div><div class="kpi-lbl">Separados</div><div class="kpi-val" id="rtSep">-</div></div>
+            <div class="kpi ka" style="cursor:pointer" onclick="abrirListaStatus('Em terceiro','Em Terceiro')"><div class="kpi-bar"></div><div class="kpi-lbl">Em Terceiro</div><div class="kpi-val" id="rtFora">-</div></div>
+            <div class="kpi ki" style="cursor:pointer" onclick="abrirListaStatus('Em Inspecao','Em Inspecao')"><div class="kpi-bar"></div><div class="kpi-lbl">Em Inspecao</div><div class="kpi-val" id="rtInsp">-</div></div>
+            <div class="kpi kg" style="cursor:pointer" onclick="abrirListaStatus('Conferido/Finalizado','Recebidos')"><div class="kpi-bar"></div><div class="kpi-lbl">Recebidos</div><div class="kpi-val" id="rtConf">-</div></div>
+            <div class="kpi kr" style="cursor:pointer" onclick="abrirListaStatus('Repasse','Repasse')"><div class="kpi-bar"></div><div class="kpi-lbl">Repasse</div><div class="kpi-val" id="rtRep">-</div></div>
+            <div class="kpi ks" style="cursor:pointer" onclick="abrirListaStatus('Devolucao','Devolucao')"><div class="kpi-bar"></div><div class="kpi-lbl">Devolucao</div><div class="kpi-val" id="rtDevol">-</div></div>
           </div>
+          <p style="font-size:10.5px;color:var(--text3);margin-top:8px">Clique em um numero para ver a lista de sacos daquele status.</p>
         </div>
         <div class="chart-row" style="grid-template-columns:1fr 1fr">
           <div class="chart-box"><h3>Status Atual (sacos)</h3><div class="chart-h"><canvas id="cDonutRT"></canvas></div></div>
           <div class="chart-box"><h3>Pecas em Terceiro Agora (por terceiro)</h3><div class="chart-h"><canvas id="cBarraRT"></canvas></div></div>
+        </div>
+        <div class="tbl-box">
+          <h3>Sacos Em Inspecao Agora</h3>
+          <p style="font-size:10.5px;color:var(--text3);margin:-6px 0 10px">Ordenado do mais antigo pro mais novo — o que esta no topo ja esta parado ha mais tempo. Clique numa linha pro historico completo.</p>
+          <div id="tblEmInspecao" class="load">Carregando...</div>
         </div>
       </div>
       <div id="dpVisao" style="display:none">
@@ -822,7 +828,8 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
           <div class="chart-box"><h3>Refugo por Terceiro (unidades)</h3><div class="chart-h"><canvas id="cRefugo"></canvas></div></div>
         </div>
         <div class="tbl-box"><h3>Historico de Lancamentos</h3>
-          <table><thead><tr><th>ID</th><th>Terceiro</th><th>Peca</th><th>Tipo</th><th>Qtd</th><th>Repasse</th><th>Refugo</th><th>Data</th><th>Status</th><th>Motivo</th></tr></thead>
+          <p style="font-size:10.5px;color:var(--text3);margin:-6px 0 10px">Uma linha por saco (nao por lancamento). Qtd e a mais recente; Repasse e Refugo somam tudo que aconteceu com o saco no periodo. Situacao Atual e onde ele esta agora. Clique numa linha para ver o historico completo.</p>
+          <table><thead><tr><th>ID</th><th>Terceiro</th><th>Peca</th><th>Qtd</th><th>Repasse</th><th>Refugo</th><th>Ultima Data</th><th>Situacao Atual</th><th>Motivo</th></tr></thead>
           <tbody id="tFiltrados"></tbody></table>
           <div class="pg" id="pgFilt"></div>
         </div>
@@ -856,6 +863,29 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
           </div>
         </div>
         <div id="pecaHistResult"></div>
+      </div>
+      <div id="dpMatriz" style="display:none">
+        <div class="fbox">
+          <div class="row2">
+            <div><label>Data inicio</label><input class="i" type="date" id="mtDi"></div>
+            <div><label>Data fim</label><input class="i" type="date" id="mtDf"></div>
+          </div>
+          <div style="margin-top:12px">
+            <label>Pecas</label>
+            <div id="mtPecaBox" style="display:flex;flex-wrap:wrap;gap:12px;padding:4px 2px 0"></div>
+          </div>
+          <div style="margin-top:12px">
+            <label>Terceiros (vazio = todos)</label>
+            <div id="mtTercBox" style="display:flex;flex-wrap:wrap;gap:12px;padding:4px 2px 0"></div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-accent btn-sm" onclick="gerarMatrizPeca()">Gerar Matriz</button>
+            <button class="btn btn-ghost btn-sm" onclick="baixarMatrizExcel()">Baixar Excel</button>
+            <button class="btn btn-ghost btn-sm" onclick="limparMatrizPeca()">Limpar</button>
+          </div>
+          <div id="msgMatriz"></div>
+        </div>
+        <div id="matrizResult"></div>
       </div>
     </div>
     <div class="panel" id="pEtiq">
@@ -1044,9 +1074,18 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
     <button class="btn btn-ghost" onclick="document.getElementById('lancDetailModal').classList.remove('open')" style="margin-top:14px">Fechar</button>
   </div>
 </div>
+<div class="login-overlay" id="statusListModal">
+  <div class="login-modal" style="max-width:720px;max-height:85vh;overflow-y:auto;text-align:left">
+    <h3 id="statusListTitle" style="margin-bottom:4px">Sacos</h3>
+    <p id="statusListSub" style="font-size:11px;color:var(--text3);margin-bottom:14px">Clique numa linha para ver o historico completo</p>
+    <div id="statusListBody" class="load">Carregando...</div>
+    <button class="btn btn-ghost" onclick="document.getElementById('statusListModal').classList.remove('open')" style="margin-top:14px">Fechar</button>
+  </div>
+</div>
 <script>
 var sacosReg=[],chartD=null,chartB=null,chartDRT=null,chartBRT=null,cacheItems={},editingAll={},loginTipo='',ultimoSepForm=null,ultimoPreviewRel=null;
 var entSacoAtual=null,tipoEntradaAtual='conferencia';
+var rtUnidade='sacos',ultimoDadosRT=null;
 function ir(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');}
 function msg_(id,html){var e=document.getElementById(id);if(e)e.innerHTML=html;}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -1724,16 +1763,18 @@ function cadAba(nome){
 }
 function subAba(name){
   document.querySelectorAll('#pDash .dsub').forEach(function(t){t.classList.remove('on');});
-  var map={tempo_real:'dsRT',visao:'dsVisao',terceiros:'dsTerc',pecas:'dsPeca'};
+  var map={tempo_real:'dsRT',visao:'dsVisao',terceiros:'dsTerc',pecas:'dsPeca',matriz:'dsMatriz'};
   document.getElementById(map[name]).classList.add('on');
   document.getElementById('dashFilterTop').style.display=(name==='visao'||name==='terceiros')?'flex':'none';
   document.getElementById('dpTempoReal').style.display=name==='tempo_real'?'block':'none';
   document.getElementById('dpVisao').style.display=name==='visao'?'block':'none';
   document.getElementById('dpTerceiros').style.display=name==='terceiros'?'block':'none';
   document.getElementById('dpPecas').style.display=name==='pecas'?'block':'none';
+  document.getElementById('dpMatriz').style.display=name==='matriz'?'block':'none';
   if(name==='tempo_real') loadTempoReal();
   else if(name==='terceiros') loadSaldo();
   else if(name==='pecas') initPecaHist();
+  else if(name==='matriz') initMatrizPeca();
 }
 function loadDash(){
   var filtros={terceiro:document.getElementById('fTerc').value,status:document.getElementById('fStatus').value,
@@ -1746,21 +1787,73 @@ function limparDash(){['fTerc','fStatus','fNum','fDi','fDf','fPeca','fLanc'].for
 function loadTempoReal(){
   var filtros={terceiro:document.getElementById('fTercRT').value,status:document.getElementById('fStatusRT').value,
     peca:document.getElementById('fPecaRT').value,num:'',di:'',df:'',lanc:''};
-  ['rtSep','rtFora','rtInsp','rtConf','rtRep','rtDevol','rtPecs','rtPecInsp'].forEach(function(id){document.getElementById(id).textContent='...';});
+  ['rtSep','rtFora','rtInsp','rtConf','rtRep','rtDevol'].forEach(function(id){document.getElementById(id).textContent='...';});
   rpc('get_dash',{p_filtros:filtros}).then(renderTempoReal).catch(function(e){console.error(e);});
+  renderEmInspecao();
+}
+function renderEmInspecao(){
+  var terc=document.getElementById('fTercRT').value;
+  var peca=document.getElementById('fPecaRT').value;
+  var box=document.getElementById('tblEmInspecao');
+  box.innerHTML='<div class="load">Carregando...</div>';
+  var q=supabase.from('saidas').select('*').eq('status','Em Inspecao').order('data_label',{ascending:true}).limit(300);
+  if(terc) q=q.eq('terceiro',terc);
+  if(peca) q=q.eq('peca',peca);
+  q.then(function(res){
+    try{
+      if(res.error) throw new Error(res.error.message);
+      var sacos=(res.data||[]).map(mapSacoSeparado_);
+      if(!sacos.length){box.innerHTML='<div class="empty">Nenhum saco em inspecao agora.</div>';return}
+      var hoje=new Date();
+      var html='<table><thead><tr><th>ID</th><th>Peca</th><th>Terceiro</th><th>Qtd</th><th>Chegou em</th><th>Dias em inspecao</th></tr></thead><tbody>';
+      sacos.forEach(function(s){
+        var dataParte=s.dataSep.split(' ')[0];
+        var dias=Math.max(0,Math.round((hoje-new Date(dataParte.split('/').reverse().join('-')))/86400000));
+        var dc=dias>7?'old':dias>3?'mid':'ok';
+        html+='<tr style="cursor:pointer" onclick="verHistoricoSaco(\''+esc(s.id)+'\')"><td style="font-size:10px;color:var(--accent)">'+esc(s.id)+'</td><td>'+esc(s.peca)+'</td><td>'+esc(s.terceiro)+'</td><td>'+esc(String(s.qtdPecas))+'</td><td>'+esc(s.dataSep)+'</td><td><span class="dc '+dc+'">'+dias+'d</span></td></tr>';
+      });
+      html+='</tbody></table>';
+      box.innerHTML=html;
+    }catch(err){box.innerHTML='<div class="alert alert-err">Erro: '+esc(err.message)+'</div>'}
+  }).catch(function(e){box.innerHTML='<div class="alert alert-err">'+esc(e.message)+'</div>'});
 }
 function limparTempoReal(){['fTercRT','fStatusRT','fPecaRT'].forEach(function(id){document.getElementById(id).value='';});loadTempoReal();}
+function setRtUnidade(u){
+  rtUnidade=u;
+  document.getElementById('btnRtSacos').className='btn btn-sm '+(u==='sacos'?'btn-accent':'btn-ghost');
+  document.getElementById('btnRtPecas').className='btn btn-sm '+(u==='pecas'?'btn-accent':'btn-ghost');
+  document.getElementById('rtUnidadeTag').textContent=u==='sacos'?'SACOS':'PECAS';
+  document.getElementById('rtUnidadeTag').className='tag '+(u==='sacos'?'tag-sacos':'tag-pecas');
+  if(ultimoDadosRT) preencherKpisRT(ultimoDadosRT);
+}
+function preencherKpisRT(t){
+  var unidadeSufixo=rtUnidade==='sacos'?' sacos':' pecas';
+  function valorDe(chaveSacos,chavePecasTentativa){
+    if(rtUnidade==='sacos') return t[chaveSacos];
+    if(t[chavePecasTentativa]!==undefined) return t[chavePecasTentativa];
+    return null;
+  }
+  var pares=[
+    ['rtSep','separado','pecasSeparado'],
+    ['rtFora','emTerceiro','pecasFora'],
+    ['rtInsp','inspecao','pecasInspecao'],
+    ['rtConf','conferido','pecasConferido'],
+    ['rtRep','repasse','pecasRepasse'],
+    ['rtDevol','devolucao','pecasDevolucao']
+  ];
+  pares.forEach(function(p){
+    var v=valorDe(p[1],p[2]);
+    if(v===null){
+      document.getElementById(p[0]).innerHTML='<span title="O backend ainda nao retorna a quantidade de pecas para este status — confirmar em get_dash">'+fmtN(t[p[1]])+' <span class="unit">sacos (sem pecas)</span></span>';
+    } else {
+      document.getElementById(p[0]).innerHTML=fmtN(v)+' <span class="unit">'+unidadeSufixo.trim()+'</span>';
+    }
+  });
+}
 function renderTempoReal(d){
   try{
-    var t=d.tots;
-    document.getElementById('rtSep').innerHTML=fmtN(t.separado)+' <span class="unit">sacos</span>';
-    document.getElementById('rtFora').innerHTML=fmtN(t.emTerceiro)+' <span class="unit">sacos</span>';
-    document.getElementById('rtInsp').innerHTML=fmtN(t.inspecao)+' <span class="unit">sacos</span>';
-    document.getElementById('rtConf').innerHTML=fmtN(t.conferido)+' <span class="unit">sacos</span>';
-    document.getElementById('rtRep').innerHTML=fmtN(t.repasse)+' <span class="unit">sacos</span>';
-    document.getElementById('rtDevol').innerHTML=fmtN(t.devolucao)+' <span class="unit">sacos</span>';
-    document.getElementById('rtPecs').innerHTML=fmtN(t.pecasFora)+' <span class="unit">pecas</span>';
-    document.getElementById('rtPecInsp').innerHTML=fmtN(t.pecasInspecao)+' <span class="unit">pecas</span>';
+    ultimoDadosRT=d.tots;
+    preencherKpisRT(d.tots);
     var dc=document.getElementById('cDonutRT').getContext('2d');
     if(chartDRT) chartDRT.destroy();
     chartDRT=new Chart(dc,{type:'doughnut',data:{
@@ -1775,6 +1868,29 @@ function renderTempoReal(d){
       datasets:[{label:'Pecas Em Terceiro',data:d.porTerc.map(function(t){return t.dados.pecasFora||0;}),backgroundColor:'rgba(245,158,11,.8)',borderRadius:4}]
     },options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{color:'#9aa39d',font:{size:9}},grid:{color:'rgba(255,255,255,.06)'}},y:{beginAtZero:true,ticks:{color:'#9aa39d',font:{size:9},callback:function(v){return fmtN(v);}},grid:{color:'rgba(255,255,255,.06)'}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return fmtN(c.parsed.y)+' pecas';}}}}}});
   }catch(err){console.error(err);}
+}
+function abrirListaStatus(statusValor,titulo){
+  document.getElementById('statusListTitle').textContent='Sacos — '+titulo;
+  document.getElementById('statusListBody').innerHTML='<div class="load">Carregando...</div>';
+  document.getElementById('statusListModal').classList.add('open');
+  var terc=document.getElementById('fTercRT').value;
+  var peca=document.getElementById('fPecaRT').value;
+  var q=supabase.from('saidas').select('*').eq('status',statusValor).order('id',{ascending:false}).limit(300);
+  if(terc) q=q.eq('terceiro',terc);
+  if(peca) q=q.eq('peca',peca);
+  q.then(function(res){
+    try{
+      if(res.error) throw new Error(res.error.message);
+      var sacos=(res.data||[]).map(mapSacoSeparado_);
+      if(!sacos.length){document.getElementById('statusListBody').innerHTML='<div class="empty">Nenhum saco encontrado para esse status.</div>';return;}
+      var html='<table><thead><tr><th>ID</th><th>Peca</th><th>Terceiro</th><th>Qtd</th><th>Data</th></tr></thead><tbody>';
+      sacos.forEach(function(s){
+        html+='<tr style="cursor:pointer" onclick="verHistoricoSaco(\''+esc(s.id)+'\')"><td style="font-size:10px;color:var(--accent)">'+esc(s.id)+'</td><td>'+esc(s.peca)+'</td><td>'+esc(s.terceiro)+'</td><td>'+esc(String(s.qtdPecas))+'</td><td>'+esc(s.dataSep)+'</td></tr>';
+      });
+      html+='</tbody></table>';
+      document.getElementById('statusListBody').innerHTML=html;
+    }catch(err){document.getElementById('statusListBody').innerHTML='<div class="alert alert-err">Erro ao carregar: '+esc(err.message)+'</div>';}
+  }).catch(function(e){document.getElementById('statusListBody').innerHTML='<div class="alert alert-err">'+esc(e.message)+'</div>';});
 }
 var ultimoDashData=null;
 var dashPg={sacos:{data:[],page:1,per:10},filt:{data:[],page:1,per:10}};
@@ -1792,6 +1908,18 @@ function pgBar(elId,st,renderFn){
   });
 }
 function pgSlice(st){return st.data.slice((st.page-1)*st.per,st.page*st.per);}
+function agruparPorSaco(linhas){
+  var porId={};
+  linhas.forEach(function(l){
+    if(!porId[l.id]){porId[l.id]=Object.assign({},l,{qtdRep:0,qtdRef:0})}
+    var g=porId[l.id];
+    if(new Date(l.data.split('/').reverse().join('-'))>=new Date(g.data.split('/').reverse().join('-'))){
+      g.ter=l.ter;g.pec=l.pec;g.qtd=l.qtd;g.data=l.data;g.st=l.st;g.motivoSt=l.motivoSt||g.motivoSt;
+    }
+    g.qtdRep+=Number(l.qtdRep)||0;g.qtdRef+=Number(l.qtdRef)||0;
+  });
+  return Object.keys(porId).map(function(id){return porId[id]});
+}
 function badgeStatus_(sv){
   if(sv==='Repasse') return '<span class="badge b-rep">Repasse</span>';
   if(sv==='Em Inspecao') return '<span class="badge b-insp">Em Inspecao</span>';
@@ -1818,9 +1946,9 @@ function renderPgFilt(){
     ?rows.map(function(s){
         var rep=s.qtdRep?fmtN(s.qtdRep):'-';
         var ref=s.qtdRef?fmtN(s.qtdRef):'-';
-        return '<tr style="cursor:pointer" onclick="verHistoricoSaco(\''+s.id+'\')" title="Ver historico completo"><td style="font-size:10px;color:var(--accent)">'+esc(s.id)+'</td><td>'+esc(s.ter)+'</td><td>'+esc(s.pec)+'</td><td>'+esc(s.tipo||'-')+'</td><td>'+fmtN(s.qtd)+'</td><td>'+rep+'</td><td>'+ref+'</td><td>'+esc(s.data||'-')+'</td><td>'+badgeStatus_(s.st)+'</td><td style="font-size:11px;color:var(--text3)">'+esc(s.motivoSt||'-')+'</td></tr>';
+        return '<tr style="cursor:pointer" onclick="verHistoricoSaco(\''+s.id+'\')" title="Ver historico completo"><td style="font-size:10px;color:var(--accent)">'+esc(s.id)+'</td><td>'+esc(s.ter)+'</td><td>'+esc(s.pec)+'</td><td>'+fmtN(s.qtd)+'</td><td>'+rep+'</td><td>'+ref+'</td><td>'+esc(s.data||'-')+'</td><td>'+badgeStatus_(s.st)+'</td><td style="font-size:11px;color:var(--text3)">'+esc(s.motivoSt||'-')+'</td></tr>';
       }).join('')
-    :'<tr><td colspan="10" class="empty">Nenhum lancamento para o filtro</td></tr>';
+    :'<tr><td colspan="9" class="empty">Nenhum lancamento para o filtro</td></tr>';
   pgBar('pgFilt',dashPg.filt,renderPgFilt);
 }
 function verHistoricoSaco(id){
@@ -1873,7 +2001,7 @@ function renderDash(d){
       labels:d.porTerc.map(function(t){return t.nome;}),
       datasets:[{label:'Refugo',data:d.porTerc.map(function(t){return t.refugo||0;}),backgroundColor:'rgba(220,38,38,.8)',borderRadius:4}]
     },options:gopts({plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return 'Refugo: '+fmtN(c.parsed.y)+' pecas';}}}},scales:{x:{stacked:false,ticks:{color:'#9aa39d',font:{size:9}},grid:{color:'rgba(255,255,255,.06)'}},y:{stacked:false,beginAtZero:true,ticks:{color:'#9aa39d',font:{size:9},callback:function(v){return fmtN(v);}},grid:{color:'rgba(255,255,255,.06)'}}}})});
-    dashPg.filt.data=d.sacosFiltrados||[];dashPg.filt.page=1;
+    dashPg.filt.data=agruparPorSaco(d.sacosFiltrados||[]);dashPg.filt.page=1;
     renderPgFilt();
     var tot=d.motivos.reduce(function(a,x){return a+x.v;},0);
     document.getElementById('divMotivos').innerHTML=tot===0
@@ -1985,7 +2113,7 @@ function loadPecaHist(){
         html+='<div class="tbl-box" style="margin-top:14px"><h3>Sacos</h3><table><thead><tr><th>ID</th><th>Terceiro</th><th>Data Sep.</th><th>Qtd (pecas)</th><th>Dias Fora</th><th>Status</th><th>Entradas</th><th>Repassos</th></tr></thead><tbody>';
         d.sacos.forEach(function(s){
           var df=(s.diasFora===null||s.diasFora===undefined)?'-':('<span class="dc '+(s.diasFora>7?'old':s.diasFora>3?'mid':'ok')+'">'+s.diasFora+'d</span>');
-          html+='<tr><td style="font-size:10px;color:var(--accent)">'+esc(s.id)+'</td><td>'+esc(s.terceiro)+'</td><td>'+esc(s.dataSep)+'</td><td>'+esc(String(s.qtd))+'</td><td>'+df+'</td><td>'+badgeStatus_(s.status)+'</td><td>'+esc(String(s.entradas.length))+'</td><td>'+esc(String(s.repassos.length))+'</td></tr>';
+          html+='<tr style="cursor:pointer" onclick="verHistoricoSaco(\''+esc(s.id)+'\')"><td style="font-size:10px;color:var(--accent)">'+esc(s.id)+'</td><td>'+esc(s.terceiro)+'</td><td>'+esc(s.dataSep)+'</td><td>'+esc(String(s.qtd))+'</td><td>'+df+'</td><td>'+badgeStatus_(s.status)+'</td><td>'+esc(String(s.entradas.length))+'</td><td>'+esc(String(s.repassos.length))+'</td></tr>';
         });
         html+='</tbody></table></div>';
       } else {
@@ -1994,6 +2122,124 @@ function loadPecaHist(){
       document.getElementById('pecaHistResult').innerHTML=html;
     }catch(e){document.getElementById('pecaHistResult').innerHTML='<div class="alert alert-err">Erro ao renderizar.</div>';}
   }).catch(function(e){document.getElementById('pecaHistResult').innerHTML='<div class="alert alert-err">'+esc(e.message)+'</div>';});
+}
+var ultimaMatrizData=null;
+function initMatrizPeca(){
+  supabase.from('ferramentas').select('codigo').order('codigo').then(function(res){
+    try{
+      var l=(res.data||[]).map(function(f){return f.codigo;});
+      var marcados=Array.from(document.querySelectorAll('.mt-peca:checked')).map(function(c){return c.value;});
+      document.getElementById('mtPecaBox').innerHTML=l.map(function(p){
+        return '<label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--text2);cursor:pointer"><input type="checkbox" class="mt-peca" value="'+esc(p)+'"'+(marcados.indexOf(p)!==-1?' checked':'')+'>'+esc(p)+'</label>';
+      }).join('');
+    }catch(e){}
+  });
+  supabase.from('terceiros').select('nome').order('nome').then(function(res){
+    try{
+      var l=(res.data||[]).map(function(t){return t.nome;});
+      var marcados=Array.from(document.querySelectorAll('.mt-terc:checked')).map(function(c){return c.value;});
+      document.getElementById('mtTercBox').innerHTML=l.map(function(t){
+        return '<label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--text2);cursor:pointer"><input type="checkbox" class="mt-terc" value="'+esc(t)+'"'+(marcados.indexOf(t)!==-1?' checked':'')+'>'+esc(t)+'</label>';
+      }).join('');
+    }catch(e){}
+  });
+}
+function limparMatrizPeca(){
+  document.getElementById('mtDi').value='';document.getElementById('mtDf').value='';
+  document.querySelectorAll('.mt-peca:checked,.mt-terc:checked').forEach(function(c){c.checked=false;});
+  document.getElementById('matrizResult').innerHTML='';
+  msg_('msgMatriz','');
+  ultimaMatrizData=null;
+}
+function matrizColeta(){
+  return {
+    pecas:Array.from(document.querySelectorAll('.mt-peca:checked')).map(function(c){return c.value;}),
+    terceiros:Array.from(document.querySelectorAll('.mt-terc:checked')).map(function(c){return c.value;}),
+    di:document.getElementById('mtDi').value,
+    df:document.getElementById('mtDf').value
+  };
+}
+function gerarMatrizPeca(){
+  var c=matrizColeta();
+  if(!c.pecas.length){msg_('msgMatriz','<div class="alert alert-warn">Selecione ao menos uma peca.</div>');return;}
+  if(!c.di||!c.df){msg_('msgMatriz','<div class="alert alert-warn">Selecione o periodo.</div>');return;}
+  msg_('msgMatriz','<div class="load">Gerando matriz...</div>');
+  document.getElementById('matrizResult').innerHTML='';
+  rpc('get_matriz_peca',{p_pecas:c.pecas,p_terceiros:c.terceiros,p_di:c.di,p_df:c.df}).then(function(d){
+    try{
+      msg_('msgMatriz','');
+      ultimaMatrizData=d;
+      renderMatrizPeca(d);
+    }catch(e){document.getElementById('matrizResult').innerHTML='<div class="alert alert-err">Erro ao renderizar.</div>';}
+  }).catch(function(e){msg_('msgMatriz','<div class="alert alert-err">'+esc(e.message)+'</div>');});
+}
+function construirTabelaMatriz_(titulo,dias,pecas,campo){
+  var html='<div class="tbl-box" style="margin-top:14px"><h3>'+esc(titulo)+'</h3><table><thead><tr><th>Peca</th>';
+  dias.forEach(function(dd){html+='<th>'+esc(dd)+'</th>';});
+  html+='<th>Total</th></tr></thead><tbody>';
+  var totCol=dias.map(function(){return 0;}),totGeral=0;
+  pecas.forEach(function(p){
+    var vals=p[campo]||[];
+    var totLinha=0;
+    html+='<tr><td>'+esc(p.peca)+'</td>';
+    dias.forEach(function(dd,ix){
+      var v=Number(vals[ix])||0;totLinha+=v;totCol[ix]+=v;
+      html+='<td>'+(v?fmtN(v):'-')+'</td>';
+    });
+    totGeral+=totLinha;
+    html+='<td><b>'+fmtN(totLinha)+'</b></td></tr>';
+  });
+  html+='<tr style="border-top:2px solid var(--bdr2)"><td><b>TOTAL</b></td>';
+  totCol.forEach(function(v){html+='<td><b>'+(v?fmtN(v):'-')+'</b></td>';});
+  html+='<td><b>'+fmtN(totGeral)+'</b></td></tr>';
+  html+='</tbody></table></div>';
+  return html;
+}
+function renderMatrizPeca(d){
+  var terceiros=(d&&d.terceiros)||[];
+  if(!terceiros.length){document.getElementById('matrizResult').innerHTML='<div class="empty">Nenhum dado para os filtros selecionados.</div>';return;}
+  var html='';
+  terceiros.forEach(function(t){
+    var pecasNomes=t.pecas.map(function(p){return p.peca;}).join(' / ');
+    html+='<div class="unit-group" style="margin-top:16px"><div class="unit-group-ttl">'+esc(t.nome)+' — '+esc(pecasNomes)+' por dia</div></div>';
+    html+=construirTabelaMatriz_('Levadas (enviadas)',t.dias,t.pecas,'levado');
+    html+=construirTabelaMatriz_('Trazidas (pecas devolvidas)',t.dias,t.pecas,'devolvido');
+    html+=construirTabelaMatriz_('Refugo gerado',t.dias,t.pecas,'refugo');
+    html+=construirTabelaMatriz_('Repasse',t.dias,t.pecas,'repasse');
+  });
+  document.getElementById('matrizResult').innerHTML=html;
+}
+function nomeAba_(s){return String(s).replace(/[\\/?*\[\]:]/g,' ').slice(0,31);}
+function baixarMatrizExcel(){
+  if(!ultimaMatrizData||!ultimaMatrizData.terceiros||!ultimaMatrizData.terceiros.length){
+    msg_('msgMatriz','<div class="alert alert-warn">Gere a matriz antes de baixar.</div>');return;
+  }
+  var wb=XLSX.utils.book_new();
+  var metricas=[['levado','Levadas'],['devolvido','Devolvidas'],['refugo','Refugo'],['repasse','Repasse']];
+  var usados={};
+  ultimaMatrizData.terceiros.forEach(function(t){
+    metricas.forEach(function(m){
+      var campo=m[0],rotulo=m[1];
+      var aoa=[['Peca'].concat(t.dias,['Total'])];
+      var totCol=t.dias.map(function(){return 0;}),totGeral=0;
+      t.pecas.forEach(function(p){
+        var vals=p[campo]||[];
+        var totLinha=0;
+        var linha=[p.peca];
+        t.dias.forEach(function(dd,ix){var v=Number(vals[ix])||0;totLinha+=v;totCol[ix]+=v;linha.push(v);});
+        totGeral+=totLinha;linha.push(totLinha);
+        aoa.push(linha);
+      });
+      aoa.push(['TOTAL'].concat(totCol,[totGeral]));
+      var base=nomeAba_(t.nome+'-'+rotulo);
+      var nome=base,i=1;
+      while(usados[nome]){i++;nome=nomeAba_(base.slice(0,28)+'_'+i);}
+      usados[nome]=true;
+      XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(aoa),nome);
+    });
+  });
+  var di=document.getElementById('mtDi').value,df=document.getElementById('mtDf').value;
+  XLSX.writeFile(wb,'Matriz_Pecas_'+di+'_a_'+df+'.xlsx');
 }
 var ABA_MAP={
   Ferramentas:{campos:['Codigo','Descricao'],lista:'listaFerramentas',msg:'msgFerramentas',filtro:'filtroFerramentas'},
@@ -2403,10 +2649,9 @@ function relPreview(){
     }catch(e){document.getElementById('relPreviewBox').innerHTML='<div class="alert alert-err">Erro na previa.</div>';}
   }).catch(function(e){msg_('msgRel','<div class="alert alert-err">'+esc(e.message)+'</div>');});
 }
-function relBaixarExcel(){
-  if(!ultimoPreviewRel||!ultimoPreviewRel.length){msg_('msgRel','<div class="alert alert-warn">Gere a previa primeiro.</div>');return;}
+function montarGruposExcelDeList(list){
   var grupos={retiradas:[],entregues:[],repasses:[],refugos:[]};
-  ultimoPreviewRel.forEach(function(x){
+  (list||[]).forEach(function(x){
     if(!grupos[x.chave])return;
     (x.linhas||[]).forEach(function(l){
       if(x.chave==='retiradas'){
@@ -2420,15 +2665,41 @@ function relBaixarExcel(){
       }
     });
   });
+  return grupos;
+}
+function gravarExcelDeGrupos(grupos,di,df){
   var nomes={retiradas:'Retiradas',entregues:'Entregues',repasses:'Repasses',refugos:'Refugos'};
   var wb=XLSX.utils.book_new();
   var teveAlgo=false;
   Object.keys(grupos).forEach(function(k){
     if(grupos[k].length){teveAlgo=true;XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(grupos[k]),nomes[k]);}
   });
-  if(!teveAlgo){msg_('msgRel','<div class="alert alert-warn">Nao ha dados para exportar.</div>');return;}
-  var di=document.getElementById('relDi').value,df=document.getElementById('relDf').value||di;
+  if(!teveAlgo) return false;
   XLSX.writeFile(wb,'Relatorios_'+di+'_a_'+df+'.xlsx');
+  return true;
+}
+function relBaixarExcel(){
+  if(ultimoPreviewRel&&ultimoPreviewRel.length){
+    var di0=document.getElementById('relDi').value,df0=document.getElementById('relDf').value||di0;
+    if(!gravarExcelDeGrupos(montarGruposExcelDeList(ultimoPreviewRel),di0,df0)){
+      msg_('msgRel','<div class="alert alert-warn">Nao ha dados para exportar.</div>');
+    }
+    return;
+  }
+  var c=relColeta();
+  if(!c.di){msg_('msgRel','<div class="alert alert-warn">Selecione a data inicio.</div>');return;}
+  msg_('msgRel','<div class="load">Buscando dados para o Excel (sem gerar previa em HTML, pode levar mais tempo em periodos longos)...</div>');
+  supabase.functions.invoke('relatorios-preview',{body:{di:c.di,df:c.df,nomes:c.nomes,categorias:c.categorias}}).then(function(res){
+    try{
+      if(res.error) throw new Error(res.error.message);
+      var list=res.data;
+      msg_('msgRel','');
+      if(!list||!list.length){msg_('msgRel','<div class="empty">Nenhum lancamento no periodo/terceiros selecionados.</div>');return;}
+      if(!gravarExcelDeGrupos(montarGruposExcelDeList(list),c.di,c.df)){
+        msg_('msgRel','<div class="alert alert-warn">Nao ha dados para exportar.</div>');
+      }
+    }catch(e){msg_('msgRel','<div class="alert alert-err">Erro ao buscar dados para o Excel: '+esc(e.message)+'. Se o periodo for muito longo (ex.: o ano inteiro), a funcao pode estar atingindo o limite de tempo do servidor — tente baixar em intervalos menores (por mes, por exemplo) e me avise se isso continuar acontecendo.</div>');}
+  }).catch(function(e){msg_('msgRel','<div class="alert alert-err">'+esc((e&&e.message)||String(e))+'. Se o periodo for muito longo, tente um intervalo menor.</div>');});
 }
 function relDisparar(){
   var c=relColeta();
