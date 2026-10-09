@@ -871,8 +871,13 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
             <div><label>Data fim</label><input class="i" type="date" id="mtDf"></div>
           </div>
           <div style="margin-top:12px">
-            <label>Pecas</label>
-            <div id="mtPecaBox" style="display:flex;flex-wrap:wrap;gap:12px;padding:4px 2px 0"></div>
+            <label>Pecas <span id="mtPecaCont" style="color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0"></span></label>
+            <div style="display:flex;gap:9px;align-items:center;margin-bottom:8px">
+              <input class="i" id="mtPecaFiltro" placeholder="Filtrar peca..." oninput="filtrarMtPeca()" style="flex:1">
+              <button class="btn btn-ghost btn-sm" onclick="selecionarMtPeca(true)">Marcar visiveis</button>
+              <button class="btn btn-ghost btn-sm" onclick="selecionarMtPeca(false)">Limpar selecao</button>
+            </div>
+            <div id="mtPecaBox" style="display:flex;flex-wrap:wrap;gap:12px;padding:4px 2px 0;max-height:260px;overflow-y:auto"></div>
           </div>
           <div style="margin-top:12px">
             <label>Terceiros (vazio = todos)</label>
