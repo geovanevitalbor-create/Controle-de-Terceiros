@@ -241,10 +241,9 @@ table.mt-corr tbody tr:not(:last-child):hover td{background:rgba(255,255,255,.02
 .mt-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
 table.mt-multi{font-size:11.5px}
 table.mt-multi td,table.mt-multi th{padding:5px 9px}
-table.mt-multi td.mt-peca-cell{vertical-align:middle;background:rgba(255,255,255,.02);border-right:1px solid var(--bdr)}
-.mt-peca-sub{font-size:9.5px;color:var(--text3);font-weight:400;margin-top:2px}
+table.mt-multi tr.mt-peca-head td{background:rgba(255,255,255,.03);padding-top:10px;font-size:11px}
+.mt-peca-sub{font-size:9.5px;color:var(--text3);font-weight:400}
 table.mt-multi tr.mt-total-row td{background:rgba(255,255,255,.04);font-weight:700}
-table.mt-multi tr.mt-total-row td.mt-peca-cell{background:rgba(255,255,255,.06)}
 .mt-m-env{color:var(--amber2);font-weight:600}
 .mt-m-rec{color:var(--cyan);font-weight:600}
 .mt-m-apr{color:var(--green);font-weight:600}
@@ -2308,40 +2307,51 @@ function mtSomarCampo_(dataObj,campo){
   Object.keys(vals).forEach(function(k){tot+=Number(vals[k])||0;});
   return tot;
 }
-function mtGrupoHtml_(label,sub,dias,dataPorCampo,totalRow){
+function mtHeaderRow_(label,sub,colspan){
+  return '<tr class="mt-peca-head"><td colspan="'+colspan+'"><b>'+esc(label)+'</b>'+(sub?' <span class="mt-peca-sub">'+esc(sub)+'</span>':'')+'</td></tr>';
+}
+function mtGrupoHtml_(dias,dataPorCampo,metricas,totalRow){
   var html='';
-  MT_METRICAS.forEach(function(m,mi){
+  metricas.forEach(function(m){
     var vals=dataPorCampo[m.campo]||{};
     var totLinha=0;
     html+='<tr'+(totalRow?' class="mt-total-row"':'')+'>';
-    if(mi===0){
-      html+='<td rowspan="'+MT_METRICAS.length+'" class="mt-peca-cell"><b>'+esc(label)+'</b>'+(sub?'<div class="mt-peca-sub">'+esc(sub)+'</div>':'')+'</td>';
-    }
     html+='<td class="'+m.cls+'"><b>'+esc(m.label)+'</b></td>';
     dias.forEach(function(dd){
       var v=Number(vals[dd])||0;totLinha+=v;
-      html+='<td style="text-align:center">'+fmtN(v)+'</td>';
+      html+='<td class="'+m.cls+'" style="text-align:center">'+fmtN(v)+'</td>';
     });
-    html+='<td style="text-align:center"><b>'+fmtN(totLinha)+'</b></td></tr>';
+    html+='<td class="'+m.cls+'" style="text-align:center"><b>'+fmtN(totLinha)+'</b></td></tr>';
   });
   return html;
 }
 function construirTabelaMulti_(titulo,dias,pecas){
+  var metricas=mtMetricasAtivas_();
+  if(!metricas.length){return '<div class="tbl-box" style="margin-top:14px"><h3>'+esc(titulo)+' · '+pecas.length+' peca(s)</h3><div class="empty">Selecione ao menos uma metrica.</div></div>';}
+  var colspan=dias.length+2;
+  var multi=pecas.length>1;
   var totObj={};
-  MT_METRICAS.forEach(function(m){totObj[m.campo]={};});
+  metricas.forEach(function(m){totObj[m.campo]={};});
   dias.forEach(function(dd){
-    MT_METRICAS.forEach(function(m){
+    metricas.forEach(function(m){
       var s=0;
       pecas.forEach(function(p){s+=Number((p[m.campo]||{})[dd])||0;});
       totObj[m.campo][dd]=s;
     });
   });
   var html='<div class="tbl-box" style="margin-top:14px"><h3>'+esc(titulo)+' · '+pecas.length+' peca(s)</h3>';
-  html+='<table class="mt-multi"><thead><tr><th>Peca</th><th>Movimento</th>';
+  html+='<table class="mt-multi"><thead><tr><th>Movimento</th>';
   dias.forEach(function(dd){html+='<th style="text-align:center">'+esc(dd)+'</th>';});
   html+='<th style="text-align:center">Total</th></tr></thead><tbody>';
-  pecas.forEach(function(p){html+=mtGrupoHtml_(p.peca,(p.sacos||0)+' saco(s)',dias,p,false);});
-  html+='</tbody><tfoot>'+mtGrupoHtml_('TOTAL',null,dias,totObj,true)+'</tfoot></table></div>';
+  pecas.forEach(function(p){
+    if(multi) html+=mtHeaderRow_(p.peca,(p.sacos||0)+' saco(s)',colspan);
+    html+=mtGrupoHtml_(dias,p,metricas,false);
+  });
+  html+='</tbody>';
+  if(multi){
+    html+='<tfoot>'+mtHeaderRow_('TOTAL',null,colspan)+mtGrupoHtml_(dias,totObj,metricas,true)+'</tfoot>';
+  }
+  html+='</table></div>';
   return html;
 }
 function construirKpisMatriz_(pecas){
@@ -2387,18 +2397,19 @@ function baixarMatrizExcel(){
     usados[nome]=true;
     XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(aoa),nome);
   }
+  var metricas=mtMetricasAtivas_();
   ultimaMatrizData.terceiros.forEach(function(t){
     var header=['Peca','Movimento'];
     t.dias.forEach(function(dd){header.push(dd);});
     header.push('Total');
     var aoa=[header];
     var totObj={};
-    MT_METRICAS.forEach(function(m){
+    metricas.forEach(function(m){
       totObj[m.campo]={};
       t.dias.forEach(function(dd){totObj[m.campo][dd]=0;});
     });
     t.pecas.forEach(function(p){
-      MT_METRICAS.forEach(function(m,mi){
+      metricas.forEach(function(m,mi){
         var vals=p[m.campo]||{},linTot=0;
         var linha=[mi===0?p.peca:'',m.label];
         t.dias.forEach(function(dd){
@@ -2410,7 +2421,7 @@ function baixarMatrizExcel(){
         aoa.push(linha);
       });
     });
-    MT_METRICAS.forEach(function(m,mi){
+    metricas.forEach(function(m,mi){
       var linTot=0;
       var linha=[mi===0?'TOTAL':'',m.label];
       t.dias.forEach(function(dd){
