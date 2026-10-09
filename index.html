@@ -2144,7 +2144,7 @@ function renderMtPecaBox(){
   var l=termo?mtPecasCache.filter(function(p){return p.toLowerCase().indexOf(termo)!==-1;}):mtPecasCache;
   box.innerHTML=l.length?l.map(function(p){
     var on=mtPecasSel.indexOf(p)!==-1;
-    return '<div onclick="toggleMtPeca(this.dataset.p)" data-p="'+esc(p)+'" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;font-weight:500;color:'+(on?'var(--text)':'var(--text2)')+';cursor:pointer;border-bottom:1px solid var(--bdr)'+(on?';background:var(--bg3)':'')+'"><input type="checkbox" '+(on?'checked':'')+' style="pointer-events:none">'+esc(p)+'</div>';
+    return '<div onclick="event.stopPropagation();toggleMtPeca(this.dataset.p)" data-p="'+esc(p)+'" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;font-weight:500;color:'+(on?'var(--text)':'var(--text2)')+';cursor:pointer;border-bottom:1px solid var(--bdr)'+(on?';background:var(--bg3)':'')+'"><input type="checkbox" '+(on?'checked':'')+' style="pointer-events:none">'+esc(p)+'</div>';
   }).join(''):'<div class="empty" style="padding:12px">Nenhuma peca encontrada.</div>';
 }
 function renderMtPecaChips(){
@@ -2259,16 +2259,37 @@ function construirTabelaCorrelacao_(titulo,dias,pecas,campoA,campoB,rotA,rotB){
   html+='</tbody></table></div>';
   return html;
 }
+function somaTotalCampoMatriz_(pecas,campo){
+  var tot=0;
+  pecas.forEach(function(p){
+    var vals=p[campo]||{};
+    Object.keys(vals).forEach(function(k){tot+=Number(vals[k])||0;});
+  });
+  return tot;
+}
+function toggleMatrizDetalhe(id){
+  var el=document.getElementById(id);
+  if(!el)return;
+  el.style.display=el.style.display==='none'?'block':'none';
+}
 function renderMatrizPeca(d){
   var terceiros=(d&&d.terceiros)||[];
   if(!terceiros.length){document.getElementById('matrizResult').innerHTML='<div class="empty">Nenhum dado para os filtros selecionados.</div>';return;}
   var html='';
-  terceiros.forEach(function(t){
+  terceiros.forEach(function(t,ti){
     var pecasNomes=t.pecas.map(function(p){return p.peca;}).join(' / ');
+    var totRef=somaTotalCampoMatriz_(t.pecas,'refugo');
+    var totRep=somaTotalCampoMatriz_(t.pecas,'repasse');
+    var idRef='mtDet'+ti+'ref',idRep='mtDet'+ti+'rep';
     html+='<div class="unit-group" style="margin-top:16px"><div class="unit-group-ttl">'+esc(t.nome)+' — '+esc(pecasNomes)+' por dia</div></div>';
-    html+=construirTabelaCorrelacao_('Entregue x Trazida por dia',t.dias,t.pecas,'levado','devolvido','Entregue','Trazida');
-    html+=construirTabelaMatriz_('Refugo gerado',t.dias,t.pecas,'refugo');
-    html+=construirTabelaMatriz_('Repasse',t.dias,t.pecas,'repasse');
+    html+='<div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap">';
+    html+='<div style="flex:3;min-width:320px">'+construirTabelaCorrelacao_('Entregue x Trazida por dia',t.dias,t.pecas,'levado','devolvido','Entregue','Trazida')+'</div>';
+    html+='<div style="flex:1;min-width:160px;display:flex;flex-direction:column;gap:10px;margin-top:14px">';
+    html+='<div class="kpi kf" style="cursor:pointer" onclick="toggleMatrizDetalhe(\''+idRef+'\')"><div class="kpi-bar"></div><div class="kpi-lbl">Refugo Total</div><div class="kpi-val">'+fmtN(totRef)+' <span class="unit">pcs</span></div></div>';
+    html+='<div class="kpi kr" style="cursor:pointer" onclick="toggleMatrizDetalhe(\''+idRep+'\')"><div class="kpi-bar"></div><div class="kpi-lbl">Repasse Total</div><div class="kpi-val">'+fmtN(totRep)+' <span class="unit">pcs</span></div></div>';
+    html+='</div></div>';
+    html+='<div id="'+idRef+'" style="display:none">'+construirTabelaMatriz_('Refugo gerado',t.dias,t.pecas,'refugo')+'</div>';
+    html+='<div id="'+idRep+'" style="display:none">'+construirTabelaMatriz_('Repasse',t.dias,t.pecas,'repasse')+'</div>';
   });
   document.getElementById('matrizResult').innerHTML=html;
 }
