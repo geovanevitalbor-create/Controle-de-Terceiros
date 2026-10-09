@@ -213,6 +213,22 @@ select.i option{background:#0a0f0c;color:#eef2ef}
 .kpi.kf .kpi-bar{background:#dc2626}
 .kpi.ki .kpi-bar{background:var(--cyan)}
 .kpi.kt .kpi-bar{background:#0d9488}
+.mt-side{flex:0 0 220px;min-width:200px}
+.mt-side-ttl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:9px;display:flex;align-items:center;gap:8px}
+.mt-side-ttl::before{content:'';width:2px;height:11px;background:var(--accent);border-radius:2px}
+.mt-card{background:var(--surf);border:1px solid var(--bdr);border-radius:11px;box-shadow:var(--sh);padding:14px 16px;position:relative;overflow:hidden;cursor:pointer;transition:border-color .15s,transform .1s;display:flex;flex-direction:column;gap:2px;margin-bottom:10px}
+.mt-card:hover{border-color:var(--bdr2);transform:translateY(-1px)}
+.mt-card:active{transform:translateY(0)}
+.mt-card-bar{position:absolute;top:10px;bottom:10px;left:0;width:3px;border-radius:0 2px 2px 0}
+.mt-card.mc-ref .mt-card-bar{background:#dc2626}
+.mt-card.mc-rep .mt-card-bar{background:#8b5cf6}
+.mt-card-top{display:flex;align-items:center;justify-content:space-between;padding-left:10px}
+.mt-card-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3)}
+.mt-card-chev{color:var(--text3);width:14px;height:14px;flex-shrink:0;transition:transform .15s}
+.mt-card.open .mt-card-chev{transform:rotate(90deg);color:var(--accent)}
+.mt-card-val{font-size:26px;font-weight:800;letter-spacing:-.5px;color:var(--text);padding-left:10px;font-variant-numeric:tabular-nums}
+.mt-card-val .unit{font-size:10px;font-weight:600;color:var(--text3);margin-left:3px;text-transform:none;letter-spacing:0}
+.mt-card-hint{font-size:10px;color:var(--text3);padding-left:10px}
 .chart-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:18px}
 @media(max-width:900px){.chart-row{grid-template-columns:1fr}}
 .chart-box{background:var(--surf);border:1px solid var(--bdr);border-radius:11px;box-shadow:var(--sh);padding:16px 16px 12px;display:flex;flex-direction:column}
