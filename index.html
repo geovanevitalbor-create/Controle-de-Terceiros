@@ -921,6 +921,10 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
             <label>Terceiros (vazio = todos)</label>
             <div id="mtTercBox" style="display:flex;flex-wrap:wrap;gap:12px;padding:4px 2px 0"></div>
           </div>
+          <div style="margin-top:12px">
+            <label>Metricas na tabela</label>
+            <div id="mtMetricasBox" style="display:flex;flex-wrap:wrap;gap:12px;padding:4px 2px 0"></div>
+          </div>
           <div class="btn-row">
             <button class="btn btn-accent btn-sm" onclick="gerarMatrizPeca()">Gerar Matriz</button>
             <button class="btn btn-ghost btn-sm" onclick="baixarMatrizExcel()">Baixar Excel</button>
@@ -2207,6 +2211,7 @@ function initMatrizPeca(){
       document.getElementById('mtPecaFiltro').value='';
       fecharMtPecaDrop();
       renderMtPecaChips();
+      renderMtMetricasBox();
     }catch(e){}
   });
   supabase.from('terceiros').select('nome').order('nome').then(function(res){
@@ -2281,6 +2286,23 @@ var MT_METRICAS=[
   {campo:'devolucao',label:'Devolucao',cls:'mt-m-dev'},
   {campo:'diferenca',label:'A mais / a menos',cls:'mt-m-dif'}
 ];
+var mtMetricasSel=MT_METRICAS.map(function(m){return m.campo;});
+function mtMetricasAtivas_(){
+  return MT_METRICAS.filter(function(m){return mtMetricasSel.indexOf(m.campo)!==-1;});
+}
+function renderMtMetricasBox(){
+  var box=document.getElementById('mtMetricasBox');
+  if(!box)return;
+  box.innerHTML=MT_METRICAS.map(function(m){
+    var on=mtMetricasSel.indexOf(m.campo)!==-1;
+    return '<label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--text2);cursor:pointer"><input type="checkbox" value="'+m.campo+'"'+(on?' checked':'')+' onchange="toggleMtMetrica(this.value)"><span class="'+m.cls+'">'+esc(m.label)+'</span></label>';
+  }).join('');
+}
+function toggleMtMetrica(campo){
+  var ix=mtMetricasSel.indexOf(campo);
+  if(ix===-1) mtMetricasSel.push(campo); else mtMetricasSel.splice(ix,1);
+  if(ultimaMatrizData) renderMatrizPeca(ultimaMatrizData);
+}
 function mtSomarCampo_(dataObj,campo){
   var vals=dataObj[campo]||{},tot=0;
   Object.keys(vals).forEach(function(k){tot+=Number(vals[k])||0;});
