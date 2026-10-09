@@ -2212,15 +2212,15 @@ function gerarMatrizPeca(){
   }).catch(function(e){msg_('msgMatriz','<div class="alert alert-err">'+esc(e.message)+'</div>');});
 }
 function construirTabelaMatriz_(titulo,dias,pecas,campo){
-  var html='<div class="tbl-box" style="margin-top:14px"><h3>'+esc(titulo)+'</h3><table><thead><tr><th>Peca</th>';
-  dias.forEach(function(dd){html+='<th>'+esc(dd)+'</th>';});
+  var html='<div class="tbl-box" style="margin-top:14px"><h3>'+esc(titulo)+'</h3><table><thead><tr><th>Data</th>';
+  pecas.forEach(function(p){html+='<th>'+esc(p.peca)+'</th>';});
   html+='<th>Total</th></tr></thead><tbody>';
-  var totCol=dias.map(function(){return 0;}),totGeral=0;
-  pecas.forEach(function(p){
-    var vals=p[campo]||{};
+  var totCol=pecas.map(function(){return 0;}),totGeral=0;
+  dias.forEach(function(dd){
     var totLinha=0;
-    html+='<tr><td>'+esc(p.peca)+'</td>';
-    dias.forEach(function(dd,ix){
+    html+='<tr><td>'+esc(dd)+'</td>';
+    pecas.forEach(function(p,ix){
+      var vals=p[campo]||{};
       var v=Number(vals[dd])||0;totLinha+=v;totCol[ix]+=v;
       html+='<td>'+(v?fmtN(v):'-')+'</td>';
     });
@@ -2258,13 +2258,12 @@ function baixarMatrizExcel(){
   ultimaMatrizData.terceiros.forEach(function(t){
     metricas.forEach(function(m){
       var campo=m[0],rotulo=m[1];
-      var aoa=[['Peca'].concat(t.dias,['Total'])];
-      var totCol=t.dias.map(function(){return 0;}),totGeral=0;
-      t.pecas.forEach(function(p){
-        var vals=p[campo]||{};
+      var aoa=[['Data'].concat(t.pecas.map(function(p){return p.peca;}),['Total'])];
+      var totCol=t.pecas.map(function(){return 0;}),totGeral=0;
+      t.dias.forEach(function(dd){
         var totLinha=0;
-        var linha=[p.peca];
-        t.dias.forEach(function(dd,ix){var v=Number(vals[dd])||0;totLinha+=v;totCol[ix]+=v;linha.push(v);});
+        var linha=[dd];
+        t.pecas.forEach(function(p,ix){var vals=p[campo]||{};var v=Number(vals[dd])||0;totLinha+=v;totCol[ix]+=v;linha.push(v);});
         totGeral+=totLinha;linha.push(totLinha);
         aoa.push(linha);
       });
