@@ -2212,15 +2212,15 @@ function gerarMatrizPeca(){
   }).catch(function(e){msg_('msgMatriz','<div class="alert alert-err">'+esc(e.message)+'</div>');});
 }
 function construirTabelaMatriz_(titulo,dias,pecas,campo){
-  var html='<div class="tbl-box" style="margin-top:14px"><h3>'+esc(titulo)+'</h3><table><thead><tr><th>Data</th>';
-  pecas.forEach(function(p){html+='<th>'+esc(p.peca)+'</th>';});
+  var html='<div class="tbl-box" style="margin-top:14px"><h3>'+esc(titulo)+'</h3><table><thead><tr><th>Peca</th>';
+  dias.forEach(function(dd){html+='<th>'+esc(dd)+'</th>';});
   html+='<th>Total</th></tr></thead><tbody>';
-  var totCol=pecas.map(function(){return 0;}),totGeral=0;
-  dias.forEach(function(dd){
+  var totCol=dias.map(function(){return 0;}),totGeral=0;
+  pecas.forEach(function(p){
+    var vals=p[campo]||{};
     var totLinha=0;
-    html+='<tr><td>'+esc(dd)+'</td>';
-    pecas.forEach(function(p,ix){
-      var vals=p[campo]||{};
+    html+='<tr><td>'+esc(p.peca)+'</td>';
+    dias.forEach(function(dd,ix){
       var v=Number(vals[dd])||0;totLinha+=v;totCol[ix]+=v;
       html+='<td>'+(v?fmtN(v):'-')+'</td>';
     });
@@ -2233,6 +2233,32 @@ function construirTabelaMatriz_(titulo,dias,pecas,campo){
   html+='</tbody></table></div>';
   return html;
 }
+function construirTabelaCorrelacao_(titulo,dias,pecas,campoA,campoB,rotA,rotB){
+  var html='<div class="tbl-box" style="margin-top:14px"><h3>'+esc(titulo)+'</h3><table><thead>';
+  html+='<tr><th rowspan="2">Peca</th>';
+  dias.forEach(function(dd){html+='<th colspan="2" style="text-align:center">'+esc(dd)+'</th>';});
+  html+='<th colspan="2" style="text-align:center">Total</th></tr><tr>';
+  dias.forEach(function(){html+='<th>'+esc(rotA)+'</th><th>'+esc(rotB)+'</th>';});
+  html+='<th>'+esc(rotA)+'</th><th>'+esc(rotB)+'</th></tr></thead><tbody>';
+  var totColA=dias.map(function(){return 0;}),totColB=dias.map(function(){return 0;}),totGeralA=0,totGeralB=0;
+  pecas.forEach(function(p){
+    var valsA=p[campoA]||{},valsB=p[campoB]||{};
+    var totLinhaA=0,totLinhaB=0;
+    html+='<tr><td>'+esc(p.peca)+'</td>';
+    dias.forEach(function(dd,ix){
+      var a=Number(valsA[dd])||0,b=Number(valsB[dd])||0;
+      totLinhaA+=a;totLinhaB+=b;totColA[ix]+=a;totColB[ix]+=b;
+      html+='<td>'+(a?fmtN(a):'-')+'</td><td>'+(b?fmtN(b):'-')+'</td>';
+    });
+    totGeralA+=totLinhaA;totGeralB+=totLinhaB;
+    html+='<td><b>'+fmtN(totLinhaA)+'</b></td><td><b>'+fmtN(totLinhaB)+'</b></td></tr>';
+  });
+  html+='<tr style="border-top:2px solid var(--bdr2)"><td><b>TOTAL</b></td>';
+  dias.forEach(function(dd,ix){html+='<td><b>'+(totColA[ix]?fmtN(totColA[ix]):'-')+'</b></td><td><b>'+(totColB[ix]?fmtN(totColB[ix]):'-')+'</b></td>';});
+  html+='<td><b>'+fmtN(totGeralA)+'</b></td><td><b>'+fmtN(totGeralB)+'</b></td></tr>';
+  html+='</tbody></table></div>';
+  return html;
+}
 function renderMatrizPeca(d){
   var terceiros=(d&&d.terceiros)||[];
   if(!terceiros.length){document.getElementById('matrizResult').innerHTML='<div class="empty">Nenhum dado para os filtros selecionados.</div>';return;}
@@ -2240,8 +2266,7 @@ function renderMatrizPeca(d){
   terceiros.forEach(function(t){
     var pecasNomes=t.pecas.map(function(p){return p.peca;}).join(' / ');
     html+='<div class="unit-group" style="margin-top:16px"><div class="unit-group-ttl">'+esc(t.nome)+' — '+esc(pecasNomes)+' por dia</div></div>';
-    html+=construirTabelaMatriz_('Levadas (enviadas)',t.dias,t.pecas,'levado');
-    html+=construirTabelaMatriz_('Trazidas (pecas devolvidas)',t.dias,t.pecas,'devolvido');
+    html+=construirTabelaCorrelacao_('Entregue x Trazida por dia',t.dias,t.pecas,'levado','devolvido','Entregue','Trazida');
     html+=construirTabelaMatriz_('Refugo gerado',t.dias,t.pecas,'refugo');
     html+=construirTabelaMatriz_('Repasse',t.dias,t.pecas,'repasse');
   });
@@ -2253,26 +2278,46 @@ function baixarMatrizExcel(){
     msg_('msgMatriz','<div class="alert alert-warn">Gere a matriz antes de baixar.</div>');return;
   }
   var wb=XLSX.utils.book_new();
-  var metricas=[['levado','Levadas'],['devolvido','Devolvidas'],['refugo','Refugo'],['repasse','Repasse']];
   var usados={};
+  function addSheet(t,rotulo,aoa){
+    var base=nomeAba_(t.nome+'-'+rotulo);
+    var nome=base,i=1;
+    while(usados[nome]){i++;nome=nomeAba_(base.slice(0,28)+'_'+i);}
+    usados[nome]=true;
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(aoa),nome);
+  }
   ultimaMatrizData.terceiros.forEach(function(t){
-    metricas.forEach(function(m){
+    var header=['Peca'];
+    t.dias.forEach(function(dd){header.push(dd+' Entregue',dd+' Trazida');});
+    header.push('Total Entregue','Total Trazida');
+    var aoa=[header];
+    var totColA=t.dias.map(function(){return 0;}),totColB=t.dias.map(function(){return 0;}),totGA=0,totGB=0;
+    t.pecas.forEach(function(p){
+      var valsA=p.levado||{},valsB=p.devolvido||{};
+      var linha=[p.peca],totA=0,totB=0;
+      t.dias.forEach(function(dd,ix){var a=Number(valsA[dd])||0,b=Number(valsB[dd])||0;totA+=a;totB+=b;totColA[ix]+=a;totColB[ix]+=b;linha.push(a,b);});
+      totGA+=totA;totGB+=totB;linha.push(totA,totB);
+      aoa.push(linha);
+    });
+    var totLinha=['TOTAL'];
+    t.dias.forEach(function(dd,ix){totLinha.push(totColA[ix],totColB[ix]);});
+    totLinha.push(totGA,totGB);
+    aoa.push(totLinha);
+    addSheet(t,'Entregue-Trazida',aoa);
+    [['refugo','Refugo'],['repasse','Repasse']].forEach(function(m){
       var campo=m[0],rotulo=m[1];
-      var aoa=[['Data'].concat(t.pecas.map(function(p){return p.peca;}),['Total'])];
-      var totCol=t.pecas.map(function(){return 0;}),totGeral=0;
-      t.dias.forEach(function(dd){
-        var totLinha=0;
-        var linha=[dd];
-        t.pecas.forEach(function(p,ix){var vals=p[campo]||{};var v=Number(vals[dd])||0;totLinha+=v;totCol[ix]+=v;linha.push(v);});
-        totGeral+=totLinha;linha.push(totLinha);
-        aoa.push(linha);
+      var aoa2=[['Peca'].concat(t.dias,['Total'])];
+      var totCol=t.dias.map(function(){return 0;}),totGeral=0;
+      t.pecas.forEach(function(p){
+        var vals=p[campo]||{};
+        var totLinha2=0;
+        var linha2=[p.peca];
+        t.dias.forEach(function(dd,ix){var v=Number(vals[dd])||0;totLinha2+=v;totCol[ix]+=v;linha2.push(v);});
+        totGeral+=totLinha2;linha2.push(totLinha2);
+        aoa2.push(linha2);
       });
-      aoa.push(['TOTAL'].concat(totCol,[totGeral]));
-      var base=nomeAba_(t.nome+'-'+rotulo);
-      var nome=base,i=1;
-      while(usados[nome]){i++;nome=nomeAba_(base.slice(0,28)+'_'+i);}
-      usados[nome]=true;
-      XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(aoa),nome);
+      aoa2.push(['TOTAL'].concat(totCol,[totGeral]));
+      addSheet(t,rotulo,aoa2);
     });
   });
   var di=document.getElementById('mtDi').value,df=document.getElementById('mtDf').value;
