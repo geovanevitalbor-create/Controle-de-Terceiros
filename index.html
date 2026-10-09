@@ -2283,11 +2283,14 @@ function somaTotalCampoMatriz_(pecas,campo){
   });
   return tot;
 }
-function toggleMatrizDetalhe(id){
+function toggleMatrizDetalhe(cardEl,id){
   var el=document.getElementById(id);
   if(!el)return;
-  el.style.display=el.style.display==='none'?'block':'none';
+  var aberto=el.style.display!=='none';
+  el.style.display=aberto?'none':'block';
+  cardEl.classList.toggle('open',!aberto);
 }
+var MT_CHEV='<svg class="mt-card-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
 function renderMatrizPeca(d){
   var terceiros=(d&&d.terceiros)||[];
   if(!terceiros.length){document.getElementById('matrizResult').innerHTML='<div class="empty">Nenhum dado para os filtros selecionados.</div>';return;}
@@ -2299,10 +2302,17 @@ function renderMatrizPeca(d){
     var idRef='mtDet'+ti+'ref',idRep='mtDet'+ti+'rep';
     html+='<div class="unit-group" style="margin-top:16px"><div class="unit-group-ttl">'+esc(t.nome)+' — '+esc(pecasNomes)+' por dia</div></div>';
     html+='<div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap">';
-    html+='<div style="flex:3;min-width:320px">'+construirTabelaCorrelacao_('Entregue x Trazida por dia',t.dias,t.pecas,'levado','devolvido','Entregue','Trazida')+'</div>';
-    html+='<div style="flex:1;min-width:160px;display:flex;flex-direction:column;gap:10px;margin-top:14px">';
-    html+='<div class="kpi kf" style="cursor:pointer" onclick="toggleMatrizDetalhe(\''+idRef+'\')"><div class="kpi-bar"></div><div class="kpi-lbl">Refugo Total</div><div class="kpi-val">'+fmtN(totRef)+' <span class="unit">pcs</span></div></div>';
-    html+='<div class="kpi kr" style="cursor:pointer" onclick="toggleMatrizDetalhe(\''+idRep+'\')"><div class="kpi-bar"></div><div class="kpi-lbl">Repasse Total</div><div class="kpi-val">'+fmtN(totRep)+' <span class="unit">pcs</span></div></div>';
+    html+='<div style="flex:1 1 420px;min-width:320px">'+construirTabelaCorrelacao_('Enviado x Retornado por dia',t.dias,t.pecas,'levado','devolvido','Enviado','Retornado')+'</div>';
+    html+='<div class="mt-side">';
+    html+='<div class="mt-side-ttl">Resumo do periodo</div>';
+    html+='<div class="mt-card mc-ref" onclick="toggleMatrizDetalhe(this,\''+idRef+'\')"><div class="mt-card-bar"></div>'+
+      '<div class="mt-card-top"><span class="mt-card-lbl">Refugo Total</span>'+MT_CHEV+'</div>'+
+      '<div class="mt-card-val">'+fmtN(totRef)+' <span class="unit">pcs</span></div>'+
+      '<div class="mt-card-hint">Ver por dia</div></div>';
+    html+='<div class="mt-card mc-rep" onclick="toggleMatrizDetalhe(this,\''+idRep+'\')"><div class="mt-card-bar"></div>'+
+      '<div class="mt-card-top"><span class="mt-card-lbl">Repasse Total</span>'+MT_CHEV+'</div>'+
+      '<div class="mt-card-val">'+fmtN(totRep)+' <span class="unit">pcs</span></div>'+
+      '<div class="mt-card-hint">Ver por dia</div></div>';
     html+='</div></div>';
     html+='<div id="'+idRef+'" style="display:none">'+construirTabelaMatriz_('Refugo gerado',t.dias,t.pecas,'refugo')+'</div>';
     html+='<div id="'+idRep+'" style="display:none">'+construirTabelaMatriz_('Repasse',t.dias,t.pecas,'repasse')+'</div>';
@@ -2325,8 +2335,8 @@ function baixarMatrizExcel(){
   }
   ultimaMatrizData.terceiros.forEach(function(t){
     var header=['Peca'];
-    t.dias.forEach(function(dd){header.push(dd+' Entregue',dd+' Trazida');});
-    header.push('Total Entregue','Total Trazida');
+    t.dias.forEach(function(dd){header.push(dd+' Enviado',dd+' Retornado');});
+    header.push('Total Enviado','Total Retornado');
     var aoa=[header];
     var totColA=t.dias.map(function(){return 0;}),totColB=t.dias.map(function(){return 0;}),totGA=0,totGB=0;
     t.pecas.forEach(function(p){
@@ -2340,7 +2350,7 @@ function baixarMatrizExcel(){
     t.dias.forEach(function(dd,ix){totLinha.push(totColA[ix],totColB[ix]);});
     totLinha.push(totGA,totGB);
     aoa.push(totLinha);
-    addSheet(t,'Entregue-Trazida',aoa);
+    addSheet(t,'Enviado-Retornado',aoa);
     [['refugo','Refugo'],['repasse','Repasse']].forEach(function(m){
       var campo=m[0],rotulo=m[1];
       var aoa2=[['Peca'].concat(t.dias,['Total'])];
