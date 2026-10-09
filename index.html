@@ -872,12 +872,11 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
           </div>
           <div style="margin-top:12px">
             <label>Pecas <span id="mtPecaCont" style="color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0"></span></label>
-            <div style="display:flex;gap:9px;align-items:center;margin-bottom:8px">
-              <input class="i" id="mtPecaFiltro" placeholder="Filtrar peca..." oninput="filtrarMtPeca()" style="flex:1">
-              <button class="btn btn-ghost btn-sm" onclick="selecionarMtPeca(true)">Marcar visiveis</button>
-              <button class="btn btn-ghost btn-sm" onclick="selecionarMtPeca(false)">Limpar selecao</button>
+            <div id="mtPecaChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+            <div style="position:relative">
+              <input class="i" id="mtPecaFiltro" placeholder="Buscar peca..." autocomplete="off" oninput="renderMtPecaBox()" onfocus="abrirMtPecaDrop()">
+              <div id="mtPecaBox" style="display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:30;background:var(--surf);border:1px solid var(--bdr2);border-radius:8px;max-height:260px;overflow-y:auto;box-shadow:var(--sh-lg)"></div>
             </div>
-            <div id="mtPecaBox" style="display:flex;flex-wrap:wrap;gap:12px;padding:4px 2px 0;max-height:260px;overflow-y:auto"></div>
           </div>
           <div style="margin-top:12px">
             <label>Terceiros (vazio = todos)</label>
@@ -2129,14 +2128,46 @@ function loadPecaHist(){
   }).catch(function(e){document.getElementById('pecaHistResult').innerHTML='<div class="alert alert-err">'+esc(e.message)+'</div>';});
 }
 var ultimaMatrizData=null;
+var mtPecasCache=[];
+var mtPecasSel=[];
+function abrirMtPecaDrop(){document.getElementById('mtPecaBox').style.display='block';renderMtPecaBox();}
+function fecharMtPecaDrop(){document.getElementById('mtPecaBox').style.display='none';}
+document.addEventListener('click',function(e){
+  var box=document.getElementById('mtPecaBox'),inp=document.getElementById('mtPecaFiltro');
+  if(!box||box.style.display!=='block')return;
+  if(!box.contains(e.target)&&e.target!==inp) fecharMtPecaDrop();
+});
+function renderMtPecaBox(){
+  var box=document.getElementById('mtPecaBox');
+  if(box.style.display!=='block')return;
+  var termo=(document.getElementById('mtPecaFiltro').value||'').trim().toLowerCase();
+  var l=termo?mtPecasCache.filter(function(p){return p.toLowerCase().indexOf(termo)!==-1;}):mtPecasCache;
+  box.innerHTML=l.length?l.map(function(p){
+    var on=mtPecasSel.indexOf(p)!==-1;
+    return '<div onclick="toggleMtPeca(this.dataset.p)" data-p="'+esc(p)+'" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;font-weight:500;color:'+(on?'var(--text)':'var(--text2)')+';cursor:pointer;border-bottom:1px solid var(--bdr)'+(on?';background:var(--bg3)':'')+'"><input type="checkbox" '+(on?'checked':'')+' style="pointer-events:none">'+esc(p)+'</div>';
+  }).join(''):'<div class="empty" style="padding:12px">Nenhuma peca encontrada.</div>';
+}
+function renderMtPecaChips(){
+  var box=document.getElementById('mtPecaChips');
+  box.innerHTML=mtPecasSel.map(function(p){
+    return '<span style="display:inline-flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--bdr2);border-radius:999px;padding:4px 6px 4px 10px;font-size:11px;color:var(--text)">'+esc(p)+'<span data-p="'+esc(p)+'" onclick="toggleMtPeca(this.dataset.p)" style="cursor:pointer;color:var(--text3);font-weight:700;padding:0 2px">&times;</span></span>';
+  }).join('');
+  document.getElementById('mtPecaCont').textContent=mtPecasSel.length?'('+mtPecasSel.length+' selecionada'+(mtPecasSel.length>1?'s':'')+')':'';
+}
+function toggleMtPeca(p){
+  var ix=mtPecasSel.indexOf(p);
+  if(ix===-1) mtPecasSel.push(p); else mtPecasSel.splice(ix,1);
+  renderMtPecaBox();
+  renderMtPecaChips();
+}
 function initMatrizPeca(){
   supabase.from('ferramentas').select('codigo').order('codigo').then(function(res){
     try{
-      var l=(res.data||[]).map(function(f){return f.codigo;});
-      var marcados=Array.from(document.querySelectorAll('.mt-peca:checked')).map(function(c){return c.value;});
-      document.getElementById('mtPecaBox').innerHTML=l.map(function(p){
-        return '<label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--text2);cursor:pointer"><input type="checkbox" class="mt-peca" value="'+esc(p)+'"'+(marcados.indexOf(p)!==-1?' checked':'')+'>'+esc(p)+'</label>';
-      }).join('');
+      mtPecasCache=(res.data||[]).map(function(f){return f.codigo;});
+      mtPecasSel=mtPecasSel.filter(function(p){return mtPecasCache.indexOf(p)!==-1;});
+      document.getElementById('mtPecaFiltro').value='';
+      fecharMtPecaDrop();
+      renderMtPecaChips();
     }catch(e){}
   });
   supabase.from('terceiros').select('nome').order('nome').then(function(res){
@@ -2151,14 +2182,16 @@ function initMatrizPeca(){
 }
 function limparMatrizPeca(){
   document.getElementById('mtDi').value='';document.getElementById('mtDf').value='';
-  document.querySelectorAll('.mt-peca:checked,.mt-terc:checked').forEach(function(c){c.checked=false;});
+  document.getElementById('mtPecaFiltro').value='';
+  mtPecasSel=[];renderMtPecaChips();fecharMtPecaDrop();
+  document.querySelectorAll('.mt-terc:checked').forEach(function(c){c.checked=false;});
   document.getElementById('matrizResult').innerHTML='';
   msg_('msgMatriz','');
   ultimaMatrizData=null;
 }
 function matrizColeta(){
   return {
-    pecas:Array.from(document.querySelectorAll('.mt-peca:checked')).map(function(c){return c.value;}),
+    pecas:mtPecasSel.slice(),
     terceiros:Array.from(document.querySelectorAll('.mt-terc:checked')).map(function(c){return c.value;}),
     di:document.getElementById('mtDi').value,
     df:document.getElementById('mtDf').value
@@ -2184,11 +2217,11 @@ function construirTabelaMatriz_(titulo,dias,pecas,campo){
   html+='<th>Total</th></tr></thead><tbody>';
   var totCol=dias.map(function(){return 0;}),totGeral=0;
   pecas.forEach(function(p){
-    var vals=p[campo]||[];
+    var vals=p[campo]||{};
     var totLinha=0;
     html+='<tr><td>'+esc(p.peca)+'</td>';
     dias.forEach(function(dd,ix){
-      var v=Number(vals[ix])||0;totLinha+=v;totCol[ix]+=v;
+      var v=Number(vals[dd])||0;totLinha+=v;totCol[ix]+=v;
       html+='<td>'+(v?fmtN(v):'-')+'</td>';
     });
     totGeral+=totLinha;
@@ -2228,10 +2261,10 @@ function baixarMatrizExcel(){
       var aoa=[['Peca'].concat(t.dias,['Total'])];
       var totCol=t.dias.map(function(){return 0;}),totGeral=0;
       t.pecas.forEach(function(p){
-        var vals=p[campo]||[];
+        var vals=p[campo]||{};
         var totLinha=0;
         var linha=[p.peca];
-        t.dias.forEach(function(dd,ix){var v=Number(vals[ix])||0;totLinha+=v;totCol[ix]+=v;linha.push(v);});
+        t.dias.forEach(function(dd,ix){var v=Number(vals[dd])||0;totLinha+=v;totCol[ix]+=v;linha.push(v);});
         totGeral+=totLinha;linha.push(totLinha);
         aoa.push(linha);
       });
