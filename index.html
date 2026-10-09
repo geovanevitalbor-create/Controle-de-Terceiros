@@ -239,6 +239,19 @@ table.mt-corr .mt-rep{color:#8b5cf6;font-weight:600;font-size:10.5px}
 table.mt-corr tbody tr:not(:last-child):hover td{background:rgba(255,255,255,.025)}
 .mt-legend{display:flex;gap:18px;margin-top:11px;font-size:10.5px;color:var(--text3)}
 .mt-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+table.mt-multi{font-size:11.5px}
+table.mt-multi td,table.mt-multi th{padding:5px 9px}
+table.mt-multi td.mt-peca-cell{vertical-align:middle;background:rgba(255,255,255,.02);border-right:1px solid var(--bdr)}
+.mt-peca-sub{font-size:9.5px;color:var(--text3);font-weight:400;margin-top:2px}
+table.mt-multi tr.mt-total-row td{background:rgba(255,255,255,.04);font-weight:700}
+table.mt-multi tr.mt-total-row td.mt-peca-cell{background:rgba(255,255,255,.06)}
+.mt-m-env{color:var(--amber2);font-weight:600}
+.mt-m-rec{color:var(--cyan);font-weight:600}
+.mt-m-apr{color:var(--green);font-weight:600}
+.mt-m-ref{color:#dc2626;font-weight:600}
+.mt-m-rep{color:#8b5cf6;font-weight:600}
+.mt-m-dev{color:#2563eb;font-weight:600}
+.mt-m-dif{color:#0d9488;font-weight:600}
 .chart-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:18px}
 @media(max-width:900px){.chart-row{grid-template-columns:1fr}}
 .chart-box{background:var(--surf);border:1px solid var(--bdr);border-radius:11px;box-shadow:var(--sh);padding:16px 16px 12px;display:flex;flex-direction:column}
@@ -2259,66 +2272,71 @@ function construirTabelaMatriz_(titulo,dias,pecas,campo){
   html+='</tbody></table></div>';
   return html;
 }
-function somaTotalCampoMatriz_(pecas,campo){
-  var tot=0;
-  pecas.forEach(function(p){
-    var vals=p[campo]||{};
-    Object.keys(vals).forEach(function(k){tot+=Number(vals[k])||0;});
-  });
+var MT_METRICAS=[
+  {campo:'enviado',label:'Enviado',cls:'mt-m-env'},
+  {campo:'recebido',label:'Recebido',cls:'mt-m-rec'},
+  {campo:'aprovadas',label:'Aprovadas',cls:'mt-m-apr'},
+  {campo:'refugo',label:'Refugo',cls:'mt-m-ref'},
+  {campo:'repasse',label:'Repasse',cls:'mt-m-rep'},
+  {campo:'devolucao',label:'Devolucao',cls:'mt-m-dev'},
+  {campo:'diferenca',label:'A mais / a menos',cls:'mt-m-dif'}
+];
+function mtSomarCampo_(dataObj,campo){
+  var vals=dataObj[campo]||{},tot=0;
+  Object.keys(vals).forEach(function(k){tot+=Number(vals[k])||0;});
   return tot;
 }
-function mtLinhaCampo_(v,cls,pref){return '<span class="'+cls+'">'+pref+(v?fmtN(v):'-')+'</span>';}
-function construirTabelaUnica_(titulo,dias,pecas){
-  var html='<div class="tbl-box" style="margin-top:14px"><h3>'+esc(titulo)+'</h3><table class="mt-corr"><thead><tr><th>Peca</th>';
+function mtGrupoHtml_(label,sub,dias,dataPorCampo,totalRow){
+  var html='';
+  MT_METRICAS.forEach(function(m,mi){
+    var vals=dataPorCampo[m.campo]||{};
+    var totLinha=0;
+    html+='<tr'+(totalRow?' class="mt-total-row"':'')+'>';
+    if(mi===0){
+      html+='<td rowspan="'+MT_METRICAS.length+'" class="mt-peca-cell"><b>'+esc(label)+'</b>'+(sub?'<div class="mt-peca-sub">'+esc(sub)+'</div>':'')+'</td>';
+    }
+    html+='<td class="'+m.cls+'"><b>'+esc(m.label)+'</b></td>';
+    dias.forEach(function(dd){
+      var v=Number(vals[dd])||0;totLinha+=v;
+      html+='<td style="text-align:center">'+fmtN(v)+'</td>';
+    });
+    html+='<td style="text-align:center"><b>'+fmtN(totLinha)+'</b></td></tr>';
+  });
+  return html;
+}
+function construirTabelaMulti_(titulo,dias,pecas){
+  var totObj={};
+  MT_METRICAS.forEach(function(m){totObj[m.campo]={};});
+  dias.forEach(function(dd){
+    MT_METRICAS.forEach(function(m){
+      var s=0;
+      pecas.forEach(function(p){s+=Number((p[m.campo]||{})[dd])||0;});
+      totObj[m.campo][dd]=s;
+    });
+  });
+  var html='<div class="tbl-box" style="margin-top:14px"><h3>'+esc(titulo)+' · '+pecas.length+' peca(s)</h3>';
+  html+='<table class="mt-multi"><thead><tr><th>Peca</th><th>Movimento</th>';
   dias.forEach(function(dd){html+='<th style="text-align:center">'+esc(dd)+'</th>';});
   html+='<th style="text-align:center">Total</th></tr></thead><tbody>';
-  var tot={levado:dias.map(function(){return 0;}),devolvido:dias.map(function(){return 0;}),refugo:dias.map(function(){return 0;}),repasse:dias.map(function(){return 0;})};
-  var totG={levado:0,devolvido:0,refugo:0,repasse:0};
-  pecas.forEach(function(p){
-    var linTot={levado:0,devolvido:0,refugo:0,repasse:0};
-    html+='<tr><td>'+esc(p.peca)+'</td>';
-    dias.forEach(function(dd,ix){
-      var vL=Number((p.levado||{})[dd])||0,vD=Number((p.devolvido||{})[dd])||0,vR=Number((p.refugo||{})[dd])||0,vP=Number((p.repasse||{})[dd])||0;
-      linTot.levado+=vL;linTot.devolvido+=vD;linTot.refugo+=vR;linTot.repasse+=vP;
-      tot.levado[ix]+=vL;tot.devolvido[ix]+=vD;tot.refugo[ix]+=vR;tot.repasse[ix]+=vP;
-      html+='<td class="mt-cell">'+
-        mtLinhaCampo_(vL,'mt-up','↑ ')+
-        mtLinhaCampo_(vD,'mt-down','↓ ')+
-        (vR?mtLinhaCampo_(vR,'mt-ref','Refugo ' ):'')+
-        (vP?mtLinhaCampo_(vP,'mt-rep','Repasse '):'')+
-      '</td>';
-    });
-    totG.levado+=linTot.levado;totG.devolvido+=linTot.devolvido;totG.refugo+=linTot.refugo;totG.repasse+=linTot.repasse;
-    html+='<td class="mt-cell">'+
-      mtLinhaCampo_(linTot.levado,'mt-up','↑ ')+
-      mtLinhaCampo_(linTot.devolvido,'mt-down','↓ ')+
-      (linTot.refugo?mtLinhaCampo_(linTot.refugo,'mt-ref','Refugo '):'')+
-      (linTot.repasse?mtLinhaCampo_(linTot.repasse,'mt-rep','Repasse '):'')+
-    '</td></tr>';
-  });
-  html+='<tr style="border-top:2px solid var(--bdr2)"><td><b>TOTAL</b></td>';
-  dias.forEach(function(dd,ix){
-    html+='<td class="mt-cell">'+
-      mtLinhaCampo_(tot.levado[ix],'mt-up','↑ ')+
-      mtLinhaCampo_(tot.devolvido[ix],'mt-down','↓ ')+
-      (tot.refugo[ix]?mtLinhaCampo_(tot.refugo[ix],'mt-ref','Refugo '):'')+
-      (tot.repasse[ix]?mtLinhaCampo_(tot.repasse[ix],'mt-rep','Repasse '):'')+
-    '</td>';
-  });
-  html+='<td class="mt-cell">'+
-    mtLinhaCampo_(totG.levado,'mt-up','↑ ')+
-    mtLinhaCampo_(totG.devolvido,'mt-down','↓ ')+
-    (totG.refugo?mtLinhaCampo_(totG.refugo,'mt-ref','Refugo '):'')+
-    (totG.repasse?mtLinhaCampo_(totG.repasse,'mt-rep','Repasse '):'')+
-  '</td></tr>';
-  html+='</tbody></table>';
-  html+='<div class="mt-legend">'+
-    '<span><i class="mt-dot" style="background:var(--amber2)"></i>&#8593; Enviado (saida)</span>'+
-    '<span><i class="mt-dot" style="background:var(--green)"></i>&#8595; Retornado (entrada)</span>'+
-    '<span><i class="mt-dot" style="background:#dc2626"></i>Refugo</span>'+
-    '<span><i class="mt-dot" style="background:#8b5cf6"></i>Repasse</span>'+
+  pecas.forEach(function(p){html+=mtGrupoHtml_(p.peca,(p.sacos||0)+' saco(s)',dias,p,false);});
+  html+='</tbody><tfoot>'+mtGrupoHtml_('TOTAL',null,dias,totObj,true)+'</tfoot></table></div>';
+  return html;
+}
+function construirKpisMatriz_(pecas){
+  var tot={};
+  MT_METRICAS.forEach(function(m){tot[m.campo]=0;pecas.forEach(function(p){tot[m.campo]+=mtSomarCampo_(p,m.campo);});});
+  var ficou=tot.enviado-tot.recebido;
+  var aguardando=(tot.recebido+tot.diferenca)-tot.aprovadas-tot.refugo-tot.repasse-tot.devolucao;
+  var html='<div class="kpi-row" style="grid-template-columns:repeat(7,1fr)">'+
+    '<div class="kpi ka"><div class="kpi-bar"></div><div class="kpi-lbl">Enviado</div><div class="kpi-val">'+fmtN(tot.enviado)+' <span class="unit">pecas</span></div></div>'+
+    '<div class="kpi ki"><div class="kpi-bar"></div><div class="kpi-lbl">Recebido</div><div class="kpi-val">'+fmtN(tot.recebido)+' <span class="unit">pecas</span></div></div>'+
+    '<div class="kpi kg"><div class="kpi-bar"></div><div class="kpi-lbl">Aprovadas</div><div class="kpi-val">'+fmtN(tot.aprovadas)+' <span class="unit">pecas</span></div></div>'+
+    '<div class="kpi kf"><div class="kpi-bar"></div><div class="kpi-lbl">Refugo</div><div class="kpi-val">'+fmtN(tot.refugo)+' <span class="unit">pecas</span></div></div>'+
+    '<div class="kpi kr"><div class="kpi-bar"></div><div class="kpi-lbl">Repasse</div><div class="kpi-val">'+fmtN(tot.repasse)+' <span class="unit">pecas</span></div></div>'+
+    '<div class="kpi ks"><div class="kpi-bar"></div><div class="kpi-lbl">Devolucao</div><div class="kpi-val">'+fmtN(tot.devolucao)+' <span class="unit">pecas</span></div></div>'+
+    '<div class="kpi kt"><div class="kpi-bar"></div><div class="kpi-lbl">Ficou com Terceiros</div><div class="kpi-val">'+fmtN(ficou)+' <span class="unit">pecas</span></div></div>'+
   '</div>';
-  html+='</div>';
+  html+='<p style="font-size:10.5px;color:var(--text3);margin:4px 0 0">Conta do periodo: Enviado '+fmtN(tot.enviado)+' - Recebido '+fmtN(tot.recebido)+' = '+fmtN(ficou)+' ficou com terceiros · Recebido '+fmtN(tot.recebido)+' '+(tot.diferenca>=0?'+':'-')+' '+fmtN(Math.abs(tot.diferenca))+' diferenca de contagem · Aprovadas '+fmtN(tot.aprovadas)+' + Refugo '+fmtN(tot.refugo)+' + Repasse '+fmtN(tot.repasse)+' + Devolucao '+fmtN(tot.devolucao)+' + '+fmtN(aguardando)+' aguardando inspecao</p>';
   return html;
 }
 function renderMatrizPeca(d){
@@ -2328,7 +2346,8 @@ function renderMatrizPeca(d){
   terceiros.forEach(function(t){
     var pecasNomes=t.pecas.map(function(p){return p.peca;}).join(' / ');
     html+='<div class="unit-group" style="margin-top:16px"><div class="unit-group-ttl">'+esc(t.nome)+' — '+esc(pecasNomes)+' por dia</div></div>';
-    html+=construirTabelaUnica_('Movimentacao por dia',t.dias,t.pecas);
+    html+=construirKpisMatriz_(t.pecas);
+    html+=construirTabelaMulti_('Movimentacao por dia',t.dias,t.pecas);
   });
   document.getElementById('matrizResult').innerHTML=html;
 }
@@ -2347,29 +2366,37 @@ function baixarMatrizExcel(){
     XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(aoa),nome);
   }
   ultimaMatrizData.terceiros.forEach(function(t){
-    var header=['Peca'];
-    t.dias.forEach(function(dd){header.push(dd+' Enviado (saida)',dd+' Retornado (entrada)',dd+' Refugo',dd+' Repasse');});
-    header.push('Total Enviado','Total Retornado','Total Refugo','Total Repasse');
+    var header=['Peca','Movimento'];
+    t.dias.forEach(function(dd){header.push(dd);});
+    header.push('Total');
     var aoa=[header];
-    var campos=['levado','devolvido','refugo','repasse'];
-    var totCol={levado:t.dias.map(function(){return 0;}),devolvido:t.dias.map(function(){return 0;}),refugo:t.dias.map(function(){return 0;}),repasse:t.dias.map(function(){return 0;})};
-    var totG={levado:0,devolvido:0,refugo:0,repasse:0};
+    var totObj={};
+    MT_METRICAS.forEach(function(m){
+      totObj[m.campo]={};
+      t.dias.forEach(function(dd){totObj[m.campo][dd]=0;});
+    });
     t.pecas.forEach(function(p){
-      var linha=[p.peca],linTot={levado:0,devolvido:0,refugo:0,repasse:0};
-      t.dias.forEach(function(dd,ix){
-        campos.forEach(function(c){
-          var v=Number((p[c]||{})[dd])||0;
-          linTot[c]+=v;totCol[c][ix]+=v;
+      MT_METRICAS.forEach(function(m,mi){
+        var vals=p[m.campo]||{},linTot=0;
+        var linha=[mi===0?p.peca:'',m.label];
+        t.dias.forEach(function(dd){
+          var v=Number(vals[dd])||0;
+          linTot+=v;totObj[m.campo][dd]+=v;
           linha.push(v);
         });
+        linha.push(linTot);
+        aoa.push(linha);
       });
-      campos.forEach(function(c){totG[c]+=linTot[c];linha.push(linTot[c]);});
+    });
+    MT_METRICAS.forEach(function(m,mi){
+      var linTot=0;
+      var linha=[mi===0?'TOTAL':'',m.label];
+      t.dias.forEach(function(dd){
+        var v=totObj[m.campo][dd];linTot+=v;linha.push(v);
+      });
+      linha.push(linTot);
       aoa.push(linha);
     });
-    var totLinha=['TOTAL'];
-    t.dias.forEach(function(dd,ix){campos.forEach(function(c){totLinha.push(totCol[c][ix]);});});
-    campos.forEach(function(c){totLinha.push(totG[c]);});
-    aoa.push(totLinha);
     addSheet(t,'Matriz',aoa);
   });
   var di=document.getElementById('mtDi').value,df=document.getElementById('mtDf').value;
