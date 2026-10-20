@@ -942,9 +942,9 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
           </div>
           <div style="margin-top:12px">
             <label>Pecas <span id="rkPecaCont" style="color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0"></span></label>
-            <div id="rkPecaChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+            <div id="rkPecaChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;max-height:96px;overflow-y:auto"></div>
             <div style="position:relative">
-              <input class="i" id="rkPecaFiltro" placeholder="Buscar peca..." autocomplete="off" oninput="renderRkPecaBox()" onfocus="abrirRkPecaDrop()">
+              <input class="i" id="rkPecaFiltro" placeholder="Buscar peca..." autocomplete="off" oninput="renderRkPecaBox()" onfocus="abrirRkPecaDrop()" onclick="abrirRkPecaDrop()">
               <div id="rkPecaBox" style="display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:30;background:var(--surf);border:1px solid var(--bdr2);border-radius:8px;max-height:260px;overflow-y:auto;box-shadow:var(--sh-lg)"></div>
             </div>
           </div>
@@ -953,7 +953,7 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
             <div id="rkTercBox" style="display:flex;flex-wrap:wrap;gap:12px;padding:4px 2px 0"></div>
           </div>
           <div class="row3" style="margin-top:12px">
-            <div><label>Agrupar por</label><select class="i" id="rkGrupo" onchange="if(rkUltimo)renderRanking()"><option value="terc">Terceiro</option><option value="peca">Terceiro x Peca</option></select></div>
+            <div><label>Agrupar por</label><select class="i" id="rkGrupo" onchange="if(rkUltimo)renderRanking()"><option value="peca">Peca</option><option value="pecaterc">Peca x Terceiro</option></select></div>
             <div><label>Ordenar por</label><select class="i" id="rkMetrica" onchange="if(rkUltimo)renderRanking()"></select></div>
             <div><label>Ordem</label><select class="i" id="rkOrdem" onchange="if(rkUltimo)renderRanking()"><option value="desc">Maior primeiro</option><option value="asc">Menor primeiro</option></select></div>
           </div>
@@ -1143,6 +1143,13 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
       <button class="btn btn-ghost" onclick="document.getElementById('adminExclModal').classList.remove('open')" style="margin-top:0;flex:1">Cancelar</button>
     </div>
     <div id="msgAdminExcl" style="margin-top:8px"></div>
+  </div>
+</div>
+<div class="login-overlay" id="rkHistModal">
+  <div class="login-modal" style="max-width:880px;max-height:85vh;overflow-y:auto;text-align:left">
+    <h3 id="rkHistTitle" style="margin-bottom:14px">Rastreabilidade</h3>
+    <div id="rkHistBody" class="load">Carregando...</div>
+    <button class="btn btn-ghost" onclick="document.getElementById('rkHistModal').classList.remove('open')" style="margin-top:14px">Fechar</button>
   </div>
 </div>
 <div class="login-overlay" id="lancDetailModal">
@@ -2469,18 +2476,18 @@ function baixarMatrizExcel(){
   var di=document.getElementById('mtDi').value,df=document.getElementById('mtDf').value;
   XLSX.writeFile(wb,'Matriz_Pecas_'+di+'_a_'+df+'.xlsx');
 }
-var rkPecasCache=[],rkPecasSel=[],rkUltimo=null;
+var rkPecasCache=[],rkPecasSel=[],rkUltimo=null,rkChart=null,rkLinhasView=[],rkFiltroUsado={di:'',df:''};
 var RK_METRICAS=[
-  {k:'aprovadas',l:'Aprovadas'},
-  {k:'enviado',l:'Enviado'},
-  {k:'recebido',l:'Recebido'},
-  {k:'refugo',l:'Refugo'},
-  {k:'repasse',l:'Repasse'},
-  {k:'devolucao',l:'Devolucao'},
-  {k:'saldo',l:'Ficou c/ terceiro'},
-  {k:'pAprov',l:'% Aprovacao',pct:true},
-  {k:'pRefugo',l:'% Refugo',pct:true},
-  {k:'pRepasse',l:'% Repasse',pct:true}
+  {k:'aprovadas',l:'Aprovadas',c:'rgba(22,163,74,.8)'},
+  {k:'enviado',l:'Enviado',c:'rgba(245,158,11,.8)'},
+  {k:'recebido',l:'Recebido',c:'rgba(8,145,178,.8)'},
+  {k:'refugo',l:'Refugo',c:'rgba(220,38,38,.8)'},
+  {k:'repasse',l:'Repasse',c:'rgba(139,92,246,.8)'},
+  {k:'devolucao',l:'Devolucao',c:'rgba(37,99,235,.8)'},
+  {k:'saldo',l:'Ficou c/ terceiro',c:'rgba(13,148,136,.8)'},
+  {k:'pAprov',l:'% Aprovacao',pct:true,c:'rgba(22,163,74,.8)'},
+  {k:'pRefugo',l:'% Refugo',pct:true,c:'rgba(220,38,38,.8)'},
+  {k:'pRepasse',l:'% Repasse',pct:true,c:'rgba(139,92,246,.8)'}
 ];
 function initRanking(){
   var s=document.getElementById('rkMetrica');
@@ -2498,6 +2505,10 @@ function initRanking(){
     }).join('');
   });
 }
+function rkPecasFiltradas_(){
+  var termo=(document.getElementById('rkPecaFiltro').value||'').trim().toLowerCase();
+  return termo?rkPecasCache.filter(function(p){return p.toLowerCase().indexOf(termo)!==-1;}):rkPecasCache;
+}
 function abrirRkPecaDrop(){document.getElementById('rkPecaBox').style.display='block';renderRkPecaBox();}
 function fecharRkPecaDrop(){document.getElementById('rkPecaBox').style.display='none';}
 document.addEventListener('click',function(e){
@@ -2508,18 +2519,36 @@ document.addEventListener('click',function(e){
 function renderRkPecaBox(){
   var box=document.getElementById('rkPecaBox');
   if(box.style.display!=='block')return;
-  var termo=(document.getElementById('rkPecaFiltro').value||'').trim().toLowerCase();
-  var l=termo?rkPecasCache.filter(function(p){return p.toLowerCase().indexOf(termo)!==-1;}):rkPecasCache;
-  box.innerHTML=l.length?l.map(function(p){
+  var termo=(document.getElementById('rkPecaFiltro').value||'').trim();
+  var l=rkPecasFiltradas_();
+  var head='<div style="position:sticky;top:0;z-index:1;display:flex;gap:8px;padding:8px 12px;background:var(--surf);border-bottom:1px solid var(--bdr2)">'+
+    '<button class="cb edit" onclick="event.stopPropagation();rkSelTodas()">Selecionar todas'+(termo?' (filtradas)':'')+'</button>'+
+    '<button class="cb del" onclick="event.stopPropagation();rkLimparSel()">Limpar selecao</button></div>';
+  box.innerHTML=head+(l.length?l.map(function(p){
     var on=rkPecasSel.indexOf(p)!==-1;
     return '<div onclick="event.stopPropagation();toggleRkPeca(this.dataset.p)" data-p="'+esc(p)+'" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;font-weight:500;color:'+(on?'var(--text)':'var(--text2)')+';cursor:pointer;border-bottom:1px solid var(--bdr)'+(on?';background:var(--bg3)':'')+'"><input type="checkbox" '+(on?'checked':'')+' style="pointer-events:none">'+esc(p)+'</div>';
-  }).join(''):'<div class="empty" style="padding:12px">Nenhuma peca encontrada.</div>';
+  }).join(''):'<div class="empty" style="padding:12px">Nenhuma peca encontrada.</div>');
+}
+function rkSelTodas(){
+  rkPecasFiltradas_().forEach(function(p){if(rkPecasSel.indexOf(p)===-1) rkPecasSel.push(p);});
+  renderRkPecaBox();
+  renderRkPecaChips();
+}
+function rkLimparSel(){
+  rkPecasSel=[];
+  renderRkPecaBox();
+  renderRkPecaChips();
 }
 function renderRkPecaChips(){
-  document.getElementById('rkPecaChips').innerHTML=rkPecasSel.map(function(p){
-    return '<span style="display:inline-flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--bdr2);border-radius:999px;padding:4px 6px 4px 10px;font-size:11px;color:var(--text)">'+esc(p)+'<span data-p="'+esc(p)+'" onclick="toggleRkPeca(this.dataset.p)" style="cursor:pointer;color:var(--text3);font-weight:700;padding:0 2px">&times;</span></span>';
-  }).join('');
-  document.getElementById('rkPecaCont').textContent=rkPecasSel.length?'('+rkPecasSel.length+' selecionada'+(rkPecasSel.length>1?'s':'')+')':'';
+  var box=document.getElementById('rkPecaChips');
+  var todas=rkPecasCache.length&&rkPecasSel.length===rkPecasCache.length;
+  var chipEstilo='display:inline-flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--bdr2);border-radius:999px;padding:4px 6px 4px 10px;font-size:11px;color:var(--text)';
+  box.innerHTML=todas
+    ?'<span style="'+chipEstilo+'">Todas as pecas ('+fmtN(rkPecasSel.length)+')<span onclick="rkLimparSel()" style="cursor:pointer;color:var(--text3);font-weight:700;padding:0 2px">&times;</span></span>'
+    :rkPecasSel.map(function(p){
+      return '<span style="'+chipEstilo+'">'+esc(p)+'<span data-p="'+esc(p)+'" onclick="toggleRkPeca(this.dataset.p)" style="cursor:pointer;color:var(--text3);font-weight:700;padding:0 2px">&times;</span></span>';
+    }).join('');
+  document.getElementById('rkPecaCont').textContent=rkPecasSel.length?'('+fmtN(rkPecasSel.length)+' selecionada'+(rkPecasSel.length>1?'s':'')+')':'';
 }
 function toggleRkPeca(p){
   var ix=rkPecasSel.indexOf(p);
@@ -2532,8 +2561,9 @@ function limparRanking(){
   document.getElementById('rkPecaFiltro').value='';
   rkPecasSel=[];renderRkPecaChips();fecharRkPecaDrop();
   document.querySelectorAll('.rk-terc:checked').forEach(function(c){c.checked=false;});
+  if(rkChart){rkChart.destroy();rkChart=null;}
   document.getElementById('rankResult').innerHTML='';
-  msg_('msgRank','');rkUltimo=null;
+  msg_('msgRank','');rkUltimo=null;rkLinhasView=[];
 }
 function gerarRanking(){
   var di=document.getElementById('rkDi').value,df=document.getElementById('rkDf').value;
@@ -2541,9 +2571,11 @@ function gerarRanking(){
   if(!rkPecasSel.length){msg_('msgRank','<div class="alert alert-warn">Selecione ao menos uma peca.</div>');return;}
   if(!di||!df){msg_('msgRank','<div class="alert alert-warn">Selecione o periodo.</div>');return;}
   msg_('msgRank','<div class="load">Gerando ranking...</div>');
+  if(rkChart){rkChart.destroy();rkChart=null;}
   document.getElementById('rankResult').innerHTML='';
   rpc('get_matriz_peca',{p_pecas:rkPecasSel.slice(),p_terceiros:terc,p_di:di,p_df:df}).then(function(d){
     msg_('msgRank','');
+    rkFiltroUsado={di:di,df:df};
     rkUltimo=d;
     renderRanking();
   }).catch(function(e){msg_('msgRank','<div class="alert alert-err">'+esc(e.message)+'</div>');});
@@ -2554,19 +2586,22 @@ function rkFmt_(m,v){
   return fmtN(v);
 }
 function rkLinhas_(d,grupo){
-  var linhas=[];
   var campos=['enviado','recebido','aprovadas','refugo','repasse','devolucao'];
-  function nova(nome,sub){var l={nome:nome,sub:sub};campos.forEach(function(c){l[c]=0;});return l;}
+  var mapa={},linhas=[];
+  function nova(peca,terc){var l={peca:peca,terc:terc};campos.forEach(function(c){l[c]=0;});return l;}
   function somar(l,p){campos.forEach(function(c){l[c]+=mtSomarCampo_(p,c);});}
   ((d&&d.terceiros)||[]).forEach(function(t){
-    if(grupo==='peca'){
-      t.pecas.forEach(function(p){var l=nova(t.nome,p.peca);somar(l,p);linhas.push(l);});
-    } else {
-      var l=nova(t.nome,'');
-      t.pecas.forEach(function(p){somar(l,p);});
-      linhas.push(l);
-    }
+    t.pecas.forEach(function(p){
+      if(grupo==='pecaterc'){
+        var l=nova(p.peca,t.nome);somar(l,p);linhas.push(l);
+      } else {
+        var g=mapa[p.peca];
+        if(!g){g=nova(p.peca,'');mapa[p.peca]=g;linhas.push(g);}
+        somar(g,p);
+      }
+    });
   });
+  linhas=linhas.filter(function(l){return campos.some(function(c){return l[c]!==0;});});
   linhas.forEach(function(l){
     var base=l.aprovadas+l.refugo+l.repasse+l.devolucao;
     l.saldo=l.enviado-l.recebido;
@@ -2580,8 +2615,10 @@ function renderRanking(){
   var grupo=document.getElementById('rkGrupo').value;
   var mk=document.getElementById('rkMetrica').value;
   var asc=document.getElementById('rkOrdem').value==='asc';
+  var met=RK_METRICAS.filter(function(x){return x.k===mk;})[0];
   var linhas=rkLinhas_(rkUltimo,grupo);
-  if(!linhas.length){document.getElementById('rankResult').innerHTML='<div class="empty">Nenhum dado para os filtros selecionados.</div>';return;}
+  if(rkChart){rkChart.destroy();rkChart=null;}
+  if(!linhas.length){rkLinhasView=[];document.getElementById('rankResult').innerHTML='<div class="empty">Nenhum dado para os filtros selecionados.</div>';return;}
   linhas.sort(function(a,b){
     var x=a[mk],y=b[mk];
     if(x===null&&y===null) return 0;
@@ -2589,15 +2626,19 @@ function renderRanking(){
     if(y===null) return -1;
     return asc?x-y:y-x;
   });
+  rkLinhasView=linhas;
+  var topo=linhas.filter(function(l){return l[mk]!==null;}).slice(0,20);
+  var altura=Math.max(140,topo.length*30+50);
   var max=0;
   linhas.forEach(function(l){if(l[mk]!==null&&Math.abs(l[mk])>max) max=Math.abs(l[mk]);});
-  var html='<div class="tbl-box" style="margin-top:14px"><h3>Ranking · '+linhas.length+' linha(s)</h3><table><thead><tr><th>#</th><th>Terceiro</th>'+(grupo==='peca'?'<th>Peca</th>':'');
+  var html='<div class="chart-box" style="margin-top:14px"><h3>'+esc(met.l)+' · top '+topo.length+' (clique numa barra para ver o historico)</h3><div class="chart-h" style="height:'+altura+'px"><canvas id="cRank"></canvas></div></div>';
+  html+='<div class="tbl-box" style="margin-top:14px"><h3>Ranking · '+fmtN(linhas.length)+' linha(s) · clique numa linha para ver a rastreabilidade</h3><table><thead><tr><th>#</th><th>Peca</th>'+(grupo==='pecaterc'?'<th>Terceiro</th>':'');
   RK_METRICAS.forEach(function(m){html+='<th style="text-align:center'+(m.k===mk?';color:var(--accent)':'')+'">'+esc(m.l)+'</th>';});
   html+='</tr></thead><tbody>';
   linhas.forEach(function(l,ix){
     var v=l[mk];
     var pct=(v!==null&&max)?Math.round(Math.abs(v)/max*100):0;
-    html+='<tr><td style="color:var(--text3)">'+(ix+1)+'</td><td><b style="color:var(--text)">'+esc(l.nome)+'</b><div class="bar-mini"><div class="bar-fill" style="width:'+pct+'%;background:var(--accent)"></div></div></td>'+(grupo==='peca'?'<td>'+esc(l.sub)+'</td>':'');
+    html+='<tr style="cursor:pointer" onclick="abrirRkHist('+ix+')" title="Ver historico e rastreabilidade"><td style="color:var(--text3)">'+(ix+1)+'</td><td><b style="color:var(--text)">'+esc(l.peca)+'</b><div class="bar-mini"><div class="bar-fill" style="width:'+pct+'%;background:var(--accent)"></div></div></td>'+(grupo==='pecaterc'?'<td>'+esc(l.terc)+'</td>':'');
     RK_METRICAS.forEach(function(m){
       html+='<td style="text-align:center'+(m.k===mk?';color:var(--text);font-weight:700':'')+'">'+rkFmt_(m,l[m.k])+'</td>';
     });
@@ -2605,6 +2646,53 @@ function renderRanking(){
   });
   html+='</tbody></table></div>';
   document.getElementById('rankResult').innerHTML=html;
+  rkChart=new Chart(document.getElementById('cRank').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:topo.map(function(l){return grupo==='pecaterc'?l.peca+' · '+l.terc:l.peca;}),
+      datasets:[{label:met.l,data:topo.map(function(l){return l[mk];}),backgroundColor:met.c,borderRadius:4}]
+    },
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      onClick:function(ev,els){if(els&&els.length) abrirRkHist(els[0].index);},
+      scales:{
+        x:{beginAtZero:true,ticks:{color:'#9aa39d',font:{size:9},callback:function(v){return met.pct?fmtN(v)+'%':fmtN(v);}},grid:{color:'rgba(255,255,255,.06)'}},
+        y:{ticks:{color:'#9aa39d',font:{size:10}},grid:{display:false}}
+      },
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:function(c){return met.l+': '+(met.pct?c.parsed.x.toFixed(1).replace('.',',')+'%':fmtN(c.parsed.x));}}}
+      }
+    }
+  });
+}
+function abrirRkHist(ix){
+  var l=rkLinhasView[ix];
+  if(!l) return;
+  document.getElementById('rkHistTitle').textContent='Rastreabilidade — '+l.peca+(l.terc?' · '+l.terc:'');
+  document.getElementById('rkHistBody').innerHTML='<div class="load">Carregando...</div>';
+  document.getElementById('rkHistModal').classList.add('open');
+  rpc('get_peca_historico',{p_peca:l.peca,p_filtros:{terceiro:l.terc||'',status:'',di:rkFiltroUsado.di,df:rkFiltroUsado.df}}).then(function(d){
+    try{
+      var html='<div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">'+
+        '<div class="kpi ka"><div class="kpi-bar"></div><div class="kpi-lbl">Total Enviado</div><div class="kpi-val">'+fmtN(d.totalEnviado)+' <span class="unit">pecas</span></div></div>'+
+        '<div class="kpi kg"><div class="kpi-bar"></div><div class="kpi-lbl">Total Retornado</div><div class="kpi-val">'+fmtN(d.totalRetornado)+' <span class="unit">pecas</span></div></div>'+
+        '<div class="kpi kr"><div class="kpi-bar"></div><div class="kpi-lbl">Total Repasse</div><div class="kpi-val">'+fmtN(d.totalRepasse)+' <span class="unit">pecas</span></div></div>'+
+        '<div class="kpi kf"><div class="kpi-bar"></div><div class="kpi-lbl">Total Refugo</div><div class="kpi-val">'+fmtN(d.totalRefugo)+' <span class="unit">pecas</span></div></div>'+
+      '</div>';
+      if(d.sacos&&d.sacos.length){
+        html+='<div class="tbl-box" style="margin-top:10px"><h3>Sacos · clique numa linha para ver o historico completo</h3><table><thead><tr><th>ID</th><th>Terceiro</th><th>Data Sep.</th><th>Qtd</th><th>Dias Fora</th><th>Status</th><th>Entradas</th><th>Repassos</th></tr></thead><tbody>';
+        d.sacos.forEach(function(s){
+          var df=(s.diasFora===null||s.diasFora===undefined)?'-':('<span class="dc '+(s.diasFora>7?'old':s.diasFora>3?'mid':'ok')+'">'+s.diasFora+'d</span>');
+          html+='<tr style="cursor:pointer" onclick="verHistoricoSaco(\''+esc(s.id)+'\')"><td style="font-size:10px;color:var(--accent)">'+esc(s.id)+'</td><td>'+esc(s.terceiro)+'</td><td>'+esc(s.dataSep)+'</td><td>'+esc(String(s.qtd))+'</td><td>'+df+'</td><td>'+badgeStatus_(s.status)+'</td><td>'+esc(String(s.entradas.length))+'</td><td>'+esc(String(s.repassos.length))+'</td></tr>';
+        });
+        html+='</tbody></table></div>';
+      } else {
+        html+='<div class="empty">Nenhum saco encontrado para esta peca no periodo.</div>';
+      }
+      document.getElementById('rkHistBody').innerHTML=html;
+    }catch(err){document.getElementById('rkHistBody').innerHTML='<div class="alert alert-err">Erro ao renderizar.</div>';}
+  }).catch(function(e){document.getElementById('rkHistBody').innerHTML='<div class="alert alert-err">'+esc((e&&e.message)||String(e))+'</div>';});
 }
 var ABA_MAP={
   Ferramentas:{campos:['Codigo','Descricao'],lista:'listaFerramentas',msg:'msgFerramentas',filtro:'filtroFerramentas'},
