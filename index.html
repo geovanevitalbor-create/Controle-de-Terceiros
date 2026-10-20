@@ -274,13 +274,9 @@ tbody tr:hover td{background:rgba(0,131,62,.05);color:var(--text)}
 .empty{text-align:center;color:var(--text3);padding:20px;font-size:12px}
 .rk-card{display:grid;gap:18px;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012));border:1px solid var(--bdr);border-radius:14px;padding:20px 20px 18px;box-shadow:var(--sh);position:relative}
 .rk-card::before{content:'';position:absolute;left:0;top:20px;bottom:20px;width:3px;border-radius:0 3px 3px 0;background:var(--accent)}
-.rk-dates{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:520px}
-.rk-dates input[type=date]{color-scheme:dark}
 .rk-field{display:flex;flex-direction:column;gap:8px;min-width:0}
 .rk-lbl{font-size:12px;font-weight:600;color:var(--text2);display:flex;align-items:baseline;gap:8px}
 .rk-lbl small{font-size:11px;font-weight:500;color:var(--text3)}
-.rk-gl{font-size:11px;font-weight:500;color:var(--text3)}
-.rk-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;align-items:end}
 .rk-actions{display:flex;gap:9px}
 .rk-chips{display:flex;flex-wrap:wrap;gap:6px;max-height:96px;overflow-y:auto}
 .rk-chips:empty{display:none}
@@ -288,27 +284,14 @@ tbody tr:hover td{background:rgba(0,131,62,.05);color:var(--text)}
 .rk-chip button{width:20px;height:20px;border:0;border-radius:50%;background:transparent;color:var(--text2);font-size:15px;line-height:1;cursor:pointer;transition:background .15s,color .15s}
 .rk-chip button:hover{background:rgba(255,255,255,.12);color:var(--text)}
 .rk-chip button:focus-visible,.rk-pill input:focus-visible+span,.rk-met:focus-visible,.rk-seg button:focus-visible,.rk-opt:focus-visible{outline:2px solid var(--green);outline-offset:2px}
-.rk-drop{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:30;background:var(--surf);border:1px solid var(--bdr2);border-radius:12px;max-height:280px;overflow-y:auto;box-shadow:var(--sh-lg)}
+.rk-drop{position:absolute;left:0;top:calc(100% + 6px);z-index:30;min-width:100%;width:max-content;max-width:min(380px,92vw);background:var(--surf);border:1px solid var(--bdr2);border-radius:12px;max-height:300px;overflow-y:auto;box-shadow:var(--sh-lg)}
 .rk-drop-h{position:sticky;top:0;z-index:1;display:flex;gap:8px;padding:9px 12px;background:var(--surf);border-bottom:1px solid var(--bdr2)}
-.rk-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:12.5px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:1px solid var(--bdr);transition:background .12s}
+.rk-opt{position:relative;display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:12.5px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:1px solid var(--bdr);transition:background .12s}
 .rk-opt:hover{background:var(--bg3)}
 .rk-opt.on{color:var(--text);background:rgba(0,131,62,.1)}
 .rk-ck{width:16px;height:16px;border-radius:5px;border:1.5px solid var(--bdr2);flex-shrink:0;position:relative;transition:all .12s}
-.rk-opt.on .rk-ck{background:var(--accent);border-color:var(--accent)}
-.rk-opt.on .rk-ck::after{content:'';position:absolute;left:4px;top:1px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
-.rk-pills{display:flex;flex-wrap:wrap;gap:7px}
-.rk-pill{position:relative;cursor:pointer;margin:0;display:inline-block;text-transform:none;letter-spacing:0}
-.rk-pill input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
-.rk-pill span{display:inline-flex;align-items:center;min-height:36px;padding:0 15px;border-radius:999px;border:1px solid var(--bdr2);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:600;transition:background .15s,border-color .15s,color .15s}
-.rk-pill:hover span{border-color:var(--accent);color:var(--text)}
-.rk-pill input:checked+span{background:rgba(0,131,62,.2);border-color:var(--accent);color:var(--text)}
-.rk-metrow{display:flex;flex-wrap:wrap;gap:14px 34px}
-.rk-metgroup{display:flex;flex-direction:column;gap:7px;min-width:0}
-.rk-met{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 14px 0 12px;border-radius:999px;border:1px solid var(--bdr2);background:var(--bg3);color:var(--text2);font:600 12px 'Inter',sans-serif;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
-.rk-met i{width:9px;height:9px;border-radius:50%;background:var(--c);opacity:.5;transition:opacity .15s,box-shadow .15s}
-.rk-met:hover{border-color:var(--c);color:var(--text)}
-.rk-met[aria-pressed=true]{color:var(--text);border-color:var(--c);background:var(--cb)}
-.rk-met[aria-pressed=true] i{opacity:1;box-shadow:0 0 10px var(--c)}
+.rk-opt.on .rk-ck,.rk-opt input:checked+.rk-ck{background:var(--accent);border-color:var(--accent)}
+.rk-opt.on .rk-ck::after,.rk-opt input:checked+.rk-ck::after{content:'';position:absolute;left:4px;top:1px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
 .rk-seg{display:inline-flex;align-self:flex-start;padding:3px;border-radius:11px;background:var(--bg3);border:1px solid var(--bdr)}
 .rk-seg button{min-height:36px;padding:0 15px;border:0;border-radius:8px;background:transparent;color:var(--text2);font:600 12px 'Inter',sans-serif;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
 .rk-seg button:hover{color:var(--text)}
@@ -347,8 +330,29 @@ tbody tr:hover td{background:rgba(0,131,62,.05);color:var(--text)}
 .rk-empty{margin-top:14px;border:1px dashed var(--bdr2);border-radius:14px;padding:38px 20px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center}
 .rk-empty b{font-size:14px;font-weight:700;color:var(--text)}
 .rk-empty span{font-size:12px;color:var(--text3);max-width:46ch;line-height:1.5}
-@media(max-width:640px){.rk-dates{grid-template-columns:1fr}.rk-card,.rk-panel{padding:16px 14px}.rk-actions .btn{flex:1}}
+@media(max-width:640px){.rk-card,.rk-panel{padding:16px 14px}.rk-actions .btn{flex:1}}
 @media(prefers-reduced-motion:reduce){.rk-card *,.rk-panel *{transition:none!important}}
+.rk-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px 12px;align-items:end}
+.rk-bar input[type=date]{color-scheme:dark}
+#msgRank:empty{display:none}
+.rk-ms{position:relative}
+.rk-trg{display:flex;align-items:center;gap:8px;width:100%;min-height:41px;padding:0 34px 0 13px;position:relative;font:500 13px 'Inter',sans-serif;color:var(--text);background:var(--bg3);border:1px solid var(--bdr);border-radius:8px;cursor:pointer;text-align:left;transition:border-color .12s,box-shadow .12s}
+.rk-trg::after{content:'';position:absolute;right:14px;top:50%;width:6px;height:6px;border:solid var(--text3);border-width:0 2px 2px 0;transform:translateY(-70%) rotate(45deg);transition:transform .15s}
+.rk-ms.open .rk-trg::after{transform:translateY(-30%) rotate(-135deg)}
+.rk-trg:hover,.rk-ms.open .rk-trg{border-color:var(--accent)}
+.rk-ms.open .rk-trg{box-shadow:0 0 0 3px rgba(0,131,62,.08)}
+.rk-trg:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.rk-trg-c{display:flex;align-items:center;gap:8px;min-width:0;flex:1;white-space:nowrap;overflow:hidden}
+.rk-trg-t{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.rk-trg-n{flex-shrink:0;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+.rk-trg-n:empty{display:none}
+.rk-dots{display:inline-flex;gap:3px;flex-shrink:0}
+.rk-dots i,.rk-dot{width:8px;height:8px;border-radius:50%;background:var(--c);display:inline-block;flex-shrink:0}
+.rk-ms-panel{display:none;position:absolute;left:0;top:calc(100% + 6px);z-index:30;min-width:100%;width:max-content;max-width:min(380px,92vw);max-height:340px;overflow-y:auto;background:var(--surf);border:1px solid var(--bdr2);border-radius:12px;box-shadow:var(--sh-lg)}
+.rk-ms.open .rk-ms-panel{display:block}
+.rk-gh{padding:10px 12px 6px;font-size:11px;font-weight:600;color:var(--text3)}
+.rk-opt input{position:absolute;opacity:0;width:0;height:0}
+.rk-opt input:focus-visible+.rk-ck{outline:2px solid var(--green);outline-offset:2px}
 .load{text-align:center;color:var(--text3);padding:24px;font-size:12px;font-weight:500}
 .bar-mini{height:3px;border-radius:2px;background:var(--bdr);overflow:hidden;margin-top:5px}
 .bar-fill{height:100%;border-radius:2px}
@@ -1013,38 +1017,38 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
       </div>
       <div id="dpRanking" style="display:none">
         <div class="rk-card">
-          <div class="rk-dates">
+          <div class="rk-bar">
             <div class="rk-field"><span class="rk-lbl">Data inicio</span><input class="i" type="date" id="rkDi"></div>
             <div class="rk-field"><span class="rk-lbl">Data fim</span><input class="i" type="date" id="rkDf"></div>
-          </div>
-          <div class="rk-field">
-            <span class="rk-lbl">Pecas <small id="rkPecaCont"></small></span>
-            <div id="rkPecaChips" class="rk-chips"></div>
-            <div style="position:relative">
-              <input class="i" id="rkPecaFiltro" placeholder="Buscar e adicionar pecas..." autocomplete="off" oninput="renderRkPecaBox()" onfocus="abrirRkPecaDrop()" onclick="abrirRkPecaDrop()">
-              <div id="rkPecaBox" class="rk-drop" style="display:none"></div>
+            <div class="rk-field">
+              <span class="rk-lbl">Pecas <small id="rkPecaCont"></small></span>
+              <div style="position:relative">
+                <input class="i" id="rkPecaFiltro" placeholder="Buscar pecas..." autocomplete="off" oninput="renderRkPecaBox()" onfocus="abrirRkPecaDrop()" onclick="abrirRkPecaDrop()">
+                <div id="rkPecaBox" class="rk-drop" style="display:none"></div>
+              </div>
             </div>
-          </div>
-          <div class="rk-field">
-            <span class="rk-lbl">Terceiros <small>vazio = todos</small></span>
-            <div id="rkTercBox" class="rk-pills"></div>
-          </div>
-          <div class="rk-field">
-            <span class="rk-lbl">Metricas no grafico <small>escolha uma ou mais</small></span>
-            <div class="rk-metrow">
-              <div class="rk-metgroup"><span class="rk-gl">Quantidades</span><div id="rkMetQtd" class="rk-pills"></div></div>
-              <div class="rk-metgroup"><span class="rk-gl">Percentuais</span><div id="rkMetPct" class="rk-pills"></div></div>
+            <div class="rk-field">
+              <span class="rk-lbl">Terceiros <small>vazio = todos</small></span>
+              <div class="rk-ms" id="rkMsTerc">
+                <button type="button" class="rk-trg" aria-haspopup="true" aria-expanded="false" onclick="rkMsToggle('rkMsTerc')"><span class="rk-trg-c" id="rkTercTrg">Todos os terceiros</span><b class="rk-trg-n" id="rkTercN"></b></button>
+                <div class="rk-ms-panel">
+                  <div class="rk-drop-h"><button type="button" class="cb del" onclick="event.stopPropagation();rkTercLimpar()">Limpar selecao</button></div>
+                  <div id="rkTercBox"></div>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="rk-opts">
-            <div class="rk-field"><span class="rk-lbl">Agrupar por</span>
-              <div class="rk-seg" id="rkGrupoSeg" role="group" aria-label="Agrupar por"><button type="button" data-v="peca" aria-pressed="true" onclick="rkSetGrupo('peca')">Peca</button><button type="button" data-v="pecaterc" aria-pressed="false" onclick="rkSetGrupo('pecaterc')">Peca x Terceiro</button></div>
+            <div class="rk-field">
+              <span class="rk-lbl">Metricas no grafico <small>uma ou mais</small></span>
+              <div class="rk-ms" id="rkMsMet">
+                <button type="button" class="rk-trg" aria-haspopup="true" aria-expanded="false" onclick="rkMsToggle('rkMsMet')"><span class="rk-trg-c" id="rkMetTrg"></span><b class="rk-trg-n" id="rkMetN"></b></button>
+                <div class="rk-ms-panel" id="rkMetPanel"></div>
+              </div>
             </div>
+            <div class="rk-field"><span class="rk-lbl">Agrupar por</span><select class="i" id="rkGrupoSeg" onchange="rkSetGrupo(this.value)"><option value="peca">Peca</option><option value="pecaterc">Peca x Terceiro</option></select></div>
             <div class="rk-field"><span class="rk-lbl">Ordenar por</span><select class="i" id="rkMetrica" onchange="rkSetSort(this.value)"></select></div>
-            <div class="rk-field"><span class="rk-lbl">Ordem</span>
-              <div class="rk-seg" id="rkOrdemSeg" role="group" aria-label="Ordem"><button type="button" data-v="desc" aria-pressed="true" onclick="rkSetOrdem(false)">Decrescente</button><button type="button" data-v="asc" aria-pressed="false" onclick="rkSetOrdem(true)">Crescente</button></div>
-            </div>
+            <div class="rk-field"><span class="rk-lbl">Ordem</span><select class="i" id="rkOrdemSeg" onchange="rkSetOrdem(this.value==='asc')"><option value="desc">Decrescente</option><option value="asc">Crescente</option></select></div>
           </div>
+          <div id="rkPecaChips" class="rk-chips"></div>
           <div class="rk-actions">
             <button class="btn btn-accent btn-sm" onclick="gerarRanking()">Gerar ranking</button>
             <button class="btn btn-ghost btn-sm" onclick="limparRanking()">Limpar</button>
@@ -2580,18 +2584,22 @@ var RK_METRICAS=[
 ];
 function rkMet_(k){return RK_METRICAS.filter(function(m){return m.k===k;})[0];}
 function rkCor_(m,a){return 'rgba('+m.rgb+','+(a===undefined?1:a)+')';}
-function rkSeg_(id,v){Array.from(document.querySelectorAll('#'+id+' button')).forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.v===String(v)));});}
+function rkSeg_(id,v){var e=document.getElementById(id);if(e) e.value=String(v);}
 function rkSetGrupo(v){rkGrupo=v;rkSeg_('rkGrupoSeg',v);if(rkUltimo)renderRanking();}
 function rkSetOrdem(asc){rkAsc=asc;rkSeg_('rkOrdemSeg',asc?'asc':'desc');if(rkUltimo)renderRanking();}
 function rkSetTop(n){rkTop=n;if(rkUltimo)renderRanking();}
 function rkEmptyIni_(){document.getElementById('rankResult').innerHTML='<div class="rk-empty"><b>Nenhum ranking gerado</b><span>Defina o periodo, escolha as pecas e as metricas e toque em Gerar ranking.</span></div>';}
 function renderRkMetricas(){
-  function pill(m){
+  var panel=document.getElementById('rkMetPanel'),st=panel.scrollTop;
+  function opt(m){
     var on=rkMetSel.indexOf(m.k)!==-1;
-    return '<button type="button" class="rk-met" data-k="'+m.k+'" aria-pressed="'+on+'" style="--c:'+rkCor_(m)+';--cb:'+rkCor_(m,.16)+'" onclick="toggleRkMet(\''+m.k+'\')"><i></i>'+esc(m.l)+'</button>';
+    return '<div class="rk-opt'+(on?' on':'')+'" role="checkbox" aria-checked="'+on+'" tabindex="0" data-k="'+m.k+'" style="--c:'+rkCor_(m)+'" onclick="event.stopPropagation();toggleRkMet(this.dataset.k)" onkeydown="if(event.key===\' \'||event.key===\'Enter\'){event.preventDefault();toggleRkMet(this.dataset.k)}"><span class="rk-ck"></span><i class="rk-dot"></i>'+esc(m.l)+'</div>';
   }
-  document.getElementById('rkMetQtd').innerHTML=RK_METRICAS.filter(function(m){return !m.pct;}).map(pill).join('');
-  document.getElementById('rkMetPct').innerHTML=RK_METRICAS.filter(function(m){return m.pct;}).map(pill).join('');
+  panel.innerHTML='<div class="rk-gh">Quantidades</div>'+RK_METRICAS.filter(function(m){return !m.pct;}).map(opt).join('')+'<div class="rk-gh">Percentuais (eixo superior)</div>'+RK_METRICAS.filter(function(m){return m.pct;}).map(opt).join('');
+  panel.scrollTop=st;
+  var sel=rkMetSel.map(rkMet_);
+  document.getElementById('rkMetTrg').innerHTML='<span class="rk-dots">'+sel.map(function(m){return '<i style="--c:'+rkCor_(m)+'"></i>';}).join('')+'</span><span class="rk-trg-t">'+sel.map(function(m){return esc(m.l);}).join(', ')+'</span>';
+  document.getElementById('rkMetN').textContent=sel.length>1?String(sel.length):'';
   var s=document.getElementById('rkMetrica');
   s.innerHTML=RK_METRICAS.map(function(m){return '<option value="'+m.k+'">'+esc(m.l)+'</option>';}).join('')+'<option value="peca">Peca (nome)</option>';
   s.value=rkSort;
@@ -2616,7 +2624,7 @@ function toggleRkMet(k){
   else return;
   rkMetSel=RK_METRICAS.map(function(m){return m.k;}).filter(function(x){return rkMetSel.indexOf(x)!==-1;});
   renderRkMetricas();
-  var b=document.querySelector('.rk-met[data-k="'+k+'"]');
+  var b=document.querySelector('.rk-opt[data-k="'+k+'"]');
   if(b) b.focus();
   if(rkUltimo) renderRanking();
 }
@@ -2632,15 +2640,39 @@ function initRanking(){
     var l=(res.data||[]).map(function(t){return t.nome;});
     var marc=Array.from(document.querySelectorAll('.rk-terc:checked')).map(function(c){return c.value;});
     document.getElementById('rkTercBox').innerHTML=l.map(function(t){
-      return '<label class="rk-pill"><input type="checkbox" class="rk-terc" value="'+esc(t)+'"'+(marc.indexOf(t)!==-1?' checked':'')+'><span>'+esc(t)+'</span></label>';
+      return '<label class="rk-opt"><input type="checkbox" class="rk-terc" value="'+esc(t)+'"'+(marc.indexOf(t)!==-1?' checked':'')+' onchange="rkTercTxt()"><span class="rk-ck"></span>'+esc(t)+'</label>';
     }).join('');
+    rkTercTxt();
   });
 }
+function rkTercTxt(){
+  var n=Array.from(document.querySelectorAll('.rk-terc:checked')).map(function(c){return c.value;});
+  document.getElementById('rkTercTrg').innerHTML='<span class="rk-trg-t">'+esc(!n.length?'Todos os terceiros':n.length<=2?n.join(', '):n.length+' terceiros')+'</span>';
+  document.getElementById('rkTercN').textContent=n.length?String(n.length):'';
+}
+function rkTercLimpar(){
+  document.querySelectorAll('.rk-terc:checked').forEach(function(c){c.checked=false;});
+  rkTercTxt();
+}
+function rkMsFechar_(){
+  document.querySelectorAll('.rk-ms.open').forEach(function(w){w.classList.remove('open');w.querySelector('.rk-trg').setAttribute('aria-expanded','false');});
+}
+function rkMsToggle(id){
+  var w=document.getElementById(id),abre=!w.classList.contains('open');
+  rkMsFechar_();fecharRkPecaDrop();
+  if(abre){w.classList.add('open');w.querySelector('.rk-trg').setAttribute('aria-expanded','true');}
+}
+document.addEventListener('click',function(e){
+  document.querySelectorAll('.rk-ms.open').forEach(function(w){if(!w.contains(e.target)) rkMsFechar_();});
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){rkMsFechar_();fecharRkPecaDrop();}
+});
 function rkPecasFiltradas_(){
   var termo=(document.getElementById('rkPecaFiltro').value||'').trim().toLowerCase();
   return termo?rkPecasCache.filter(function(p){return p.toLowerCase().indexOf(termo)!==-1;}):rkPecasCache;
 }
-function abrirRkPecaDrop(){document.getElementById('rkPecaBox').style.display='block';renderRkPecaBox();}
+function abrirRkPecaDrop(){rkMsFechar_();document.getElementById('rkPecaBox').style.display='block';renderRkPecaBox();}
 function fecharRkPecaDrop(){document.getElementById('rkPecaBox').style.display='none';}
 document.addEventListener('click',function(e){
   var box=document.getElementById('rkPecaBox'),inp=document.getElementById('rkPecaFiltro');
@@ -2690,7 +2722,7 @@ function limparRanking(){
   document.getElementById('rkDi').value='';document.getElementById('rkDf').value='';
   document.getElementById('rkPecaFiltro').value='';
   rkPecasSel=[];renderRkPecaChips();fecharRkPecaDrop();
-  document.querySelectorAll('.rk-terc:checked').forEach(function(c){c.checked=false;});
+  document.querySelectorAll('.rk-terc:checked').forEach(function(c){c.checked=false;});rkTercTxt();
   if(rkChart){rkChart.destroy();rkChart=null;}
   msg_('msgRank','');rkUltimo=null;rkLinhasView=[];
   rkEmptyIni_();
