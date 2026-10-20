@@ -296,6 +296,14 @@ tbody tr:hover td{background:rgba(0,131,62,.05);color:var(--text)}
 .rk-seg button{min-height:36px;padding:0 15px;border:0;border-radius:8px;background:transparent;color:var(--text2);font:600 12px 'Inter',sans-serif;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
 .rk-seg button:hover{color:var(--text)}
 .rk-seg button[aria-pressed=true]{background:var(--accent);color:#fff;box-shadow:0 1px 8px rgba(0,131,62,.45)}
+.rk-kpis .kpi{cursor:pointer;transition:border-color .15s,background .15s}
+.rk-kpis .kpi:hover{border-color:var(--bdr2);background:var(--surf3)}
+.rk-kpis .kpi:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.rk-kpis .kpi.on{border-color:var(--accent);background:rgba(0,131,62,.12);box-shadow:0 0 0 1px var(--accent),var(--sh)}
+.rk-filtro{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;padding:10px 14px;border:1px solid rgba(0,131,62,.45);background:rgba(0,131,62,.1);border-radius:10px;font-size:12px;color:var(--text2)}
+.rk-filtro b{color:var(--text)}
+.rk-filtro button{border:1px solid var(--bdr2);background:transparent;color:var(--text);font:600 12px 'Inter',sans-serif;padding:0 12px;min-height:32px;border-radius:8px;cursor:pointer;transition:border-color .15s}
+.rk-filtro button:hover{border-color:var(--accent)}
 .rk-kpis{margin-top:14px;margin-bottom:0;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
 .rk-panel{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;box-shadow:var(--sh);padding:20px 20px 16px;margin-top:14px}
 .rk-ph{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
@@ -2569,7 +2577,7 @@ function baixarMatrizExcel(){
   XLSX.writeFile(wb,'Matriz_Pecas_'+di+'_a_'+df+'.xlsx');
 }
 var rkPecasCache=[],rkPecasSel=[],rkUltimo=null,rkChart=null,rkLinhasView=[],rkFiltroUsado={di:'',df:''};
-var rkGrupo='peca',rkAsc=false,rkTop=20,rkMetSel=['recebido'],rkSort='recebido';
+var rkGrupo='peca',rkAsc=false,rkTop=20,rkMetSel=['recebido'],rkSort='recebido',rkCard=null,rkPrev=null;
 var RK_METRICAS=[
   {k:'aprovadas',l:'Aprovadas',rgb:'22,163,74'},
   {k:'enviado',l:'Enviado',rgb:'245,158,11'},
@@ -2603,6 +2611,26 @@ function renderRkMetricas(){
   var s=document.getElementById('rkMetrica');
   s.innerHTML=RK_METRICAS.map(function(m){return '<option value="'+m.k+'">'+esc(m.l)+'</option>';}).join('')+'<option value="peca">Peca (nome)</option>';
   s.value=rkSort;
+}
+function rkCardLimpar_(){
+  if(!rkCard) return;
+  rkCard=null;
+  if(rkPrev){rkMetSel=rkPrev.met;rkSort=rkPrev.sort;rkAsc=rkPrev.asc;rkPrev=null;}
+  rkSeg_('rkOrdemSeg',rkAsc?'asc':'desc');
+  renderRkMetricas();
+}
+function rkCardSet(k){
+  if(!rkUltimo) return;
+  if(rkCard===k) rkCardLimpar_();
+  else{
+    if(!rkCard) rkPrev={met:rkMetSel.slice(),sort:rkSort,asc:rkAsc};
+    rkCard=k;rkMetSel=[k];rkSort=k;rkAsc=(k==='pAprov');
+    rkSeg_('rkOrdemSeg',rkAsc?'asc':'desc');
+    renderRkMetricas();
+  }
+  renderRanking();
+  var b=document.querySelector('.rk-kpis .kpi[data-k="'+k+'"]');
+  if(b) b.focus();
 }
 function rkSetSort(k){rkSort=k;rkAsc=(k==='peca');rkSeg_('rkOrdemSeg',rkAsc?'asc':'desc');if(rkUltimo)renderRanking();}
 function rkOrdenarPor(k){
@@ -2719,6 +2747,7 @@ function toggleRkPeca(p){
   renderRkPecaChips();
 }
 function limparRanking(){
+  rkCardLimpar_();
   document.getElementById('rkDi').value='';document.getElementById('rkDf').value='';
   document.getElementById('rkPecaFiltro').value='';
   rkPecasSel=[];renderRkPecaChips();fecharRkPecaDrop();
@@ -2777,9 +2806,32 @@ function renderRanking(){
   var mk=rkSort;
   var bk=rkMet_(mk)?mk:rkMetSel[0];
   var met=rkMet_(bk);
-  var linhas=rkLinhas_(rkUltimo,rkGrupo);
+  var todas=rkLinhas_(rkUltimo,rkGrupo);
+  var linhas=todas;
   if(rkChart){rkChart.destroy();rkChart=null;}
-  if(!linhas.length){rkLinhasView=[];document.getElementById('rankResult').innerHTML='<div class="rk-empty"><b>Nenhum dado para os filtros selecionados</b><span>Amplie o periodo ou inclua outras pecas e terceiros.</span></div>';return;}
+  if(!todas.length){rkLinhasView=[];document.getElementById('rankResult').innerHTML='<div class="rk-empty"><b>Nenhum dado para os filtros selecionados</b><span>Amplie o periodo ou inclua outras pecas e terceiros.</span></div>';return;}
+  var T={enviado:0,recebido:0,aprovadas:0,refugo:0,repasse:0,devolucao:0};
+  todas.forEach(function(l){Object.keys(T).forEach(function(c){T[c]+=l[c];});});
+  var baseT=T.aprovadas+T.refugo+T.repasse+T.devolucao;
+  var pAT=baseT?T.aprovadas/baseT*100:null;
+  function kpi(k,cls,lbl,val,unit){
+    var on=rkCard===k;
+    return '<div class="kpi '+cls+(on?' on':'')+'" role="button" tabindex="0" aria-pressed="'+on+'" data-k="'+k+'" title="Clique para filtrar e visualizar" onclick="rkCardSet(\''+k+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();rkCardSet(\''+k+'\')}"><div class="kpi-bar"></div><div class="kpi-lbl">'+lbl+'</div><div class="kpi-val">'+val+(unit?' <span class="unit">'+unit+'</span>':'')+'</div></div>';
+  }
+  var html='<div class="kpi-row rk-kpis">'+
+    kpi('enviado','ka','Enviado',fmtN(T.enviado),'pecas')+
+    kpi('recebido','ki','Recebido',fmtN(T.recebido),'pecas')+
+    kpi('saldo','kt','Saldo',fmtN(T.enviado-T.recebido),'pecas')+
+    kpi('aprovadas','kg','Aprovadas',fmtN(T.aprovadas),'pecas')+
+    kpi('refugo','kf','Refugo',fmtN(T.refugo),'pecas')+
+    kpi('pAprov','kc','Aprovacao',pAT===null?'-':pAT.toFixed(1).replace('.',',')+'%','')+
+  '</div>';
+  if(rkCard){
+    var cm=rkMet_(rkCard);
+    linhas=todas.filter(function(l){return l[rkCard]!==null&&(cm.pct||l[rkCard]!==0);});
+    html+='<div class="rk-filtro"><span>Filtrando por <b>'+esc(cm.l)+'</b> '+(cm.pct?'(somente linhas com inspecao concluida)':'diferente de zero')+' · '+fmtN(linhas.length)+' de '+fmtN(todas.length)+' linha(s)</span><button type="button" onclick="rkCardSet(\''+rkCard+'\')">Limpar filtro</button></div>';
+    if(!linhas.length){rkLinhasView=[];document.getElementById('rankResult').innerHTML=html+'<div class="rk-empty"><b>Nenhuma linha com '+esc(cm.l.toLowerCase())+'</b><span>Limpe o filtro para ver todas as linhas.</span></div>';return;}
+  }
   linhas.sort(function(a,b){
     if(mk==='peca'){var c=a.peca.localeCompare(b.peca,'pt-BR',{numeric:true});if(!c) c=(a.terc||'').localeCompare(b.terc||'','pt-BR');return rkAsc?c:-c;}
     var x=a[mk],y=b[mk];
@@ -2791,22 +2843,9 @@ function renderRanking(){
   rkLinhasView=linhas;
   var series=rkMetSel.map(rkMet_);
   var topo=linhas.slice(0,rkTop>0?rkTop:linhas.length);
-  var T={enviado:0,recebido:0,aprovadas:0,refugo:0,repasse:0,devolucao:0};
-  linhas.forEach(function(l){Object.keys(T).forEach(function(c){T[c]+=l[c];});});
-  var baseT=T.aprovadas+T.refugo+T.repasse+T.devolucao;
-  var pAT=baseT?T.aprovadas/baseT*100:null;
-  function kpi(cls,lbl,val,unit){return '<div class="kpi '+cls+'"><div class="kpi-bar"></div><div class="kpi-lbl">'+lbl+'</div><div class="kpi-val">'+val+(unit?' <span class="unit">'+unit+'</span>':'')+'</div></div>';}
   var max=0;
   linhas.forEach(function(l){if(l[bk]!==null&&Math.abs(l[bk])>max) max=Math.abs(l[bk]);});
   var altura=Math.max(200,topo.length*(series.length*15+16)+90);
-  var html='<div class="kpi-row rk-kpis">'+
-    kpi('ka','Enviado',fmtN(T.enviado),'pecas')+
-    kpi('ki','Recebido',fmtN(T.recebido),'pecas')+
-    kpi('kt','Saldo',fmtN(T.enviado-T.recebido),'pecas')+
-    kpi('kg','Aprovadas',fmtN(T.aprovadas),'pecas')+
-    kpi('kf','Refugo',fmtN(T.refugo),'pecas')+
-    kpi('kc','Aprovacao',pAT===null?'-':pAT.toFixed(1).replace('.',',')+'%','')+
-  '</div>';
   html+='<div class="rk-panel"><div class="rk-ph"><div><h4>Comparativo '+(rkGrupo==='pecaterc'?'por peca e terceiro':'por peca')+'</h4>'+
     '<p>'+fmtN(topo.length)+' de '+fmtN(linhas.length)+' · ordenado por '+(mk==='peca'?'nome da peca':esc(rkMet_(mk).l.toLowerCase()))+' ('+(rkAsc?'crescente':'decrescente')+'). Clique numa barra para abrir a rastreabilidade.</p></div>'+
     '<div class="rk-seg" role="group" aria-label="Quantidade de linhas no grafico">'+[10,20,50,0].map(function(n){return '<button type="button" aria-pressed="'+(rkTop===n)+'" onclick="rkSetTop('+n+')">'+(n?'Top '+n:'Todas')+'</button>';}).join('')+'</div></div>'+
