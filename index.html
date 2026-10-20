@@ -311,34 +311,12 @@ tbody tr:hover td{background:rgba(0,131,62,.05);color:var(--text)}
 .rk-filtro b{color:var(--text)}
 .rk-filtro button{border:1px solid var(--bdr2);background:transparent;color:var(--text);font:600 12px 'Inter',sans-serif;padding:0 12px;min-height:32px;border-radius:8px;cursor:pointer;transition:border-color .15s}
 .rk-filtro button:hover{border-color:var(--accent)}
-.rk-kpis{margin-top:14px;margin-bottom:0;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.rk-kpis{margin-top:14px;margin-bottom:0;grid-template-columns:repeat(auto-fit,minmax(125px,1fr))}
 .rk-panel{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;box-shadow:var(--sh);padding:20px 20px 16px;margin-top:14px}
 .rk-ph{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
 .rk-ph h4{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.2px}
 .rk-ph p{font-size:12px;color:var(--text3);margin-top:4px;line-height:1.5;max-width:62ch}
 .rk-cv{position:relative;width:100%}
-.rk-tbl{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-.rk-tbl th{font-size:11px;font-weight:600;color:var(--text3);text-align:right;padding:9px 12px;white-space:nowrap;border-bottom:1px solid var(--bdr2);text-transform:none;letter-spacing:0;background:transparent}
-.rk-tbl th.sel{color:var(--text)}
-.rk-tbl th i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--c);margin-right:6px}
-.rk-th{display:inline-flex;align-items:center;gap:2px;padding:4px 2px;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;white-space:nowrap;border-radius:6px}
-.rk-th:hover{color:var(--text)}
-.rk-th:focus-visible{outline:2px solid var(--green);outline-offset:2px}
-.rk-th::after{content:'\25BE';font-size:11px;margin-left:4px;opacity:0;transition:opacity .15s}
-.rk-th:hover::after{opacity:.5}
-.rk-th[data-dir=desc]::after{content:'\25BE';opacity:1;color:var(--green)}
-.rk-th[data-dir=asc]::after{content:'\25B4';opacity:1;color:var(--green)}
-.rk-tbl th[aria-sort=ascending],.rk-tbl th[aria-sort=descending]{color:var(--text)}
-.rk-tbl td{font-size:12.5px;color:var(--text2);text-align:right;padding:11px 12px;border-bottom:1px solid var(--bdr);white-space:nowrap;transition:background .12s}
-.rk-tbl td.sel{color:var(--text);font-weight:700;background:rgba(255,255,255,.03)}
-.rk-tbl .rk-nm{text-align:left;min-width:170px}
-.rk-nm b{font-size:13px;font-weight:700;color:var(--text)}
-.rk-tag{display:inline-block;margin-left:8px;padding:2px 9px;border-radius:999px;background:var(--bg3);border:1px solid var(--bdr);font-size:10.5px;font-style:normal;font-weight:600;color:var(--text2);vertical-align:1px}
-.rk-mini{height:3px;border-radius:3px;background:rgba(255,255,255,.07);margin-top:7px;overflow:hidden}
-.rk-mini i{display:block;height:100%;border-radius:3px}
-.rk-row{cursor:pointer}
-.rk-row:hover td{background:rgba(255,255,255,.05)}
-.rk-row:focus-visible{outline:2px solid var(--green);outline-offset:-2px}
 .rk-rank{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 4px;border-radius:8px;font-size:12px;font-weight:700;color:var(--text3)}
 .rk-rank.r1{background:var(--accent);color:#fff;box-shadow:0 0 14px rgba(0,131,62,.5)}
 .rk-rank.r2,.rk-rank.r3{border:1px solid var(--accent);color:var(--text)}
@@ -368,6 +346,62 @@ tbody tr:hover td{background:rgba(0,131,62,.05);color:var(--text)}
 .rk-gh{padding:10px 12px 6px;font-size:11px;font-weight:600;color:var(--text3)}
 .rk-opt input{position:absolute;opacity:0;width:0;height:0}
 .rk-opt input:focus-visible+.rk-ck{outline:2px solid var(--green);outline-offset:2px}
+.rk-tag{display:inline-block;margin-left:8px;padding:2px 9px;border-radius:999px;background:var(--bg3);border:1px solid var(--bdr);font-size:10.5px;font-style:normal;font-weight:600;color:var(--text2);vertical-align:1px}
+.rk-conta{font-size:12px;color:var(--text3);margin:10px 2px 0;line-height:1.6}
+.rk-conta b{color:var(--text2);font-weight:600}
+.rk-fbt{display:inline-flex;gap:8px;flex-wrap:wrap}
+.rk-lb{display:flex;flex-direction:column;gap:8px}
+.rk-lb-row{display:grid;grid-template-columns:64px minmax(130px,220px) 1fr minmax(120px,auto);grid-template-areas:"pos nm bar val";align-items:center;gap:16px;width:100%;padding:12px 16px;border-radius:12px;border:1px solid var(--bdr);background:rgba(255,255,255,.025);color:var(--text);font:500 13px 'Inter',sans-serif;text-align:left;cursor:pointer;transition:border-color .15s,background .15s,opacity .15s}
+.rk-lb-row:hover{border-color:rgba(0,131,62,.7);background:rgba(0,131,62,.08)}
+.rk-lb-row:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.rk-lb-row.lider{border-color:rgba(251,191,36,.55);background:linear-gradient(90deg,rgba(251,191,36,.13),rgba(255,255,255,.02) 60%);box-shadow:0 0 22px rgba(251,191,36,.1)}
+.rk-lb-row.on{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
+.rk-lb-row.off{opacity:.38}
+.rk-lb-pos{grid-area:pos;display:flex;align-items:center;gap:6px;font-size:18px;font-weight:800;color:var(--text3);font-variant-numeric:tabular-nums}
+.rk-lb-row.lider .rk-lb-pos{color:var(--amber)}
+.rk-lb-pos svg{width:20px;height:20px;stroke:var(--amber);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.rk-lb-nm{grid-area:nm;min-width:0}
+.rk-lb-nm b{display:block;font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk-lb-nm small{display:block;font-size:11px;color:var(--text3);margin-top:3px}
+.rk-lb-bar{grid-area:bar;height:12px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}
+.rk-lb-bar i{display:block;height:100%;border-radius:999px;min-width:3px}
+.rk-lb-val{grid-area:val;display:flex;align-items:baseline;justify-content:flex-end;gap:10px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rk-lb-val b{font-size:18px;font-weight:800}
+.rk-lb-val em{font-style:normal;font-size:12px;font-weight:700;color:#4ade80;background:rgba(0,131,62,.14);border:1px solid rgba(0,131,62,.35);padding:2px 8px;border-radius:999px}
+.rk-mtw{overflow:auto;max-height:72vh;border:1px solid var(--bdr);border-radius:10px}
+.rk-mt{width:100%;border-collapse:separate;border-spacing:0;font-variant-numeric:tabular-nums;font-size:12.5px}
+.rk-mt th{position:sticky;top:0;z-index:2;background:#141a16;font-size:11px;font-weight:600;color:var(--text3);padding:9px 8px;border-bottom:1px solid var(--bdr2);white-space:nowrap;text-transform:none;letter-spacing:0}
+.rk-mt th.rk-d{text-align:center;min-width:54px}
+.rk-mt th.rk-d small{display:block;font-size:9.5px;font-weight:500;opacity:.75}
+.rk-mt th.fds{color:#5f6964}
+.rk-mt td{padding:7px 8px;border-bottom:1px solid rgba(255,255,255,.04);white-space:nowrap;color:var(--text2)}
+.rk-mt th.rk-s1,.rk-mt th.rk-s2{z-index:3;text-align:left}
+.rk-mt .rk-s1{position:sticky;left:0;min-width:170px;max-width:170px;white-space:normal;vertical-align:top;border-right:1px solid var(--bdr);text-align:left}
+.rk-mt .rk-s2{position:sticky;left:170px;min-width:120px;font-weight:600;font-size:12px;border-right:1px solid var(--bdr);text-align:left}
+.rk-mt tr:nth-child(even) td{background-color:transparent}
+.rk-mt tbody td.rk-s1,.rk-mt tbody td.rk-s2{background:var(--surf);z-index:1}
+.rk-mt tr td.fds{background-color:rgba(255,255,255,.025)}
+.rk-mt tr td.rk-tot{background-color:rgba(255,255,255,.03)}
+.rk-mt tbody tr.rk-alt td{background-color:rgba(255,255,255,.018)}
+.rk-mt tbody tr.rk-alt td.rk-s1,.rk-mt tbody tr.rk-alt td.rk-s2{background:#131915}
+.rk-mt tbody tr:hover td{background-color:rgba(0,131,62,.06)}
+.rk-mt tbody tr:hover td.rk-s1,.rk-mt tbody tr:hover td.rk-s2{background:#132019}
+.rk-mt tr.rk-first td{border-top:1px solid rgba(255,255,255,.12)}
+.rk-mt td.rk-c{text-align:center}
+.rk-mt .rk-tot{text-align:right;font-weight:700;border-left:1px solid var(--bdr);min-width:80px}
+.rk-mt tfoot td{font-weight:700}
+.rk-mt tfoot tr td.rk-c,.rk-mt tfoot tr td.rk-s1,.rk-mt tfoot tr td.rk-s2,.rk-mt tfoot tr td.rk-tot{background:#141a16}
+.rk-mt tfoot tr.rk-first td{border-top:2px solid rgba(0,131,62,.6)}
+.rk-mt td.rk-mlk{cursor:pointer}
+.rk-mt td.rk-mlk:hover b{color:var(--green)}
+.rk-mt td.rk-mlk:focus-visible{outline:2px solid var(--green);outline-offset:-2px}
+.rk-mt-nm{display:flex;align-items:center;gap:8px}
+.rk-mt-nm b,.rk-mt td.rk-s1>b{font-size:13px;color:var(--text);font-weight:700}
+.rk-mt .rk-rank{min-width:22px;height:22px;font-size:11px;border-radius:7px}
+.rk-mt td.rk-s1 .rk-tag{margin:6px 0 0}
+.rk-mt td.rk-s1 small{display:block;margin-top:4px;font-size:10.5px;color:var(--text3)}
+.rk-z{color:var(--text3);opacity:.45}
+@media(max-width:700px){.rk-lb-row{grid-template-columns:44px 1fr auto;grid-template-areas:"pos nm val" "pos bar bar";gap:6px 10px;padding:10px 12px}.rk-lb-pos{font-size:15px}.rk-lb-pos svg{width:16px;height:16px}.rk-lb-val b{font-size:15px}.rk-mt .rk-s1{min-width:110px;max-width:110px}.rk-mt .rk-s2{left:110px;min-width:84px;max-width:84px;white-space:normal}}
 .load{text-align:center;color:var(--text3);padding:24px;font-size:12px;font-weight:500}
 .bar-mini{height:3px;border-radius:2px;background:var(--bdr);overflow:hidden;margin-top:5px}
 .bar-fill{height:100%;border-radius:2px}
@@ -866,7 +900,6 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
         <button class="admin-tab dsub" id="dsVisao" onclick="subAba('visao')">Historico</button>
         <button class="admin-tab dsub" id="dsTerc" onclick="subAba('terceiros')">Terceiros</button>
         <button class="admin-tab dsub" id="dsPeca" onclick="subAba('pecas')">Pecas</button>
-        <button class="admin-tab dsub" id="dsMatriz" onclick="subAba('matriz')">Matriz</button>
         <button class="admin-tab dsub" id="dsRank" onclick="subAba('ranking')">Ranking</button>
       </div>
       <div class="dash-filter" id="dashFilterTop" style="display:none">
@@ -999,44 +1032,13 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
         </div>
         <div id="pecaHistResult"></div>
       </div>
-      <div id="dpMatriz" style="display:none">
-        <div class="fbox">
-          <div class="row2">
-            <div><label>Data inicio</label><input class="i" type="date" id="mtDi"></div>
-            <div><label>Data fim</label><input class="i" type="date" id="mtDf"></div>
-          </div>
-          <div style="margin-top:12px">
-            <label>Pecas <span id="mtPecaCont" style="color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0"></span></label>
-            <div id="mtPecaChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
-            <div style="position:relative">
-              <input class="i" id="mtPecaFiltro" placeholder="Buscar peca..." autocomplete="off" oninput="renderMtPecaBox()" onfocus="abrirMtPecaDrop()">
-              <div id="mtPecaBox" style="display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:30;background:var(--surf);border:1px solid var(--bdr2);border-radius:8px;max-height:260px;overflow-y:auto;box-shadow:var(--sh-lg)"></div>
-            </div>
-          </div>
-          <div style="margin-top:12px">
-            <label>Terceiros (vazio = todos)</label>
-            <div id="mtTercBox" style="display:flex;flex-wrap:wrap;gap:12px;padding:4px 2px 0"></div>
-          </div>
-          <div style="margin-top:12px">
-            <label>Metricas na tabela</label>
-            <div id="mtMetricasBox" style="display:flex;flex-wrap:wrap;gap:12px;padding:4px 2px 0"></div>
-          </div>
-          <div class="btn-row">
-            <button class="btn btn-accent btn-sm" onclick="gerarMatrizPeca()">Gerar Matriz</button>
-            <button class="btn btn-ghost btn-sm" onclick="baixarMatrizExcel()">Baixar Excel</button>
-            <button class="btn btn-ghost btn-sm" onclick="limparMatrizPeca()">Limpar</button>
-          </div>
-          <div id="msgMatriz"></div>
-        </div>
-        <div id="matrizResult"></div>
-      </div>
       <div id="dpRanking" style="display:none">
         <div class="rk-card">
           <div class="rk-bar">
-            <div class="rk-field"><span class="rk-lbl">Data inicio</span><input class="i" type="date" id="rkDi"></div>
-            <div class="rk-field"><span class="rk-lbl">Data fim</span><input class="i" type="date" id="rkDf"></div>
+            <div class="rk-field"><span class="rk-lbl">Data inicio</span><input class="i" type="date" id="rkDi" onchange="rkAgendar_()"></div>
+            <div class="rk-field"><span class="rk-lbl">Data fim</span><input class="i" type="date" id="rkDf" onchange="rkAgendar_()"></div>
             <div class="rk-field">
-              <span class="rk-lbl">Pecas <small id="rkPecaCont"></small></span>
+              <span class="rk-lbl">Pecas <small id="rkPecaCont">vazio = todas</small></span>
               <div style="position:relative">
                 <input class="i" id="rkPecaFiltro" placeholder="Buscar pecas..." autocomplete="off" oninput="renderRkPecaBox()" onfocus="abrirRkPecaDrop()" onclick="abrirRkPecaDrop()">
                 <div id="rkPecaBox" class="rk-drop" style="display:none"></div>
@@ -1053,24 +1055,33 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
               </div>
             </div>
             <div class="rk-field">
-              <span class="rk-lbl">Metricas no grafico <small>uma ou mais</small></span>
+              <span class="rk-lbl">Metricas <small>grafico e matriz</small></span>
               <div class="rk-ms" id="rkMsMet">
                 <button type="button" class="rk-trg" aria-haspopup="true" aria-expanded="false" onclick="rkMsToggle('rkMsMet')"><span class="rk-trg-c" id="rkMetTrg"></span><b class="rk-trg-n" id="rkMetN"></b></button>
                 <div class="rk-ms-panel" id="rkMetPanel"></div>
               </div>
             </div>
-            <div class="rk-field"><span class="rk-lbl">Agrupar por</span><select class="i" id="rkGrupoSeg" onchange="rkSetGrupo(this.value)"><option value="peca">Peca</option><option value="pecaterc">Peca x Terceiro</option></select></div>
+            <div class="rk-field"><span class="rk-lbl">Agrupar por</span><select class="i" id="rkGrupoSeg" onchange="rkSetGrupo(this.value)"><option value="peca">Peca</option><option value="ter">Terceiro</option><option value="pecaterc">Peca x Terceiro</option></select></div>
             <div class="rk-field"><span class="rk-lbl">Ordenar por</span><select class="i" id="rkMetrica" onchange="rkSetSort(this.value)"></select></div>
             <div class="rk-field"><span class="rk-lbl">Ordem</span><select class="i" id="rkOrdemSeg" onchange="rkSetOrdem(this.value==='asc')"><option value="desc">Decrescente</option><option value="asc">Crescente</option></select></div>
           </div>
           <div id="rkPecaChips" class="rk-chips"></div>
           <div class="rk-actions">
-            <button class="btn btn-accent btn-sm" onclick="gerarRanking()">Gerar ranking</button>
-            <button class="btn btn-ghost btn-sm" onclick="limparRanking()">Limpar</button>
+            <button class="btn btn-ghost btn-sm" onclick="rkAtualizar()">Atualizar dados</button>
+            <button class="btn btn-ghost btn-sm" onclick="limparRanking()">Limpar filtros</button>
           </div>
           <div id="msgRank"></div>
         </div>
         <div id="rankResult"></div>
+        <div id="rkRes" style="display:none">
+          <div class="kpi-row rk-kpis" id="rkKpis"></div>
+          <p class="rk-conta" id="rkConta"></p>
+          <div id="rkFiltroInfo"></div>
+          <div id="rkIns"></div>
+          <div class="rk-panel"><div class="rk-ph" id="rkChartH"></div><div class="rk-cv" id="rkCv"><canvas id="cRank"></canvas></div><div id="rkSemGraf"></div></div>
+          <div class="rk-panel" id="rkLbBox"><div class="rk-ph" id="rkLbH"></div><div class="rk-lb" id="rkLb"></div></div>
+          <div class="rk-panel" id="rkMtBox"><div class="rk-ph" id="rkMtH"></div><div id="rkMtInfo"></div><div class="rk-mtw" id="rkMatriz"></div></div>
+        </div>
       </div>
     </div>
     <div class="panel" id="pEtiq">
@@ -1954,20 +1965,19 @@ function cadAba(nome){
   else if(nome==='excl') adminInitExcl();
 }
 function subAba(name){
+  if(name==='matriz') name='ranking';
   document.querySelectorAll('#pDash .dsub').forEach(function(t){t.classList.remove('on');});
-  var map={tempo_real:'dsRT',visao:'dsVisao',terceiros:'dsTerc',pecas:'dsPeca',matriz:'dsMatriz',ranking:'dsRank'};
+  var map={tempo_real:'dsRT',visao:'dsVisao',terceiros:'dsTerc',pecas:'dsPeca',ranking:'dsRank'};
   document.getElementById(map[name]).classList.add('on');
   document.getElementById('dashFilterTop').style.display=(name==='visao'||name==='terceiros')?'flex':'none';
   document.getElementById('dpTempoReal').style.display=name==='tempo_real'?'block':'none';
   document.getElementById('dpVisao').style.display=name==='visao'?'block':'none';
   document.getElementById('dpTerceiros').style.display=name==='terceiros'?'block':'none';
   document.getElementById('dpPecas').style.display=name==='pecas'?'block':'none';
-  document.getElementById('dpMatriz').style.display=name==='matriz'?'block':'none';
   document.getElementById('dpRanking').style.display=name==='ranking'?'block':'none';
   if(name==='tempo_real') loadTempoReal();
   else if(name==='terceiros') loadSaldo();
   else if(name==='pecas') initPecaHist();
-  else if(name==='matriz') initMatrizPeca();
   else if(name==='ranking') initRanking();
 }
 function loadDash(){
@@ -2317,377 +2327,166 @@ function loadPecaHist(){
     }catch(e){document.getElementById('pecaHistResult').innerHTML='<div class="alert alert-err">Erro ao renderizar.</div>';}
   }).catch(function(e){document.getElementById('pecaHistResult').innerHTML='<div class="alert alert-err">'+esc(e.message)+'</div>';});
 }
-var ultimaMatrizData=null;
-var mtPecasCache=[];
-var mtPecasSel=[];
-function abrirMtPecaDrop(){document.getElementById('mtPecaBox').style.display='block';renderMtPecaBox();}
-function fecharMtPecaDrop(){document.getElementById('mtPecaBox').style.display='none';}
-document.addEventListener('click',function(e){
-  var box=document.getElementById('mtPecaBox'),inp=document.getElementById('mtPecaFiltro');
-  if(!box||box.style.display!=='block')return;
-  if(!box.contains(e.target)&&e.target!==inp) fecharMtPecaDrop();
-});
-function renderMtPecaBox(){
-  var box=document.getElementById('mtPecaBox');
-  if(box.style.display!=='block')return;
-  var termo=(document.getElementById('mtPecaFiltro').value||'').trim().toLowerCase();
-  var l=termo?mtPecasCache.filter(function(p){return p.toLowerCase().indexOf(termo)!==-1;}):mtPecasCache;
-  box.innerHTML=l.length?l.map(function(p){
-    var on=mtPecasSel.indexOf(p)!==-1;
-    return '<div onclick="event.stopPropagation();toggleMtPeca(this.dataset.p)" data-p="'+esc(p)+'" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;font-weight:500;color:'+(on?'var(--text)':'var(--text2)')+';cursor:pointer;border-bottom:1px solid var(--bdr)'+(on?';background:var(--bg3)':'')+'"><input type="checkbox" '+(on?'checked':'')+' style="pointer-events:none">'+esc(p)+'</div>';
-  }).join(''):'<div class="empty" style="padding:12px">Nenhuma peca encontrada.</div>';
-}
-function renderMtPecaChips(){
-  var box=document.getElementById('mtPecaChips');
-  box.innerHTML=mtPecasSel.map(function(p){
-    return '<span style="display:inline-flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--bdr2);border-radius:999px;padding:4px 6px 4px 10px;font-size:11px;color:var(--text)">'+esc(p)+'<span data-p="'+esc(p)+'" onclick="toggleMtPeca(this.dataset.p)" style="cursor:pointer;color:var(--text3);font-weight:700;padding:0 2px">&times;</span></span>';
-  }).join('');
-  document.getElementById('mtPecaCont').textContent=mtPecasSel.length?'('+mtPecasSel.length+' selecionada'+(mtPecasSel.length>1?'s':'')+')':'';
-}
-function toggleMtPeca(p){
-  var ix=mtPecasSel.indexOf(p);
-  if(ix===-1) mtPecasSel.push(p); else mtPecasSel.splice(ix,1);
-  renderMtPecaBox();
-  renderMtPecaChips();
-}
-function initMatrizPeca(){
-  supabase.from('ferramentas').select('codigo').order('codigo').then(function(res){
-    try{
-      mtPecasCache=(res.data||[]).map(function(f){return f.codigo;});
-      mtPecasSel=mtPecasSel.filter(function(p){return mtPecasCache.indexOf(p)!==-1;});
-      document.getElementById('mtPecaFiltro').value='';
-      fecharMtPecaDrop();
-      renderMtPecaChips();
-      renderMtMetricasBox();
-    }catch(e){}
-  });
-  supabase.from('terceiros').select('nome').order('nome').then(function(res){
-    try{
-      var l=(res.data||[]).map(function(t){return t.nome;});
-      var marcados=Array.from(document.querySelectorAll('.mt-terc:checked')).map(function(c){return c.value;});
-      document.getElementById('mtTercBox').innerHTML=l.map(function(t){
-        return '<label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--text2);cursor:pointer"><input type="checkbox" class="mt-terc" value="'+esc(t)+'"'+(marcados.indexOf(t)!==-1?' checked':'')+'>'+esc(t)+'</label>';
-      }).join('');
-    }catch(e){}
-  });
-}
-function limparMatrizPeca(){
-  document.getElementById('mtDi').value='';document.getElementById('mtDf').value='';
-  document.getElementById('mtPecaFiltro').value='';
-  mtPecasSel=[];renderMtPecaChips();fecharMtPecaDrop();
-  document.querySelectorAll('.mt-terc:checked').forEach(function(c){c.checked=false;});
-  document.getElementById('matrizResult').innerHTML='';
-  msg_('msgMatriz','');
-  ultimaMatrizData=null;
-}
-function matrizColeta(){
-  return {
-    pecas:mtPecasSel.slice(),
-    terceiros:Array.from(document.querySelectorAll('.mt-terc:checked')).map(function(c){return c.value;}),
-    di:document.getElementById('mtDi').value,
-    df:document.getElementById('mtDf').value
-  };
-}
-function gerarMatrizPeca(){
-  var c=matrizColeta();
-  if(!c.pecas.length){msg_('msgMatriz','<div class="alert alert-warn">Selecione ao menos uma peca.</div>');return;}
-  if(!c.di||!c.df){msg_('msgMatriz','<div class="alert alert-warn">Selecione o periodo.</div>');return;}
-  msg_('msgMatriz','<div class="load">Gerando matriz...</div>');
-  document.getElementById('matrizResult').innerHTML='';
-  rpc('get_matriz_peca',{p_pecas:c.pecas,p_terceiros:c.terceiros,p_di:c.di,p_df:c.df}).then(function(d){
-    try{
-      msg_('msgMatriz','');
-      ultimaMatrizData=d;
-      renderMatrizPeca(d);
-    }catch(e){document.getElementById('matrizResult').innerHTML='<div class="alert alert-err">Erro ao renderizar.</div>';}
-  }).catch(function(e){msg_('msgMatriz','<div class="alert alert-err">'+esc(e.message)+'</div>');});
-}
-function construirTabelaMatriz_(titulo,dias,pecas,campo){
-  var html='<div class="tbl-box" style="margin-top:14px"><h3>'+esc(titulo)+'</h3><table><thead><tr><th>Peca</th>';
-  dias.forEach(function(dd){html+='<th>'+esc(dd)+'</th>';});
-  html+='<th>Total</th></tr></thead><tbody>';
-  var totCol=dias.map(function(){return 0;}),totGeral=0;
-  pecas.forEach(function(p){
-    var vals=p[campo]||{};
-    var totLinha=0;
-    html+='<tr><td>'+esc(p.peca)+'</td>';
-    dias.forEach(function(dd,ix){
-      var v=Number(vals[dd])||0;totLinha+=v;totCol[ix]+=v;
-      html+='<td>'+(v?fmtN(v):'-')+'</td>';
-    });
-    totGeral+=totLinha;
-    html+='<td><b>'+fmtN(totLinha)+'</b></td></tr>';
-  });
-  html+='<tr style="border-top:2px solid var(--bdr2)"><td><b>TOTAL</b></td>';
-  totCol.forEach(function(v){html+='<td><b>'+(v?fmtN(v):'-')+'</b></td>';});
-  html+='<td><b>'+fmtN(totGeral)+'</b></td></tr>';
-  html+='</tbody></table></div>';
-  return html;
-}
-var MT_METRICAS=[
-  {campo:'enviado',label:'Enviado',cls:'mt-m-env'},
-  {campo:'recebido',label:'Recebido',cls:'mt-m-rec'},
-  {campo:'aprovadas',label:'Aprovadas',cls:'mt-m-apr'},
-  {campo:'refugo',label:'Refugo',cls:'mt-m-ref'},
-  {campo:'repasse',label:'Repasse',cls:'mt-m-rep'},
-  {campo:'devolucao',label:'Devolucao',cls:'mt-m-dev'},
-  {campo:'diferenca',label:'A mais / a menos',cls:'mt-m-dif'}
-];
-var mtMetricasSel=MT_METRICAS.map(function(m){return m.campo;});
-function mtMetricasAtivas_(){
-  return MT_METRICAS.filter(function(m){return mtMetricasSel.indexOf(m.campo)!==-1;});
-}
-function renderMtMetricasBox(){
-  var box=document.getElementById('mtMetricasBox');
-  if(!box)return;
-  box.innerHTML=MT_METRICAS.map(function(m){
-    var on=mtMetricasSel.indexOf(m.campo)!==-1;
-    return '<label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--text2);cursor:pointer"><input type="checkbox" value="'+m.campo+'"'+(on?' checked':'')+' onchange="toggleMtMetrica(this.value)"><span class="'+m.cls+'">'+esc(m.label)+'</span></label>';
-  }).join('');
-}
-function toggleMtMetrica(campo){
-  var ix=mtMetricasSel.indexOf(campo);
-  if(ix===-1) mtMetricasSel.push(campo); else mtMetricasSel.splice(ix,1);
-  if(ultimaMatrizData) renderMatrizPeca(ultimaMatrizData);
-}
-function mtSomarCampo_(dataObj,campo){
-  var vals=dataObj[campo]||{},tot=0;
-  Object.keys(vals).forEach(function(k){tot+=Number(vals[k])||0;});
-  return tot;
-}
-function mtHeaderRow_(label,sub,colspan){
-  return '<tr class="mt-peca-head"><td colspan="'+colspan+'"><b>'+esc(label)+'</b>'+(sub?' <span class="mt-peca-sub">'+esc(sub)+'</span>':'')+'</td></tr>';
-}
-function mtGrupoHtml_(dias,dataPorCampo,metricas,totalRow){
-  var html='';
-  metricas.forEach(function(m){
-    var vals=dataPorCampo[m.campo]||{};
-    var totLinha=0;
-    html+='<tr'+(totalRow?' class="mt-total-row"':'')+'>';
-    html+='<td class="'+m.cls+'"><b>'+esc(m.label)+'</b></td>';
-    dias.forEach(function(dd){
-      var v=Number(vals[dd])||0;totLinha+=v;
-      html+='<td class="'+m.cls+'" style="text-align:center">'+fmtN(v)+'</td>';
-    });
-    html+='<td class="'+m.cls+'" style="text-align:center"><b>'+fmtN(totLinha)+'</b></td></tr>';
-  });
-  return html;
-}
-function construirTabelaMulti_(titulo,dias,pecas){
-  var metricas=mtMetricasAtivas_();
-  if(!metricas.length){return '<div class="tbl-box" style="margin-top:14px"><h3>'+esc(titulo)+' · '+pecas.length+' peca(s)</h3><div class="empty">Selecione ao menos uma metrica.</div></div>';}
-  var colspan=dias.length+2;
-  var multi=pecas.length>1;
-  var totObj={};
-  metricas.forEach(function(m){totObj[m.campo]={};});
-  dias.forEach(function(dd){
-    metricas.forEach(function(m){
-      var s=0;
-      pecas.forEach(function(p){s+=Number((p[m.campo]||{})[dd])||0;});
-      totObj[m.campo][dd]=s;
-    });
-  });
-  var html='<div class="tbl-box" style="margin-top:14px"><h3>'+esc(titulo)+' · '+pecas.length+' peca(s)</h3>';
-  html+='<table class="mt-multi"><thead><tr><th>Movimento</th>';
-  dias.forEach(function(dd){html+='<th style="text-align:center">'+esc(dd)+'</th>';});
-  html+='<th style="text-align:center">Total</th></tr></thead><tbody>';
-  pecas.forEach(function(p){
-    if(multi) html+=mtHeaderRow_(p.peca,(p.sacos||0)+' saco(s)',colspan);
-    html+=mtGrupoHtml_(dias,p,metricas,false);
-  });
-  html+='</tbody>';
-  if(multi){
-    html+='<tfoot>'+mtHeaderRow_('TOTAL',null,colspan)+mtGrupoHtml_(dias,totObj,metricas,true)+'</tfoot>';
-  }
-  html+='</table></div>';
-  return html;
-}
-function construirKpisMatriz_(pecas){
-  var tot={};
-  MT_METRICAS.forEach(function(m){tot[m.campo]=0;pecas.forEach(function(p){tot[m.campo]+=mtSomarCampo_(p,m.campo);});});
-  var ficou=tot.enviado-tot.recebido;
-  var aguardando=(tot.recebido+tot.diferenca)-tot.aprovadas-tot.refugo-tot.repasse-tot.devolucao;
-  var html='<div class="kpi-row" style="grid-template-columns:repeat(7,1fr)">'+
-    '<div class="kpi ka"><div class="kpi-bar"></div><div class="kpi-lbl">Enviado</div><div class="kpi-val">'+fmtN(tot.enviado)+' <span class="unit">pecas</span></div></div>'+
-    '<div class="kpi ki"><div class="kpi-bar"></div><div class="kpi-lbl">Recebido</div><div class="kpi-val">'+fmtN(tot.recebido)+' <span class="unit">pecas</span></div></div>'+
-    '<div class="kpi kg"><div class="kpi-bar"></div><div class="kpi-lbl">Aprovadas</div><div class="kpi-val">'+fmtN(tot.aprovadas)+' <span class="unit">pecas</span></div></div>'+
-    '<div class="kpi kf"><div class="kpi-bar"></div><div class="kpi-lbl">Refugo</div><div class="kpi-val">'+fmtN(tot.refugo)+' <span class="unit">pecas</span></div></div>'+
-    '<div class="kpi kr"><div class="kpi-bar"></div><div class="kpi-lbl">Repasse</div><div class="kpi-val">'+fmtN(tot.repasse)+' <span class="unit">pecas</span></div></div>'+
-    '<div class="kpi ks"><div class="kpi-bar"></div><div class="kpi-lbl">Devolucao</div><div class="kpi-val">'+fmtN(tot.devolucao)+' <span class="unit">pecas</span></div></div>'+
-    '<div class="kpi kt"><div class="kpi-bar"></div><div class="kpi-lbl">Ficou com Terceiros</div><div class="kpi-val">'+fmtN(ficou)+' <span class="unit">pecas</span></div></div>'+
-  '</div>';
-  html+='<p style="font-size:10.5px;color:var(--text3);margin:4px 0 0">Conta do periodo: Enviado '+fmtN(tot.enviado)+' - Recebido '+fmtN(tot.recebido)+' = '+fmtN(ficou)+' ficou com terceiros · Recebido '+fmtN(tot.recebido)+' '+(tot.diferenca>=0?'+':'-')+' '+fmtN(Math.abs(tot.diferenca))+' diferenca de contagem · Aprovadas '+fmtN(tot.aprovadas)+' + Refugo '+fmtN(tot.refugo)+' + Repasse '+fmtN(tot.repasse)+' + Devolucao '+fmtN(tot.devolucao)+' + '+fmtN(aguardando)+' aguardando inspecao</p>';
-  return html;
-}
-function renderMatrizPeca(d){
-  var terceiros=(d&&d.terceiros)||[];
-  if(!terceiros.length){document.getElementById('matrizResult').innerHTML='<div class="empty">Nenhum dado para os filtros selecionados.</div>';return;}
-  var html='';
-  terceiros.forEach(function(t){
-    var pecasNomes=t.pecas.map(function(p){return p.peca;}).join(' / ');
-    html+='<div class="unit-group" style="margin-top:16px"><div class="unit-group-ttl">'+esc(t.nome)+' — '+esc(pecasNomes)+' por dia</div></div>';
-    html+=construirKpisMatriz_(t.pecas);
-    html+=construirTabelaMulti_('Movimentacao por dia',t.dias,t.pecas);
-  });
-  document.getElementById('matrizResult').innerHTML=html;
-}
-function nomeAba_(s){return String(s).replace(/[\\/?*\[\]:]/g,' ').slice(0,31);}
-function baixarMatrizExcel(){
-  if(!ultimaMatrizData||!ultimaMatrizData.terceiros||!ultimaMatrizData.terceiros.length){
-    msg_('msgMatriz','<div class="alert alert-warn">Gere a matriz antes de baixar.</div>');return;
-  }
-  var wb=XLSX.utils.book_new();
-  var usados={};
-  function addSheet(t,rotulo,aoa){
-    var base=nomeAba_(t.nome+'-'+rotulo);
-    var nome=base,i=1;
-    while(usados[nome]){i++;nome=nomeAba_(base.slice(0,28)+'_'+i);}
-    usados[nome]=true;
-    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(aoa),nome);
-  }
-  var metricas=mtMetricasAtivas_();
-  ultimaMatrizData.terceiros.forEach(function(t){
-    var header=['Peca','Movimento'];
-    t.dias.forEach(function(dd){header.push(dd);});
-    header.push('Total');
-    var aoa=[header];
-    var totObj={};
-    metricas.forEach(function(m){
-      totObj[m.campo]={};
-      t.dias.forEach(function(dd){totObj[m.campo][dd]=0;});
-    });
-    t.pecas.forEach(function(p){
-      metricas.forEach(function(m,mi){
-        var vals=p[m.campo]||{},linTot=0;
-        var linha=[mi===0?p.peca:'',m.label];
-        t.dias.forEach(function(dd){
-          var v=Number(vals[dd])||0;
-          linTot+=v;totObj[m.campo][dd]+=v;
-          linha.push(v);
-        });
-        linha.push(linTot);
-        aoa.push(linha);
-      });
-    });
-    metricas.forEach(function(m,mi){
-      var linTot=0;
-      var linha=[mi===0?'TOTAL':'',m.label];
-      t.dias.forEach(function(dd){
-        var v=totObj[m.campo][dd];linTot+=v;linha.push(v);
-      });
-      linha.push(linTot);
-      aoa.push(linha);
-    });
-    addSheet(t,'Matriz',aoa);
-  });
-  var di=document.getElementById('mtDi').value,df=document.getElementById('mtDf').value;
-  XLSX.writeFile(wb,'Matriz_Pecas_'+di+'_a_'+df+'.xlsx');
-}
-var rkPecasCache=[],rkPecasSel=[],rkUltimo=null,rkChart=null,rkLinhasView=[],rkFiltroUsado={di:'',df:''};
-var rkGrupo='peca',rkAsc=false,rkTop=20,rkMetSel=['recebido'],rkSort='recebido',rkCard=null,rkPrev=null;
+var rkPecasCache=[],rkPecasSel=[],rkChart=null;
+var RK={di:'',df:'',g:'peca',sort:'recebido',asc:false,top:20,card:null,prev:null,met:['recebido'],sel:null,movs:null,sacos:{},linhas:[],bk:null,tercTab:[],tercDados:[],tAg:null,tAp:null,req:0,iniciado:false,mtML:null,mtR:null};
+var RK_CAMPOS=['enviado','recebido','aprovadas','refugo','repasse','devolucao','diferenca'];
 var RK_METRICAS=[
-  {k:'aprovadas',l:'Aprovadas',rgb:'22,163,74'},
-  {k:'enviado',l:'Enviado',rgb:'245,158,11'},
-  {k:'recebido',l:'Recebido',rgb:'8,145,178'},
-  {k:'refugo',l:'Refugo',rgb:'220,38,38'},
-  {k:'repasse',l:'Repasse',rgb:'139,92,246'},
-  {k:'devolucao',l:'Devolucao',rgb:'59,130,246'},
+  {k:'enviado',l:'Enviado',rgb:'245,158,11',f:'enviado'},
+  {k:'recebido',l:'Recebido',rgb:'8,145,178',f:'recebido'},
+  {k:'aprovadas',l:'Aprovadas',rgb:'22,163,74',f:'aprovadas'},
+  {k:'refugo',l:'Refugo',rgb:'220,38,38',f:'refugo'},
+  {k:'repasse',l:'Repasse',rgb:'139,92,246',f:'repasse'},
+  {k:'devolucao',l:'Devolucao',rgb:'59,130,246',f:'devolucao'},
+  {k:'dif',l:'A mais/menos',rgb:'244,114,182',f:'diferenca'},
   {k:'saldo',l:'Saldo',rgb:'20,184,166'},
   {k:'pAprov',l:'% Aprovacao',pct:true,rgb:'74,222,128'},
   {k:'pRefugo',l:'% Refugo',pct:true,rgb:'248,113,113'},
   {k:'pRepasse',l:'% Repasse',pct:true,rgb:'167,139,250'}
 ];
-function rkMet_(k){return RK_METRICAS.filter(function(m){return m.k===k;})[0];}
+var RK_TROFEU='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4z"/><path d="M17 5h3v2a3 3 0 01-3 3M7 5H4v2a3 3 0 003 3"/></svg>';
+function rkMet_(k){for(var i=0;i<RK_METRICAS.length;i++) if(RK_METRICAS[i].k===k) return RK_METRICAS[i];return null;}
 function rkCor_(m,a){return 'rgba('+m.rgb+','+(a===undefined?1:a)+')';}
+function rkFmt_(m,v){
+  if(v===null||v===undefined) return '-';
+  if(m&&m.pct) return v.toFixed(1).replace('.',',')+'%';
+  return fmtN(v);
+}
+function rkZ_(){var o={sacos:0};RK_CAMPOS.forEach(function(c){o[c]=0;});return o;}
+function rkAdd_(a,b){RK_CAMPOS.forEach(function(c){a[c]+=b[c]||0;});}
+function rkVal_(t,k){
+  var m=rkMet_(k);
+  if(k==='saldo') return t.enviado-t.recebido;
+  if(m.pct){var b=t.aprovadas+t.refugo+t.repasse+t.devolucao;if(!b) return null;return (k==='pAprov'?t.aprovadas:k==='pRefugo'?t.refugo:t.repasse)/b*100;}
+  return t[m.f];
+}
+function rkDia_(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function rkDataBr_(s){return s?s.slice(8,10)+'/'+s.slice(5,7)+'/'+s.slice(0,4):'';}
+function rkIso_(dd,di,df){
+  dd=String(dd);
+  if(/^\d{4}-\d{2}-\d{2}/.test(dd)) return dd.slice(0,10);
+  var m=/^(\d{2})\/(\d{2})(?:\/(\d{4}))?$/.exec(dd);
+  if(!m) return null;
+  if(m[3]) return m[3]+'-'+m[2]+'-'+m[1];
+  var y0=+di.slice(0,4),y1=+df.slice(0,4);
+  for(var y=y1;y>=y0;y--){var s=y+'-'+m[2]+'-'+m[1];if(s>=di&&s<=df) return s;}
+  return y1+'-'+m[2]+'-'+m[1];
+}
+function rkBuckets_(ini,fim){
+  var a=new Date(ini+'T12:00:00'),z=new Date(fim+'T12:00:00'),nd=Math.round((z-a)/864e5)+1,tp=nd<=62?'dia':nd<=434?'semana':'mes',L=[],d=new Date(a),WD=['dom','seg','ter','qua','qui','sex','sab'],MS=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  if(tp==='semana') d.setDate(d.getDate()-((d.getDay()+6)%7));
+  if(tp==='mes') d.setDate(1);
+  while(d<=z&&L.length<400){
+    var e=new Date(d);
+    if(tp==='semana') e.setDate(e.getDate()+6); else if(tp==='mes') e=new Date(d.getFullYear(),d.getMonth()+1,0,12);
+    var k=rkDia_(d),ka=k<ini?ini:k,kb=rkDia_(e),w=d.getDay();
+    if(kb>fim) kb=fim;
+    L.push({k:k,a:ka,b:kb,lbl:tp==='mes'?MS[d.getMonth()]+'/'+String(d.getFullYear()).slice(2):ka.slice(8)+'/'+ka.slice(5,7),sub:tp==='dia'?WD[w]:tp==='semana'?'a '+kb.slice(8)+'/'+kb.slice(5,7):'',fds:tp==='dia'&&(w===0||w===6)});
+    if(tp==='mes') d=new Date(d.getFullYear(),d.getMonth()+1,1,12); else d.setDate(d.getDate()+(tp==='semana'?7:1));
+  }
+  return {tipo:tp,lista:L,de:function(s){
+    if(tp==='dia') return s;
+    if(tp==='mes') return s.slice(0,8)+'01';
+    var t=new Date(s+'T12:00:00');t.setDate(t.getDate()-((t.getDay()+6)%7));return rkDia_(t);
+  }};
+}
 function rkSeg_(id,v){var e=document.getElementById(id);if(e) e.value=String(v);}
-function rkSetGrupo(v){rkGrupo=v;rkSeg_('rkGrupoSeg',v);if(rkUltimo)renderRanking();}
-function rkSetOrdem(asc){rkAsc=asc;rkSeg_('rkOrdemSeg',asc?'asc':'desc');if(rkUltimo)renderRanking();}
-function rkSetTop(n){rkTop=n;if(rkUltimo)renderRanking();}
-function rkEmptyIni_(){document.getElementById('rankResult').innerHTML='<div class="rk-empty"><b>Nenhum ranking gerado</b><span>Defina o periodo, escolha as pecas e as metricas e toque em Gerar ranking.</span></div>';}
+function rkSortMontar_(){
+  var s=document.getElementById('rkMetrica');
+  s.innerHTML=RK_METRICAS.map(function(m){return '<option value="'+m.k+'">'+esc(m.l)+'</option>';}).join('')+'<option value="peca">'+(RK.g==='ter'?'Terceiro (nome)':'Peca (nome)')+'</option>';
+  s.value=RK.sort;
+  rkSeg_('rkOrdemSeg',RK.asc?'asc':'desc');
+  rkSeg_('rkGrupoSeg',RK.g);
+}
+function rkSetGrupo(v){RK.g=v;RK.sel=null;rkSortMontar_();renderRanking();}
+function rkSetOrdem(asc){RK.asc=asc;renderRanking();}
+function rkSetSort(k){RK.sort=k;RK.asc=(k==='peca');rkSeg_('rkOrdemSeg',RK.asc?'asc':'desc');renderRanking();}
+function rkSetTop(n){RK.top=n;renderRanking();}
+function rkAplicar_(){clearTimeout(RK.tAp);RK.tAp=setTimeout(renderRanking,180);}
 function renderRkMetricas(){
   var panel=document.getElementById('rkMetPanel'),st=panel.scrollTop;
   function opt(m){
-    var on=rkMetSel.indexOf(m.k)!==-1;
+    var on=RK.met.indexOf(m.k)!==-1;
     return '<div class="rk-opt'+(on?' on':'')+'" role="checkbox" aria-checked="'+on+'" tabindex="0" data-k="'+m.k+'" style="--c:'+rkCor_(m)+'" onclick="event.stopPropagation();toggleRkMet(this.dataset.k)" onkeydown="if(event.key===\' \'||event.key===\'Enter\'){event.preventDefault();toggleRkMet(this.dataset.k)}"><span class="rk-ck"></span><i class="rk-dot"></i>'+esc(m.l)+'</div>';
   }
-  panel.innerHTML='<div class="rk-gh">Quantidades</div>'+RK_METRICAS.filter(function(m){return !m.pct;}).map(opt).join('')+'<div class="rk-gh">Percentuais (eixo superior)</div>'+RK_METRICAS.filter(function(m){return m.pct;}).map(opt).join('');
+  panel.innerHTML='<div class="rk-drop-h"><button type="button" class="cb edit" onclick="event.stopPropagation();rkMetAcao(\'q\')">Todas as quantidades</button><button type="button" class="cb del" onclick="event.stopPropagation();rkMetAcao(\'s\')">So a da ordenacao</button></div>'+
+    '<div class="rk-gh">Quantidades</div>'+RK_METRICAS.filter(function(m){return !m.pct;}).map(opt).join('')+
+    '<div class="rk-gh">Percentuais (eixo de cima)</div>'+RK_METRICAS.filter(function(m){return m.pct;}).map(opt).join('');
   panel.scrollTop=st;
-  var sel=rkMetSel.map(rkMet_);
+  var sel=RK.met.map(rkMet_);
   document.getElementById('rkMetTrg').innerHTML='<span class="rk-dots">'+sel.map(function(m){return '<i style="--c:'+rkCor_(m)+'"></i>';}).join('')+'</span><span class="rk-trg-t">'+sel.map(function(m){return esc(m.l);}).join(', ')+'</span>';
   document.getElementById('rkMetN').textContent=sel.length>1?String(sel.length):'';
-  var s=document.getElementById('rkMetrica');
-  s.innerHTML=RK_METRICAS.map(function(m){return '<option value="'+m.k+'">'+esc(m.l)+'</option>';}).join('')+'<option value="peca">Peca (nome)</option>';
-  s.value=rkSort;
-}
-function rkCardLimpar_(){
-  if(!rkCard) return;
-  rkCard=null;
-  if(rkPrev){rkMetSel=rkPrev.met;rkSort=rkPrev.sort;rkAsc=rkPrev.asc;rkPrev=null;}
-  rkSeg_('rkOrdemSeg',rkAsc?'asc':'desc');
-  renderRkMetricas();
-}
-function rkCardSet(k){
-  if(!rkUltimo) return;
-  if(rkCard===k) rkCardLimpar_();
-  else{
-    if(!rkCard) rkPrev={met:rkMetSel.slice(),sort:rkSort,asc:rkAsc};
-    rkCard=k;rkMetSel=[k];rkSort=k;rkAsc=(k==='pAprov');
-    rkSeg_('rkOrdemSeg',rkAsc?'asc':'desc');
-    renderRkMetricas();
-  }
-  renderRanking();
-  var b=document.querySelector('.rk-kpis .kpi[data-k="'+k+'"]');
-  if(b) b.focus();
-}
-function rkSetSort(k){rkSort=k;rkAsc=(k==='peca');rkSeg_('rkOrdemSeg',rkAsc?'asc':'desc');if(rkUltimo)renderRanking();}
-function rkOrdenarPor(k){
-  if(rkSort===k) rkAsc=!rkAsc; else {rkSort=k;rkAsc=(k==='peca');}
-  document.getElementById('rkMetrica').value=rkSort;
-  rkSeg_('rkOrdemSeg',rkAsc?'asc':'desc');
-  renderRanking();
-  var b=document.querySelector('.rk-th[data-k="'+k+'"]');
-  if(b) b.focus();
-}
-function rkTh_(k,lb,st,cls){
-  var on=rkSort===k;
-  return '<th class="'+(cls||'')+'"'+(st?' style="'+st+'"':'')+' aria-sort="'+(on?(rkAsc?'ascending':'descending'):'none')+'"><button type="button" class="rk-th" data-k="'+k+'" data-dir="'+(on?(rkAsc?'asc':'desc'):'')+'"'+(k==='saldo'?' title="Enviado menos Recebido"':'')+' onclick="rkOrdenarPor(\''+k+'\')">'+lb+'</button></th>';
 }
 function toggleRkMet(k){
-  var ix=rkMetSel.indexOf(k);
-  if(ix===-1) rkMetSel.push(k);
-  else if(rkMetSel.length>1) rkMetSel.splice(ix,1);
+  var ix=RK.met.indexOf(k);
+  if(ix===-1) RK.met.push(k);
+  else if(RK.met.length>1) RK.met.splice(ix,1);
   else return;
-  rkMetSel=RK_METRICAS.map(function(m){return m.k;}).filter(function(x){return rkMetSel.indexOf(x)!==-1;});
+  RK.met=RK_METRICAS.map(function(m){return m.k;}).filter(function(x){return RK.met.indexOf(x)!==-1;});
   renderRkMetricas();
-  var b=document.querySelector('.rk-opt[data-k="'+k+'"]');
+  var b=document.querySelector('#rkMetPanel .rk-opt[data-k="'+k+'"]');
   if(b) b.focus();
-  if(rkUltimo) renderRanking();
+  renderRanking();
+}
+function rkMetAcao(t){
+  RK.met=t==='q'?RK_METRICAS.filter(function(m){return !m.pct;}).map(function(m){return m.k;}):[rkMet_(RK.sort)?RK.sort:'recebido'];
+  renderRkMetricas();
+  renderRanking();
+}
+function rkCardLimpar_(){
+  if(!RK.card) return;
+  RK.card=null;
+  if(RK.prev){RK.met=RK.prev.met;RK.sort=RK.prev.sort;RK.asc=RK.prev.asc;RK.prev=null;}
+  rkSortMontar_();renderRkMetricas();
+}
+function rkCardSet(k){
+  if(!RK.movs) return;
+  if(RK.card===k) rkCardLimpar_();
+  else{
+    if(!RK.card) RK.prev={met:RK.met.slice(),sort:RK.sort,asc:RK.asc};
+    RK.card=k;RK.met=[k];RK.sort=k;RK.asc=(k==='pAprov');
+    rkSortMontar_();renderRkMetricas();
+  }
+  renderRanking();
+  var b=document.querySelector('#rkKpis .kpi[data-k="'+k+'"]');
+  if(b) b.focus();
 }
 function initRanking(){
-  renderRkMetricas();
-  if(!rkUltimo) rkEmptyIni_();
-  supabase.from('ferramentas').select('codigo').order('codigo').then(function(res){
+  if(!RK.iniciado){
+    RK.iniciado=true;
+    var h=new Date(),a=new Date();a.setDate(a.getDate()-29);
+    if(!document.getElementById('rkDi').value) document.getElementById('rkDi').value=rkDia_(a);
+    if(!document.getElementById('rkDf').value) document.getElementById('rkDf').value=rkDia_(h);
+  }
+  rkSortMontar_();renderRkMetricas();
+  var pF=supabase.from('ferramentas').select('codigo').order('codigo').then(function(res){
     rkPecasCache=(res.data||[]).map(function(f){return f.codigo;});
     rkPecasSel=rkPecasSel.filter(function(p){return rkPecasCache.indexOf(p)!==-1;});
     renderRkPecaChips();
   });
   supabase.from('terceiros').select('nome').order('nome').then(function(res){
-    var l=(res.data||[]).map(function(t){return t.nome;});
-    var marc=Array.from(document.querySelectorAll('.rk-terc:checked')).map(function(c){return c.value;});
-    document.getElementById('rkTercBox').innerHTML=l.map(function(t){
-      return '<label class="rk-opt"><input type="checkbox" class="rk-terc" value="'+esc(t)+'"'+(marc.indexOf(t)!==-1?' checked':'')+' onchange="rkTercTxt()"><span class="rk-ck"></span>'+esc(t)+'</label>';
-    }).join('');
-    rkTercTxt();
+    RK.tercTab=(res.data||[]).map(function(t){return t.nome;});
+    rkTercMontar_();
   });
+  if(!RK.movs) pF.then(function(){rkCarregar_();}); else renderRanking();
+}
+function rkTercSel_(){return Array.from(document.querySelectorAll('.rk-terc:checked')).map(function(c){return c.value;});}
+function rkTercMontar_(){
+  var marc=rkTercSel_(),vis={},l=[];
+  RK.tercTab.concat(RK.tercDados).forEach(function(t){if(!vis[t]){vis[t]=1;l.push(t);}});
+  l.sort(function(a,b){return a.localeCompare(b,'pt-BR');});
+  document.getElementById('rkTercBox').innerHTML=l.map(function(t){
+    return '<label class="rk-opt"><input type="checkbox" class="rk-terc" value="'+esc(t)+'"'+(marc.indexOf(t)!==-1?' checked':'')+' onchange="rkTercTxt();rkAplicar_()"><span class="rk-ck"></span>'+esc(t)+'</label>';
+  }).join('');
+  rkTercTxt();
 }
 function rkTercTxt(){
-  var n=Array.from(document.querySelectorAll('.rk-terc:checked')).map(function(c){return c.value;});
+  var n=rkTercSel_();
   document.getElementById('rkTercTrg').innerHTML='<span class="rk-trg-t">'+esc(!n.length?'Todos os terceiros':n.length<=2?n.join(', '):n.length+' terceiros')+'</span>';
   document.getElementById('rkTercN').textContent=n.length?String(n.length):'';
 }
 function rkTercLimpar(){
   document.querySelectorAll('.rk-terc:checked').forEach(function(c){c.checked=false;});
-  rkTercTxt();
+  rkTercTxt();rkAplicar_();
 }
 function rkMsFechar_(){
   document.querySelectorAll('.rk-ms.open').forEach(function(w){w.classList.remove('open');w.querySelector('.rk-trg').setAttribute('aria-expanded','false');});
@@ -2708,7 +2507,7 @@ function rkPecasFiltradas_(){
   return termo?rkPecasCache.filter(function(p){return p.toLowerCase().indexOf(termo)!==-1;}):rkPecasCache;
 }
 function abrirRkPecaDrop(){rkMsFechar_();document.getElementById('rkPecaBox').style.display='block';renderRkPecaBox();}
-function fecharRkPecaDrop(){document.getElementById('rkPecaBox').style.display='none';}
+function fecharRkPecaDrop(){var b=document.getElementById('rkPecaBox');if(b) b.style.display='none';}
 document.addEventListener('click',function(e){
   var box=document.getElementById('rkPecaBox'),inp=document.getElementById('rkPecaFiltro');
   if(!box||box.style.display!=='block')return;
@@ -2720,7 +2519,7 @@ function renderRkPecaBox(){
   var termo=(document.getElementById('rkPecaFiltro').value||'').trim();
   var l=rkPecasFiltradas_();
   var head='<div class="rk-drop-h">'+
-    '<button type="button" class="cb edit" onclick="event.stopPropagation();rkSelTodas()">Selecionar todas'+(termo?' (filtradas)':'')+'</button>'+
+    '<button type="button" class="cb edit" onclick="event.stopPropagation();rkSelTodas()">Marcar as filtradas'+(termo?'':' (todas)')+'</button>'+
     '<button type="button" class="cb del" onclick="event.stopPropagation();rkLimparSel()">Limpar selecao</button></div>';
   box.innerHTML=head+(l.length?l.map(function(p){
     var on=rkPecasSel.indexOf(p)!==-1;
@@ -2729,13 +2528,11 @@ function renderRkPecaBox(){
 }
 function rkSelTodas(){
   rkPecasFiltradas_().forEach(function(p){if(rkPecasSel.indexOf(p)===-1) rkPecasSel.push(p);});
-  renderRkPecaBox();
-  renderRkPecaChips();
+  renderRkPecaBox();renderRkPecaChips();rkAplicar_();
 }
 function rkLimparSel(){
   rkPecasSel=[];
-  renderRkPecaBox();
-  renderRkPecaChips();
+  renderRkPecaBox();renderRkPecaChips();rkAplicar_();
 }
 function renderRkPecaChips(){
   var box=document.getElementById('rkPecaChips');
@@ -2745,121 +2542,142 @@ function renderRkPecaChips(){
     :rkPecasSel.map(function(p){
       return '<span class="rk-chip">'+esc(p)+'<button type="button" aria-label="Remover '+esc(p)+'" data-p="'+esc(p)+'" onclick="toggleRkPeca(this.dataset.p)">&times;</button></span>';
     }).join('');
-  document.getElementById('rkPecaCont').textContent=rkPecasSel.length?fmtN(rkPecasSel.length)+' selecionada'+(rkPecasSel.length>1?'s':''):'';
+  document.getElementById('rkPecaCont').textContent=rkPecasSel.length?fmtN(rkPecasSel.length)+' selecionada'+(rkPecasSel.length>1?'s':''):'vazio = todas';
 }
 function toggleRkPeca(p){
   var ix=rkPecasSel.indexOf(p);
   if(ix===-1) rkPecasSel.push(p); else rkPecasSel.splice(ix,1);
-  renderRkPecaBox();
-  renderRkPecaChips();
+  renderRkPecaBox();renderRkPecaChips();rkAplicar_();
 }
 function limparRanking(){
-  rkCardLimpar_();
-  document.getElementById('rkDi').value='';document.getElementById('rkDf').value='';
-  document.getElementById('rkPecaFiltro').value='';
-  rkPecasSel=[];renderRkPecaChips();fecharRkPecaDrop();
+  rkPecasSel=[];document.getElementById('rkPecaFiltro').value='';renderRkPecaChips();fecharRkPecaDrop();
   document.querySelectorAll('.rk-terc:checked').forEach(function(c){c.checked=false;});rkTercTxt();
-  if(rkChart){rkChart.destroy();rkChart=null;}
-  msg_('msgRank','');rkUltimo=null;rkLinhasView=[];
-  rkEmptyIni_();
+  RK.g='peca';RK.sel=null;RK.card=null;RK.prev=null;RK.met=['recebido'];RK.sort='recebido';RK.asc=false;RK.top=20;
+  rkSortMontar_();renderRkMetricas();
+  var h=new Date(),a=new Date();a.setDate(a.getDate()-29);
+  var di=rkDia_(a),df=rkDia_(h),mud=document.getElementById('rkDi').value!==di||document.getElementById('rkDf').value!==df;
+  document.getElementById('rkDi').value=di;document.getElementById('rkDf').value=df;
+  if(mud||!RK.movs) rkCarregar_(); else renderRanking();
 }
-function gerarRanking(){
+function rkAgendar_(){clearTimeout(RK.tAg);RK.tAg=setTimeout(rkCarregar_,450);}
+function rkAtualizar(){rkCarregar_();}
+function rkCarregar_(){
   var di=document.getElementById('rkDi').value,df=document.getElementById('rkDf').value;
-  var terc=Array.from(document.querySelectorAll('.rk-terc:checked')).map(function(c){return c.value;});
-  if(!rkPecasSel.length){msg_('msgRank','<div class="alert alert-warn">Selecione ao menos uma peca.</div>');return;}
   if(!di||!df){msg_('msgRank','<div class="alert alert-warn">Selecione o periodo.</div>');return;}
-  msg_('msgRank','<div class="load">Gerando ranking...</div>');
-  if(rkChart){rkChart.destroy();rkChart=null;}
-  document.getElementById('rankResult').innerHTML='';
-  rpc('get_matriz_peca',{p_pecas:rkPecasSel.slice(),p_terceiros:terc,p_di:di,p_df:df}).then(function(d){
+  if(di>df){msg_('msgRank','<div class="alert alert-warn">A data inicio esta depois da data fim.</div>');return;}
+  if(!rkPecasCache.length){msg_('msgRank','<div class="alert alert-warn">Nenhuma peca cadastrada em Ferramentas.</div>');return;}
+  var req=++RK.req;
+  msg_('msgRank','<div class="load">Carregando o periodo...</div>');
+  rpc('get_matriz_peca',{p_pecas:rkPecasCache.slice(),p_terceiros:[],p_di:di,p_df:df}).then(function(d){
+    if(req!==RK.req) return;
     msg_('msgRank','');
-    rkFiltroUsado={di:di,df:df};
-    rkUltimo=d;
+    RK.di=di;RK.df=df;
+    rkPrep_(d);
     renderRanking();
-  }).catch(function(e){msg_('msgRank','<div class="alert alert-err">'+esc(e.message)+'</div>');});
+  }).catch(function(e){
+    if(req!==RK.req) return;
+    msg_('msgRank','<div class="alert alert-err">'+esc((e&&e.message)||String(e))+'</div>');
+  });
 }
-function rkFmt_(m,v){
-  if(v===null||v===undefined) return '-';
-  if(m.pct) return v.toFixed(1).replace('.',',')+'%';
-  return fmtN(v);
-}
-function rkLinhas_(d,grupo){
-  var campos=['enviado','recebido','aprovadas','refugo','repasse','devolucao'];
-  var mapa={},linhas=[];
-  function nova(peca,terc){var l={peca:peca,terc:terc};campos.forEach(function(c){l[c]=0;});return l;}
-  function somar(l,p){campos.forEach(function(c){l[c]+=mtSomarCampo_(p,c);});}
+function rkPrep_(d){
+  var movs=[],sacos={},ter={};
   ((d&&d.terceiros)||[]).forEach(function(t){
-    t.pecas.forEach(function(p){
-      if(grupo==='pecaterc'){
-        var l=nova(p.peca,t.nome);somar(l,p);linhas.push(l);
-      } else {
-        var g=mapa[p.peca];
-        if(!g){g=nova(p.peca,'');mapa[p.peca]=g;linhas.push(g);}
-        somar(g,p);
-      }
+    (t.pecas||[]).forEach(function(p){
+      sacos[t.nome+'|'+p.peca]=Number(p.sacos)||0;
+      var dias={};
+      RK_CAMPOS.forEach(function(c){Object.keys(p[c]||{}).forEach(function(dd){dias[dd]=1;});});
+      Object.keys(dias).forEach(function(dd){
+        var iso=rkIso_(dd,RK.di,RK.df);
+        if(!iso) return;
+        var v={};
+        RK_CAMPOS.forEach(function(c){v[c]=Number((p[c]||{})[dd])||0;});
+        movs.push({terc:t.nome,peca:p.peca,dia:iso,v:v});
+        ter[t.nome]=1;
+      });
     });
   });
-  linhas=linhas.filter(function(l){return campos.some(function(c){return l[c]!==0;});});
-  linhas.forEach(function(l){
-    var base=l.aprovadas+l.refugo+l.repasse+l.devolucao;
-    l.saldo=l.enviado-l.recebido;
-    l.pAprov=base?l.aprovadas/base*100:null;
-    l.pRefugo=base?l.refugo/base*100:null;
-    l.pRepasse=base?l.repasse/base*100:null;
+  RK.movs=movs;RK.sacos=sacos;RK.bk=rkBuckets_(RK.di,RK.df);
+  RK.tercDados=Object.keys(ter);
+  rkTercMontar_();
+}
+function rkKey_(m){return RK.g==='ter'?m.terc:RK.g==='pecaterc'?m.peca+' · '+m.terc:m.peca;}
+function rkNome_(r){return RK.g==='ter'?r.terc:r.peca+(RK.g==='pecaterc'?' · '+r.terc:'');}
+function rkSomaSacos_(pares){return Object.keys(pares).reduce(function(s,p){return s+(RK.sacos[p]||0);},0);}
+function rkDados_(){
+  var fT=rkTercSel_(),fP=rkPecasSel,G={},TT=rkZ_(),B=RK.bk,pTT={};
+  RK.movs.forEach(function(m){
+    if(fT.length&&fT.indexOf(m.terc)===-1) return;
+    if(fP.length&&fP.indexOf(m.peca)===-1) return;
+    var k=rkKey_(m),o=G[k];
+    if(!o) o=G[k]={key:k,peca:RK.g==='ter'?'':m.peca,terc:RK.g==='peca'?'':m.terc,t:rkZ_(),d:{},pares:{}};
+    var b=B.de(m.dia);
+    rkAdd_(o.d[b]||(o.d[b]=rkZ_()),m.v);rkAdd_(o.t,m.v);rkAdd_(TT,m.v);
+    o.pares[m.terc+'|'+m.peca]=1;pTT[m.terc+'|'+m.peca]=1;
   });
-  return linhas;
+  var L=Object.keys(G).map(function(k){var o=G[k];o.t.sacos=rkSomaSacos_(o.pares);return o;}).filter(function(o){
+    return RK_CAMPOS.some(function(c){return o.t[c]!==0;});
+  });
+  TT.sacos=rkSomaSacos_(pTT);
+  return {L:L,TT:TT};
 }
 function renderRanking(){
-  var mk=rkSort;
-  var bk=rkMet_(mk)?mk:rkMetSel[0];
-  var met=rkMet_(bk);
-  var todas=rkLinhas_(rkUltimo,rkGrupo);
-  var linhas=todas;
-  if(rkChart){rkChart.destroy();rkChart=null;}
-  if(!todas.length){rkLinhasView=[];document.getElementById('rankResult').innerHTML='<div class="rk-empty"><b>Nenhum dado para os filtros selecionados</b><span>Amplie o periodo ou inclua outras pecas e terceiros.</span></div>';return;}
-  var T={enviado:0,recebido:0,aprovadas:0,refugo:0,repasse:0,devolucao:0};
-  todas.forEach(function(l){Object.keys(T).forEach(function(c){T[c]+=l[c];});});
-  var baseT=T.aprovadas+T.refugo+T.repasse+T.devolucao;
-  var pAT=baseT?T.aprovadas/baseT*100:null;
+  if(!RK.movs) return;
+  var D=rkDados_(),TT=D.TT;
+  document.getElementById('rankResult').innerHTML='';
+  document.getElementById('rkRes').style.display='';
+  var bT=TT.aprovadas+TT.refugo+TT.repasse+TT.devolucao,pA=bT?TT.aprovadas/bT*100:null;
   function kpi(k,cls,lbl,val,unit){
-    var on=rkCard===k;
-    return '<div class="kpi '+cls+(on?' on':'')+'" role="button" tabindex="0" aria-pressed="'+on+'" data-k="'+k+'" title="Clique para filtrar e visualizar" onclick="rkCardSet(\''+k+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();rkCardSet(\''+k+'\')}"><div class="kpi-bar"></div><div class="kpi-lbl">'+lbl+'</div><div class="kpi-val">'+val+(unit?' <span class="unit">'+unit+'</span>':'')+'</div></div>';
+    var on=RK.card===k;
+    return '<div class="kpi '+cls+(on?' on':'')+'" role="button" tabindex="0" aria-pressed="'+on+'" data-k="'+k+'" title="Clique para filtrar e ver so esta metrica" onclick="rkCardSet(\''+k+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();rkCardSet(\''+k+'\')}"><div class="kpi-bar"></div><div class="kpi-lbl">'+lbl+'</div><div class="kpi-val">'+val+(unit?' <span class="unit">'+unit+'</span>':'')+'</div></div>';
   }
-  var html='<div class="kpi-row rk-kpis">'+
-    kpi('enviado','ka','Enviado',fmtN(T.enviado),'pecas')+
-    kpi('recebido','ki','Recebido',fmtN(T.recebido),'pecas')+
-    kpi('saldo','kt','Saldo',fmtN(T.enviado-T.recebido),'pecas')+
-    kpi('aprovadas','kg','Aprovadas',fmtN(T.aprovadas),'pecas')+
-    kpi('refugo','kf','Refugo',fmtN(T.refugo),'pecas')+
-    kpi('pAprov','kc','Aprovacao',pAT===null?'-':pAT.toFixed(1).replace('.',',')+'%','')+
-  '</div>';
-  if(rkCard){
-    var cm=rkMet_(rkCard);
-    linhas=todas.filter(function(l){return l[rkCard]!==null&&(cm.pct||l[rkCard]!==0);});
-    html+='<div class="rk-filtro"><span>Filtrando por <b>'+esc(cm.l)+'</b> '+(cm.pct?'(somente linhas com inspecao concluida)':'diferente de zero')+' · '+fmtN(linhas.length)+' de '+fmtN(todas.length)+' linha(s)</span><button type="button" onclick="rkCardSet(\''+rkCard+'\')">Limpar filtro</button></div>';
-    if(!linhas.length){rkLinhasView=[];document.getElementById('rankResult').innerHTML=html+'<div class="rk-empty"><b>Nenhuma linha com '+esc(cm.l.toLowerCase())+'</b><span>Limpe o filtro para ver todas as linhas.</span></div>';return;}
+  document.getElementById('rkKpis').innerHTML=
+    kpi('enviado','ka','Enviado',fmtN(TT.enviado),'pecas')+
+    kpi('recebido','ki','Recebido',fmtN(TT.recebido),'pecas')+
+    kpi('saldo','kt','Saldo',fmtN(TT.enviado-TT.recebido),'pecas')+
+    kpi('aprovadas','kg','Aprovadas',fmtN(TT.aprovadas),'pecas')+
+    kpi('refugo','kf','Refugo',fmtN(TT.refugo),'pecas')+
+    kpi('repasse','kr','Repasse',fmtN(TT.repasse),'pecas')+
+    kpi('devolucao','ks','Devolucao',fmtN(TT.devolucao),'pecas')+
+    kpi('pAprov','kc','Aprovacao',pA===null?'-':pA.toFixed(1).replace('.',',')+'%','');
+  var ag=(TT.recebido+TT.diferenca)-TT.aprovadas-TT.refugo-TT.repasse-TT.devolucao;
+  document.getElementById('rkConta').innerHTML='Conta do periodo: <b>Enviado '+fmtN(TT.enviado)+'</b> - <b>Recebido '+fmtN(TT.recebido)+'</b> = <b>'+fmtN(TT.enviado-TT.recebido)+' ficou com terceiros</b> &nbsp;·&nbsp; Recebido '+fmtN(TT.recebido)+(TT.diferenca?(TT.diferenca>0?' + ':' - ')+fmtN(Math.abs(TT.diferenca))+' diferenca de contagem':'')+' = Aprovadas '+fmtN(TT.aprovadas)+' + Refugo '+fmtN(TT.refugo)+' + Repasse '+fmtN(TT.repasse)+' + Devolucao '+fmtN(TT.devolucao)+' + '+fmtN(ag)+' aguardando inspecao';
+  var linhas=D.L.map(function(o){
+    var r={key:o.key,peca:o.peca,terc:o.terc,t:o.t,d:o.d,pares:o.pares};
+    RK_METRICAS.forEach(function(m){r[m.k]=rkVal_(o.t,m.k);});
+    return r;
+  }),info='';
+  if(RK.card){
+    var cm=rkMet_(RK.card),n0=linhas.length;
+    linhas=linhas.filter(function(r){return r[RK.card]!==null&&(cm.pct||r[RK.card]!==0);});
+    info='<div class="rk-filtro"><span>Filtrando por <b>'+esc(cm.l)+'</b> '+(cm.pct?'(somente linhas com inspecao concluida)':'diferente de zero')+' · '+fmtN(linhas.length)+' de '+fmtN(n0)+' linha(s)</span><button type="button" onclick="rkCardSet(\''+RK.card+'\')">Limpar filtro</button></div>';
   }
+  document.getElementById('rkFiltroInfo').innerHTML=info;
+  var mk=RK.sort,nm=function(r){return RK.g==='ter'?r.terc:r.peca;};
   linhas.sort(function(a,b){
-    if(mk==='peca'){var c=a.peca.localeCompare(b.peca,'pt-BR',{numeric:true});if(!c) c=(a.terc||'').localeCompare(b.terc||'','pt-BR');return rkAsc?c:-c;}
+    if(mk==='peca'){var c=nm(a).localeCompare(nm(b),'pt-BR',{numeric:true})||(a.terc||'').localeCompare(b.terc||'','pt-BR');return RK.asc?c:-c;}
     var x=a[mk],y=b[mk];
     if(x===null&&y===null) return 0;
     if(x===null) return 1;
     if(y===null) return -1;
-    return rkAsc?x-y:y-x;
+    return RK.asc?x-y:y-x;
   });
-  rkLinhasView=linhas;
-  var series=rkMetSel.map(rkMet_);
-  var topo=linhas.slice(0,rkTop>0?rkTop:linhas.length);
-  var max=0;
-  linhas.forEach(function(l){if(l[bk]!==null&&Math.abs(l[bk])>max) max=Math.abs(l[bk]);});
-  var rowH=series.length*13+30;
-  var altura=Math.max(220,topo.length*rowH+110);
-  var med=null,mm=rkMet_(mk);
-  if(mm&&rkMetSel.indexOf(mk)!==-1){var sm=0,qn=0;linhas.forEach(function(l){if(l[mk]!==null){sm+=l[mk];qn++;}});if(qn) med=sm/qn;}
-  var fPct=rkMet_('pAprov');
-  function lnk(l){return '<button type="button" class="rk-lk" onclick="abrirRkHist('+linhas.indexOf(l)+')">'+esc(l.peca)+(l.terc?' · '+esc(l.terc):'')+'</button>';}
-  var ins=[];
-  if(mm&&!mm.pct&&mk!=='saldo'&&linhas.length>5){
+  RK.linhas=linhas;
+  if(RK.sel&&!linhas.some(function(r){return r.key===RK.sel;})) RK.sel=null;
+  var series=RK.met.map(rkMet_),topo=linhas.slice(0,RK.top>0?RK.top:linhas.length);
+  var mm=rkMet_(mk),med=null;
+  if(mm&&RK.met.indexOf(mk)!==-1){var sm=0,qn=0;linhas.forEach(function(l){if(l[mk]!==null){sm+=l[mk];qn++;}});if(qn) med=sm/qn;}
+  rkLeitura_(linhas,mk);
+  var gl=RK.g==='ter'?'por terceiro':RK.g==='pecaterc'?'por peca e terceiro':'por peca';
+  document.getElementById('rkChartH').innerHTML='<div><h4>Comparativo '+gl+'</h4><p>'+fmtN(topo.length)+' de '+fmtN(linhas.length)+' · ordenado por '+(mk==='peca'?'nome':esc(mm.l.toLowerCase()))+' ('+(RK.asc?'crescente':'decrescente')+').'+(med!==null?' Linha tracejada = media por linha.':'')+' Clique numa barra para ver o dia a dia na matriz.</p></div>'+
+    '<div class="rk-seg" role="group" aria-label="Quantidade de linhas no grafico">'+[10,20,50,0].map(function(n){return '<button type="button" aria-pressed="'+(RK.top===n)+'" onclick="rkSetTop('+n+')">'+(n?'Top '+n:'Todas')+'</button>';}).join('')+'</div>';
+  rkGrafico_(topo,series,mk,med);
+  rkLideres_();
+  rkMatriz_();
+}
+function rkLeitura_(linhas,mk){
+  var mm=rkMet_(mk),fPct=rkMet_('pAprov'),ins=[];
+  function lnk(l){return '<button type="button" class="rk-lk" onclick="rkSelIx('+linhas.indexOf(l)+',2)">'+esc(rkNome_(l))+'</button>';}
+  if(mm&&!mm.pct&&mk!=='saldo'&&mk!=='dif'&&linhas.length>5){
     var tot=0;linhas.forEach(function(l){tot+=l[mk];});
     if(tot>0){
       var top5=linhas.map(function(l){return l[mk];}).sort(function(x,y){return y-x;}).slice(0,5).reduce(function(x,y){return x+y;},0);
@@ -2872,51 +2690,41 @@ function renderRanking(){
   if(pa&&pa.pAprov<100) ins.push('Pior aprovacao: '+lnk(pa)+', <b>'+rkFmt_(fPct,pa.pAprov)+'</b> ('+fmtN(pa.refugo)+' refugo, '+fmtN(pa.repasse)+' repasse, '+fmtN(pa.devolucao)+' devolucao).');
   var neg=linhas.filter(function(l){return l.saldo<0;});
   if(neg.length) ins.push('<b>'+fmtN(neg.length)+'</b> linha(s) com mais recebido do que enviado no periodo (retorno de sacos enviados antes da data inicial ou contagem a mais). Elas aparecem com saldo negativo.');
-  if(ins.length) html+='<div class="rk-panel"><div class="rk-ph" style="margin-bottom:10px"><div><h4>Leitura rapida</h4></div></div><ul class="rk-ins">'+ins.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul></div>';
-  html+='<div class="rk-panel"><div class="rk-ph"><div><h4>Comparativo '+(rkGrupo==='pecaterc'?'por peca e terceiro':'por peca')+'</h4>'+
-    '<p>'+fmtN(topo.length)+' de '+fmtN(linhas.length)+' · ordenado por '+(mk==='peca'?'nome da peca':esc(rkMet_(mk).l.toLowerCase()))+' ('+(rkAsc?'crescente':'decrescente')+').'+(med!==null?' Linha tracejada = media por linha.':'')+' Clique numa barra para abrir a rastreabilidade.</p></div>'+
-    '<div class="rk-seg" role="group" aria-label="Quantidade de linhas no grafico">'+[10,20,50,0].map(function(n){return '<button type="button" aria-pressed="'+(rkTop===n)+'" onclick="rkSetTop('+n+')">'+(n?'Top '+n:'Todas')+'</button>';}).join('')+'</div></div>'+
-    '<div class="rk-cv" style="height:'+altura+'px"><canvas id="cRank"></canvas></div></div>';
-  html+='<div class="rk-panel"><div class="rk-ph"><div><h4>Ranking completo</h4><p>'+fmtN(linhas.length)+' linha(s). Clique numa linha para ver a rastreabilidade.</p></div></div><div style="overflow-x:auto"><table class="rk-tbl"><thead><tr><th style="text-align:center;width:44px">#</th>'+rkTh_('peca','Peca','','rk-nm');
-  RK_METRICAS.forEach(function(m){
-    var sel=rkMetSel.indexOf(m.k)!==-1;
-    html+=rkTh_(m.k,(sel?'<i></i>':'')+esc(m.l),'--c:'+rkCor_(m),sel?'sel':'');
-  });
-  html+='</tr></thead><tbody>';
-  linhas.forEach(function(l,ix){
-    var v=l[bk];
-    var pct=(v!==null&&max)?Math.round(Math.abs(v)/max*100):0;
-    html+='<tr class="rk-row" tabindex="0" onclick="abrirRkHist('+ix+')" onkeydown="if(event.key===\'Enter\')abrirRkHist('+ix+')" title="Ver historico e rastreabilidade">'+
-      '<td style="text-align:center"><span class="rk-rank'+(ix<3&&mk!=='peca'?' r'+(ix+1):'')+'">'+(ix+1)+'</span></td>'+
-      '<td class="rk-nm"><b>'+esc(l.peca)+'</b>'+(l.terc?'<em class="rk-tag">'+esc(l.terc)+'</em>':'')+'<div class="rk-mini"><i style="width:'+pct+'%;background:'+rkCor_(met)+'"></i></div></td>';
-    RK_METRICAS.forEach(function(m){
-      var cs=m.k==='saldo'?' style="color:'+(l.saldo>0?'var(--amber)':'var(--green)')+';font-weight:700"':'';
-      html+='<td'+(rkMetSel.indexOf(m.k)!==-1?' class="sel"':'')+cs+'>'+rkFmt_(m,l[m.k])+'</td>';
-    });
-    html+='</tr>';
-  });
-  html+='</tbody></table></div></div>';
-  document.getElementById('rankResult').innerHTML=html;
+  document.getElementById('rkIns').innerHTML=ins.length?'<div class="rk-panel"><div class="rk-ph" style="margin-bottom:10px"><div><h4>Leitura rapida</h4></div></div><ul class="rk-ins">'+ins.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul></div>':'';
+}
+function rkGrafico_(topo,series,mk,med){
+  if(rkChart){rkChart.destroy();rkChart=null;}
+  var box=document.getElementById('rkCv'),sem=document.getElementById('rkSemGraf');
+  if(!window.Chart||!topo.length){
+    box.style.display='none';
+    sem.innerHTML='<div class="rk-empty"><b>'+(window.Chart?'Nenhuma movimentacao para os filtros escolhidos':'Grafico indisponivel')+'</b><span>'+(window.Chart?'Amplie o periodo ou inclua outras pecas e terceiros.':'A biblioteca de graficos nao carregou. Recarregue a pagina.')+'</span></div>';
+    return;
+  }
+  box.style.display='';sem.innerHTML='';
+  function eSel(j){return !!RK.sel&&!!topo[j]&&topo[j].key===RK.sel;}
+  function dim(j){return !!RK.sel&&!!topo[j]&&topo[j].key!==RK.sel&&topo.some(function(x){return x.key===RK.sel;});}
+  var rowH=series.length*13+30,cp=series.length*13/rowH;
+  box.style.height=Math.max(220,topo.length*rowH+110)+'px';
   var temQ=series.some(function(m){return !m.pct;}),temP=series.some(function(m){return m.pct;});
   var maxP=0;
   series.forEach(function(m){if(m.pct) topo.forEach(function(l){if(l[m.k]!==null&&l[m.k]>maxP) maxP=l[m.k];});});
   var topoP=maxP>=50?100:Math.max(5,Math.ceil(maxP*1.25/5)*5);
-  var fonte='Inter,sans-serif';
+  var fonte='Inter,sans-serif',mm=rkMet_(mk);
   var maxM={},minM={},totM={};
   series.forEach(function(m){
     var mx=0,mn=0;
     topo.forEach(function(l){var v=l[m.k];if(v===null) return;if(v>mx) mx=v;if(v<mn) mn=v;});
     maxM[m.k]=mx;minM[m.k]=mn;
   });
-  RK_METRICAS.forEach(function(m){var t=0;linhas.forEach(function(l){if(l[m.k]!==null) t+=l[m.k];});totM[m.k]=t;});
-  var cp=series.length*13/rowH;
+  RK_METRICAS.forEach(function(m){var t=0;RK.linhas.forEach(function(l){if(l[m.k]!==null) t+=l[m.k];});totM[m.k]=t;});
   var rotulos={id:'rkVal',afterDatasetsDraw:function(ch){
-    var c=ch.ctx;c.save();c.font='600 10px '+fonte;c.textBaseline='middle';c.fillStyle='rgba(238,242,239,.86)';
+    var c=ch.ctx;c.save();c.font='600 10px '+fonte;c.textBaseline='middle';
     ch.data.datasets.forEach(function(ds,i){
       if(!ch.isDatasetVisible(i)) return;
       ch.getDatasetMeta(i).data.forEach(function(b,j){
         var v=ds.data[j];
         if(v===null||v===undefined) return;
+        c.fillStyle=dim(j)?'rgba(238,242,239,.28)':'rgba(238,242,239,.86)';
         var t=rkFmt_(series[i],v);
         if(v<0){c.textAlign='right';c.fillText(t,b.x-6,b.y);}
         else{c.textAlign='left';c.fillText(t,b.x+6,b.y);}
@@ -2928,15 +2736,16 @@ function renderRanking(){
     var c=ch.ctx,ys=ch.scales.y,a=ch.chartArea,gh=ys.height/Math.max(1,topo.length)*cp;
     c.save();c.textBaseline='alphabetic';c.textAlign='left';
     topo.forEach(function(l,i){
-      var y=ys.getPixelForValue(i)-gh/2-5,x=a.left+2,t;
-      c.font='600 10px '+fonte;c.fillStyle='#7c8580';t=(i+1)+'   ';c.fillText(t,x,y);x+=c.measureText(t).width;
-      c.font='700 11px '+fonte;c.fillStyle='#eef2ef';c.fillText(l.peca,x,y);x+=c.measureText(l.peca).width;
-      if(l.terc){c.font='600 10px '+fonte;c.fillStyle='#9aa39d';c.fillText('  ·  '+l.terc,x,y);}
+      var y=ys.getPixelForValue(i)-gh/2-5,x=a.left+2,t,ap=dim(i),sl=eSel(i);
+      c.font='600 10px '+fonte;c.fillStyle=sl?'#4ade80':'#7c8580';t=(i+1)+'   ';c.fillText(t,x,y);x+=c.measureText(t).width;
+      var p1=RK.g==='ter'?l.terc:l.peca;
+      c.font=(sl?'800':'700')+' 11px '+fonte;c.fillStyle=ap?'#5f6964':'#eef2ef';c.fillText(p1,x,y);x+=c.measureText(p1).width;
+      if(RK.g==='pecaterc'&&l.terc){c.font='600 10px '+fonte;c.fillStyle=ap?'#4a524e':'#9aa39d';c.fillText('  ·  '+l.terc,x,y);}
     });
     c.restore();
   }};
   var linhaMed={id:'rkMed',afterDatasetsDraw:function(ch){
-    if(med===null) return;
+    if(med===null||!mm) return;
     var sc=ch.scales[mm.pct?'x2':'x'],a=ch.chartArea;
     if(!sc) return;
     var x=sc.getPixelForValue(med);
@@ -2960,7 +2769,7 @@ function renderRanking(){
     type:'bar',
     plugins:[nomes,rotulos,linhaMed],
     data:{
-      labels:topo.map(function(l){return l.peca+(l.terc?' · '+l.terc:'');}),
+      labels:topo.map(function(l){return rkNome_(l);}),
       datasets:series.map(function(m){
         return {
           label:m.l,
@@ -2968,6 +2777,7 @@ function renderRanking(){
           xAxisID:m.pct?'x2':'x',
           borderRadius:4,borderSkipped:false,barPercentage:.86,categoryPercentage:cp,maxBarThickness:14,
           backgroundColor:function(ctx){
+            if(dim(ctx.dataIndex)) return rkCor_(m,.14);
             var sc=ctx.chart.scales[m.pct?'x2':'x'],v=ctx.raw,neg=typeof v==='number'&&v<0;
             var ref=neg?minM[m.k]:maxM[m.k];
             if(!sc||!ref) return rkCor_(m,.85);
@@ -2986,7 +2796,7 @@ function renderRanking(){
       animation:reduz?false:{duration:700,easing:'easeOutQuart'},
       layout:{padding:{left:2,right:58,top:4}},
       interaction:{mode:'index',axis:'y',intersect:false},
-      onClick:function(ev,els,ch){var r=ch.getElementsAtEventForMode(ev,'index',{axis:'y',intersect:false},true);if(r&&r.length) abrirRkHist(r[0].index);},
+      onClick:function(ev,els,ch){var r=ch.getElementsAtEventForMode(ev,'index',{axis:'y',intersect:false},true);if(r&&r.length) rkSelIx(r[0].index,1);},
       onHover:function(ev,els,ch){var r=ch.getElementsAtEventForMode(ev,'index',{axis:'y',intersect:false},false);if(ev.native&&ev.native.target) ev.native.target.style.cursor=(r&&r.length)?'pointer':'default';},
       scales:escalas,
       plugins:{
@@ -2996,10 +2806,10 @@ function renderRanking(){
           titleColor:'#eef2ef',bodyColor:'#cdd5d0',footerColor:'#7c8580',
           titleFont:{size:12,weight:'700',family:fonte},bodyFont:{size:11,family:fonte},footerFont:{size:10,weight:'500',family:fonte},boxPadding:4,
           callbacks:{
-            title:function(it){var i=it[0].dataIndex,l=topo[i];return '#'+(i+1)+'  '+l.peca+(l.terc?' · '+l.terc:'');},
+            title:function(it){var i=it[0].dataIndex;return '#'+(i+1)+'  '+rkNome_(topo[i]);},
             label:function(c){
               var m=series[c.datasetIndex],v=c.raw,t=' '+c.dataset.label+': '+rkFmt_(m,v);
-              if(!m.pct&&m.k!=='saldo'&&v!==null&&totM[m.k]>0) t+=' ('+(v/totM[m.k]*100).toFixed(1).replace('.',',')+'% do total)';
+              if(!m.pct&&m.k!=='saldo'&&m.k!=='dif'&&v!==null&&totM[m.k]>0) t+=' ('+(v/totM[m.k]*100).toFixed(1).replace('.',',')+'% do total)';
               return t;
             },
             afterBody:function(it){
@@ -3007,36 +2817,169 @@ function renderRanking(){
               return ['','Enviado '+fmtN(l.enviado)+'  ·  Recebido '+fmtN(l.recebido)+'  ·  Saldo '+fmtN(l.saldo),'Aprovadas '+fmtN(l.aprovadas)+'  ·  Refugo '+fmtN(l.refugo)+'  ·  Aprovacao '+rkFmt_(rkMet_('pAprov'),l.pAprov)];
             },
             labelColor:function(c){var m=series[c.datasetIndex];return {borderColor:rkCor_(m),backgroundColor:rkCor_(m),borderRadius:3};},
-            footer:function(){return 'Clique para ver a rastreabilidade';}
+            footer:function(){return 'Clique para ver o dia a dia na matriz';}
           }
         }
       }
     }
   });
 }
+function rkSel(k,rol){
+  RK.sel=(k&&RK.sel!==k)?k:null;
+  if(rkChart) rkChart.update('none');
+  rkLideres_();rkMatriz_();
+  var b=document.getElementById(rol===1?'rkLbBox':'rkMtBox');
+  if(b&&RK.sel&&rol===1) b.scrollIntoView({behavior:'smooth',block:'nearest'});
+  else if(b&&rol===2) b.scrollIntoView({block:'nearest'});
+}
+function rkSelIx(ix,rol){var r=RK.linhas[ix];if(r) rkSel(r.key,rol);}
+function rkLbTer(t){
+  var cur=rkTercSel_(),novo=(!t||(cur.length===1&&cur[0]===t))?[]:[t];
+  document.querySelectorAll('.rk-terc').forEach(function(c){c.checked=novo.indexOf(c.value)!==-1;});
+  rkTercTxt();renderRanking();
+}
+function rkLideres_(){
+  var el=document.getElementById('rkLb');
+  if(!el||!RK.movs) return;
+  var mk=rkMet_(RK.sort)?RK.sort:'recebido',m=rkMet_(mk),dir={enviado:1,recebido:1,aprovadas:1,pAprov:1,refugo:-1,repasse:-1,devolucao:-1,pRefugo:-1,pRepasse:-1}[mk]||0,asc=dir<0,fP=rkPecasSel,fT=rkTercSel_(),G={},P={},sr=null,pc=null,tc=null;
+  if(RK.sel) RK.linhas.forEach(function(r){if(r.key===RK.sel) sr=r;});
+  if(sr){if(RK.g!=='ter') pc=sr.peca;if(RK.g!=='peca') tc=sr.terc;}
+  RK.movs.forEach(function(x){
+    if(fP.length&&fP.indexOf(x.peca)===-1) return;
+    if(pc&&x.peca!==pc) return;
+    rkAdd_(G[x.terc]||(G[x.terc]=rkZ_()),x.v);
+    (P[x.terc]||(P[x.terc]={}))[x.terc+'|'+x.peca]=1;
+  });
+  var L=Object.keys(G).map(function(t){var o=G[t];o.sacos=rkSomaSacos_(P[t]);return {t:t,o:o,v:rkVal_(o,mk)};}).filter(function(r){
+    return RK_CAMPOS.some(function(c){return r.o[c]!==0;});
+  });
+  L.sort(function(a,b){
+    if(a.v===null&&b.v===null) return a.t.localeCompare(b.t);
+    if(a.v===null) return 1;
+    if(b.v===null) return -1;
+    return (asc?a.v-b.v:b.v-a.v)||a.t.localeCompare(b.t);
+  });
+  var soma=0,mx=0,parte=!m.pct&&mk!=='saldo'&&mk!=='dif',pos=[];
+  L.forEach(function(r,i){pos.push(i&&r.v===L[i-1].v?pos[i-1]:i+1);});
+  L.forEach(function(r){if(r.v!==null){if(r.v>0) soma+=r.v;if(Math.abs(r.v)>mx) mx=Math.abs(r.v);}});
+  function hl(t){return tc?t===tc:fT.indexOf(t)!==-1;}
+  var temHl=L.some(function(r){return hl(r.t);});
+  document.getElementById('rkLbH').innerHTML='<div><h4>Ranking de terceiros'+(pc?' · '+esc(pc):'')+'</h4><p>'+(dir?'Quem esta ganhando em':'Terceiros por')+' <b>'+esc(m.l.toLowerCase())+'</b>'+(m.pct?'':' (pecas)')+(dir<0?' · menos e melhor':dir?'':' · maior primeiro')+(parte?' · % = participacao de cada terceiro no total':'')+(pc?' · so a peca selecionada':'')+'. Clique num terceiro para ver so ele na tela.</p></div>'+(fT.length?'<button type="button" class="btn btn-ghost btn-sm" onclick="rkLbTer(null)">Todos os terceiros</button>':'');
+  if(!L.length){el.innerHTML='<div class="empty">Nenhuma movimentacao de terceiros para os filtros escolhidos.</div>';return;}
+  el.innerHTML=L.map(function(r,i){
+    var v=r.v,pAp=rkVal_(r.o,'pAprov'),w=v===null?0:m.pct?Math.min(100,Math.max(0,v)):(mx?Math.abs(v)/mx*100:0),sh=parte&&soma&&v!==null&&v>0?v/soma*100:null,lider=!!dir&&v!==null&&pos[i]===1,cls=(lider?' lider':'')+(temHl?(hl(r.t)?' on':' off'):'');
+    return '<button type="button" class="rk-lb-row'+cls+'" data-t="'+esc(r.t)+'" onclick="rkLbTer(this.dataset.t)" title="Enviado '+fmtN(r.o.enviado)+' · Recebido '+fmtN(r.o.recebido)+' · Aprovadas '+fmtN(r.o.aprovadas)+' · Refugo '+fmtN(r.o.refugo)+' · clique para ver so este terceiro">'+
+      '<span class="rk-lb-pos">'+(lider?RK_TROFEU:'')+pos[i]+'º</span>'+
+      '<span class="rk-lb-nm"><b>'+esc(r.t)+'</b><small>'+fmtN(r.o.sacos)+' saco(s) · aprovacao '+(pAp===null?'-':pAp.toFixed(1).replace('.',',')+'%')+'</small></span>'+
+      '<span class="rk-lb-bar">'+(w>0?'<i style="width:'+w.toFixed(1)+'%;background:linear-gradient(90deg,'+rkCor_(m,.3)+','+rkCor_(m,.95)+')"></i>':'')+'</span>'+
+      '<span class="rk-lb-val"><b>'+rkFmt_(m,v)+'</b>'+(sh!==null?'<em>'+sh.toFixed(1).replace('.',',')+'%</em>':'')+'</span></button>';
+  }).join('');
+}
+function rkCel_(m,v){
+  if(v===null||v===undefined) return '<span class="rk-z">-</span>';
+  if(m.pct) return '<span style="color:'+rkCor_(m)+'">'+rkFmt_(m,v)+'</span>';
+  if(!v) return '<span class="rk-z">0</span>';
+  if(m.k==='saldo') return '<b style="color:'+(v>0?'var(--amber)':'var(--green)')+'">'+(v>0?'+':'')+fmtN(v)+'</b>';
+  if(m.k==='dif') return '<b style="color:'+(v>0?'#fbbf24':'#f87171')+'">'+(v>0?'+':'')+fmtN(v)+'</b>';
+  return '<span style="color:'+rkCor_(m)+'">'+fmtN(v)+'</span>';
+}
+function rkMatriz_(){
+  var el=document.getElementById('rkMatriz');
+  if(!el||!RK.bk) return;
+  var B=RK.bk,BL=B.lista,L=RK.linhas,sx=-1,TB={},TG=rkZ_();
+  L.forEach(function(r,i){if(r.key===RK.sel) sx=i;});
+  var R=sx>=0?[sx]:L.map(function(r,i){return i;});
+  var ML=sx>=0?RK_METRICAS.filter(function(m){return !m.pct||RK.met.indexOf(m.k)!==-1;}):RK.met.map(rkMet_);
+  RK.mtML=ML;RK.mtR=R;
+  function dias(m,o){return BL.map(function(b){var c=o[b.k],v=c?rkVal_(c,m.k):(m.pct?null:0);return '<td class="rk-c'+(b.fds?' fds':'')+'">'+rkCel_(m,v)+'</td>';}).join('');}
+  document.getElementById('rkMtH').innerHTML='<div><h4>Matriz por '+B.tipo+'</h4><p>'+(sx>=0?'1 de '+fmtN(L.length)+' linha(s)':fmtN(L.length)+' linha(s) na ordem do ranking')+' · em pecas.'+(sx>=0?'':' Clique no nome para ver so a linha, com todas as metricas.')+(B.tipo!=='dia'?' Periodo longo: colunas agrupadas por '+B.tipo+'.':'')+'</p></div><button type="button" class="btn btn-ghost btn-sm" onclick="rkBaixarExcel()">Baixar Excel</button>';
+  document.getElementById('rkMtInfo').innerHTML=sx>=0?'<div class="rk-filtro"><span>Mostrando so <b>#'+(sx+1)+' '+esc(rkNome_(L[sx]))+'</b>, com todas as metricas</span><span class="rk-fbt"><button type="button" onclick="abrirRkHist('+sx+')">Rastreabilidade dos sacos</button><button type="button" onclick="rkSel(null)">Mostrar todas as linhas</button></span></div>':'';
+  var h='<table class="rk-mt"><thead><tr><th class="rk-s1">'+(RK.g==='ter'?'Terceiro':RK.g==='pecaterc'?'Peca · Terceiro':'Peca')+'</th><th class="rk-s2">Metrica</th>'+BL.map(function(b){return '<th class="rk-d'+(b.fds?' fds':'')+'"'+(b.a!==b.b?' title="'+b.a.slice(8)+'/'+b.a.slice(5,7)+' a '+b.b.slice(8)+'/'+b.b.slice(5,7)+'"':'')+'>'+b.lbl+'<small>'+b.sub+'</small></th>';}).join('')+'<th class="rk-tot">Total</th></tr></thead><tbody>';
+  if(!R.length) h+='<tr><td colspan="'+(BL.length+3)+'" class="empty">Nenhuma movimentacao para os filtros escolhidos.</td></tr>';
+  R.forEach(function(ix,n){
+    var r=L[ix];
+    rkAdd_(TG,r.t);
+    Object.keys(r.d).forEach(function(x){rkAdd_(TB[x]||(TB[x]=rkZ_()),r.d[x]);});
+    ML.forEach(function(m,i){
+      h+='<tr class="'+(i===0?'rk-first':'')+(n%2?' rk-alt':'')+'">'+
+        (i===0?'<td class="rk-s1 rk-mlk" rowspan="'+ML.length+'" tabindex="0" onclick="rkSelIx('+ix+',2)" onkeydown="if(event.key===\'Enter\')rkSelIx('+ix+',2)" title="'+(sx>=0?'Voltar a mostrar todas as linhas':'Ver so esta linha, com todas as metricas')+'"><div class="rk-mt-nm"><span class="rk-rank'+(ix<3&&RK.sort!=='peca'?' r'+(ix+1):'')+'">'+(ix+1)+'</span><b>'+esc(RK.g==='ter'?r.terc:r.peca)+'</b></div>'+(RK.g==='pecaterc'?'<em class="rk-tag">'+esc(r.terc)+'</em>':'')+'<small>'+fmtN(r.t.sacos)+' saco(s)</small></td>':'')+
+        '<td class="rk-s2" style="color:'+rkCor_(m)+'">'+esc(m.l)+'</td>'+dias(m,r.d)+'<td class="rk-tot">'+rkCel_(m,rkVal_(r.t,m.k))+'</td></tr>';
+    });
+  });
+  h+='</tbody>';
+  if(sx<0&&R.length>1) h+='<tfoot>'+ML.map(function(m,i){
+    return '<tr class="'+(i===0?'rk-first':'')+'">'+(i===0?'<td class="rk-s1" rowspan="'+ML.length+'"><b>TOTAL</b><small>'+fmtN(R.length)+' linha(s)</small></td>':'')+'<td class="rk-s2" style="color:'+rkCor_(m)+'">'+esc(m.l)+'</td>'+dias(m,TB)+'<td class="rk-tot">'+rkCel_(m,rkVal_(TG,m.k))+'</td></tr>';
+  }).join('')+'</tfoot>';
+  var sl=el.scrollLeft,st=el.scrollTop;
+  el.innerHTML=h+'</table>';
+  el.scrollLeft=sl;el.scrollTop=st;
+}
+function rkXv_(m,v){if(v===null||v===undefined) return '';return m.pct?Math.round(v*10)/10:v;}
+function rkBaixarExcel(){
+  if(!RK.movs||!RK.linhas.length){msg_('msgRank','<div class="alert alert-warn">Nao ha dados para baixar.</div>');return;}
+  var BL=RK.bk.lista,ML=RK.mtML||RK.met.map(rkMet_),R=RK.mtR||RK.linhas.map(function(r,i){return i;}),TB={},TG=rkZ_();
+  var head=['#',RK.g==='ter'?'Terceiro':'Peca'];
+  if(RK.g==='pecaterc') head.push('Terceiro');
+  head.push('Metrica');
+  BL.forEach(function(b){head.push(b.a===b.b?rkDataBr_(b.a):rkDataBr_(b.a)+' a '+rkDataBr_(b.b));});
+  head.push('Total');
+  var aoa=[head];
+  function vals(m,o,tot){var row=[];BL.forEach(function(b){var c=o[b.k];row.push(rkXv_(m,c?rkVal_(c,m.k):(m.pct?null:0)));});row.push(rkXv_(m,rkVal_(tot,m.k)));return row;}
+  R.forEach(function(ix){
+    var r=RK.linhas[ix];
+    rkAdd_(TG,r.t);
+    Object.keys(r.d).forEach(function(x){rkAdd_(TB[x]||(TB[x]=rkZ_()),r.d[x]);});
+    ML.forEach(function(m){
+      var row=[ix+1,RK.g==='ter'?r.terc:r.peca];
+      if(RK.g==='pecaterc') row.push(r.terc);
+      row.push(m.l);
+      aoa.push(row.concat(vals(m,r.d,r.t)));
+    });
+  });
+  if(R.length>1) ML.forEach(function(m){
+    var row=['','TOTAL'];
+    if(RK.g==='pecaterc') row.push('');
+    row.push(m.l);
+    aoa.push(row.concat(vals(m,TB,TG)));
+  });
+  var wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(aoa),'Matriz');
+  XLSX.writeFile(wb,'Ranking_Matriz_'+RK.di+'_a_'+RK.df+'.xlsx');
+}
 function abrirRkHist(ix){
-  var l=rkLinhasView[ix];
+  var l=RK.linhas[ix];
   if(!l) return;
-  document.getElementById('rkHistTitle').textContent='Rastreabilidade — '+l.peca+(l.terc?' · '+l.terc:'');
+  var pares=Object.keys(l.pares).map(function(p){var i=p.indexOf('|');return {terc:p.slice(0,i),peca:p.slice(i+1)};});
+  var multiPeca=pares.map(function(p){return p.peca;}).filter(function(p,i,a){return a.indexOf(p)===i;}).length>1;
+  document.getElementById('rkHistTitle').textContent='Rastreabilidade — '+rkNome_(l);
   document.getElementById('rkHistBody').innerHTML='<div class="load">Carregando...</div>';
   document.getElementById('rkHistModal').classList.add('open');
-  rpc('get_peca_historico',{p_peca:l.peca,p_filtros:{terceiro:l.terc||'',status:'',di:rkFiltroUsado.di,df:rkFiltroUsado.df}}).then(function(d){
+  Promise.all(pares.map(function(p){
+    return rpc('get_peca_historico',{p_peca:p.peca,p_filtros:{terceiro:p.terc,status:'',di:RK.di,df:RK.df}}).then(function(d){return {p:p,d:d};});
+  })).then(function(rs){
     try{
-      var html='<div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">'+
-        '<div class="kpi ka"><div class="kpi-bar"></div><div class="kpi-lbl">Total Enviado</div><div class="kpi-val">'+fmtN(d.totalEnviado)+' <span class="unit">pecas</span></div></div>'+
-        '<div class="kpi kg"><div class="kpi-bar"></div><div class="kpi-lbl">Total Retornado</div><div class="kpi-val">'+fmtN(d.totalRetornado)+' <span class="unit">pecas</span></div></div>'+
-        '<div class="kpi kr"><div class="kpi-bar"></div><div class="kpi-lbl">Total Repasse</div><div class="kpi-val">'+fmtN(d.totalRepasse)+' <span class="unit">pecas</span></div></div>'+
-        '<div class="kpi kf"><div class="kpi-bar"></div><div class="kpi-lbl">Total Refugo</div><div class="kpi-val">'+fmtN(d.totalRefugo)+' <span class="unit">pecas</span></div></div>'+
+      var tot={e:0,r:0,rp:0,rf:0},sacos=[],vis={};
+      rs.forEach(function(x){
+        var d=x.d;if(!d) return;
+        tot.e+=Number(d.totalEnviado)||0;tot.r+=Number(d.totalRetornado)||0;tot.rp+=Number(d.totalRepasse)||0;tot.rf+=Number(d.totalRefugo)||0;
+        (d.sacos||[]).forEach(function(s){if(vis[s.id]) return;vis[s.id]=1;s._peca=x.p.peca;sacos.push(s);});
+      });
+      var html='<div style="font-size:12px;color:var(--text3);margin:-6px 0 12px">Sacos separados entre '+rkDataBr_(RK.di)+' e '+rkDataBr_(RK.df)+' · '+fmtN(sacos.length)+' saco(s) · clique num saco para ver o historico completo</div>'+
+        '<div class="kpi-row" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">'+
+        '<div class="kpi ka"><div class="kpi-bar"></div><div class="kpi-lbl">Total Enviado</div><div class="kpi-val">'+fmtN(tot.e)+' <span class="unit">pecas</span></div></div>'+
+        '<div class="kpi kg"><div class="kpi-bar"></div><div class="kpi-lbl">Total Retornado</div><div class="kpi-val">'+fmtN(tot.r)+' <span class="unit">pecas</span></div></div>'+
+        '<div class="kpi kr"><div class="kpi-bar"></div><div class="kpi-lbl">Total Repasse</div><div class="kpi-val">'+fmtN(tot.rp)+' <span class="unit">pecas</span></div></div>'+
+        '<div class="kpi kf"><div class="kpi-bar"></div><div class="kpi-lbl">Total Refugo</div><div class="kpi-val">'+fmtN(tot.rf)+' <span class="unit">pecas</span></div></div>'+
       '</div>';
-      if(d.sacos&&d.sacos.length){
-        html+='<div class="tbl-box" style="margin-top:10px"><h3>Sacos · clique numa linha para ver o historico completo</h3><table><thead><tr><th>ID</th><th>Terceiro</th><th>Data Sep.</th><th>Qtd</th><th>Dias Fora</th><th>Status</th><th>Entradas</th><th>Repassos</th></tr></thead><tbody>';
-        d.sacos.forEach(function(s){
+      if(sacos.length){
+        html+='<div class="tbl-box" style="margin-top:10px;overflow-x:auto"><table><thead><tr><th>ID</th>'+(multiPeca?'<th>Peca</th>':'')+'<th>Terceiro</th><th>Data Sep.</th><th>Qtd</th><th>Dias Fora</th><th>Status</th><th>Entradas</th><th>Repassos</th></tr></thead><tbody>';
+        sacos.forEach(function(s){
           var df=(s.diasFora===null||s.diasFora===undefined)?'-':('<span class="dc '+(s.diasFora>7?'old':s.diasFora>3?'mid':'ok')+'">'+s.diasFora+'d</span>');
-          html+='<tr style="cursor:pointer" onclick="verHistoricoSaco(\''+esc(s.id)+'\')"><td style="font-size:10px;color:var(--accent)">'+esc(s.id)+'</td><td>'+esc(s.terceiro)+'</td><td>'+esc(s.dataSep)+'</td><td>'+esc(String(s.qtd))+'</td><td>'+df+'</td><td>'+badgeStatus_(s.status)+'</td><td>'+esc(String(s.entradas.length))+'</td><td>'+esc(String(s.repassos.length))+'</td></tr>';
+          html+='<tr style="cursor:pointer" onclick="verHistoricoSaco(\''+esc(s.id)+'\')"><td style="font-size:10px;color:var(--accent)">'+esc(s.id)+'</td>'+(multiPeca?'<td>'+esc(s._peca)+'</td>':'')+'<td>'+esc(s.terceiro)+'</td><td>'+esc(s.dataSep)+'</td><td>'+esc(String(s.qtd))+'</td><td>'+df+'</td><td>'+badgeStatus_(s.status)+'</td><td>'+esc(String((s.entradas||[]).length))+'</td><td>'+esc(String((s.repassos||[]).length))+'</td></tr>';
         });
         html+='</tbody></table></div>';
       } else {
-        html+='<div class="empty">Nenhum saco encontrado para esta peca no periodo.</div>';
+        html+='<div class="empty">Nenhum saco separado no periodo para esta linha.</div>';
       }
       document.getElementById('rkHistBody').innerHTML=html;
     }catch(err){document.getElementById('rkHistBody').innerHTML='<div class="alert alert-err">Erro ao renderizar.</div>';}
