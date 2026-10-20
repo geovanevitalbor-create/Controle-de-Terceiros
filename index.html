@@ -300,6 +300,13 @@ tbody tr:hover td{background:rgba(0,131,62,.05);color:var(--text)}
 .rk-kpis .kpi:hover{border-color:var(--bdr2);background:var(--surf3)}
 .rk-kpis .kpi:focus-visible{outline:2px solid var(--green);outline-offset:2px}
 .rk-kpis .kpi.on{border-color:var(--accent);background:rgba(0,131,62,.12);box-shadow:0 0 0 1px var(--accent),var(--sh)}
+.rk-ins{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:10px 32px;margin:0;padding:0}
+.rk-ins li{position:relative;padding-left:16px;font-size:13px;line-height:1.55;color:var(--text2);max-width:72ch}
+.rk-ins li::before{content:'';position:absolute;left:0;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.rk-ins b{color:var(--text);font-weight:700}
+.rk-lk{border:0;background:none;padding:0;font:inherit;font-weight:600;color:var(--text);text-decoration:underline;text-decoration-color:rgba(0,131,62,.8);text-underline-offset:3px;cursor:pointer}
+.rk-lk:hover{text-decoration-color:var(--green)}
+.rk-lk:focus-visible{outline:2px solid var(--green);outline-offset:2px;border-radius:3px}
 .rk-filtro{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;padding:10px 14px;border:1px solid rgba(0,131,62,.45);background:rgba(0,131,62,.1);border-radius:10px;font-size:12px;color:var(--text2)}
 .rk-filtro b{color:var(--text)}
 .rk-filtro button{border:1px solid var(--bdr2);background:transparent;color:var(--text);font:600 12px 'Inter',sans-serif;padding:0 12px;min-height:32px;border-radius:8px;cursor:pointer;transition:border-color .15s}
@@ -2845,9 +2852,29 @@ function renderRanking(){
   var topo=linhas.slice(0,rkTop>0?rkTop:linhas.length);
   var max=0;
   linhas.forEach(function(l){if(l[bk]!==null&&Math.abs(l[bk])>max) max=Math.abs(l[bk]);});
-  var altura=Math.max(200,topo.length*(series.length*15+16)+90);
+  var rowH=series.length*13+30;
+  var altura=Math.max(220,topo.length*rowH+110);
+  var med=null,mm=rkMet_(mk);
+  if(mm&&rkMetSel.indexOf(mk)!==-1){var sm=0,qn=0;linhas.forEach(function(l){if(l[mk]!==null){sm+=l[mk];qn++;}});if(qn) med=sm/qn;}
+  var fPct=rkMet_('pAprov');
+  function lnk(l){return '<button type="button" class="rk-lk" onclick="abrirRkHist('+linhas.indexOf(l)+')">'+esc(l.peca)+(l.terc?' · '+esc(l.terc):'')+'</button>';}
+  var ins=[];
+  if(mm&&!mm.pct&&mk!=='saldo'&&linhas.length>5){
+    var tot=0;linhas.forEach(function(l){tot+=l[mk];});
+    if(tot>0){
+      var top5=linhas.map(function(l){return l[mk];}).sort(function(x,y){return y-x;}).slice(0,5).reduce(function(x,y){return x+y;},0);
+      ins.push('As 5 maiores linhas concentram <b>'+rkFmt_(fPct,top5/tot*100)+'</b> do total de '+esc(mm.l.toLowerCase())+' ('+fmtN(tot)+' pecas).');
+    }
+  }
+  var ms=null;linhas.forEach(function(l){if(l.saldo>0&&(!ms||l.saldo>ms.saldo)) ms=l;});
+  if(ms) ins.push('Maior saldo com terceiro: '+lnk(ms)+', <b>'+fmtN(ms.saldo)+'</b> pecas enviadas e ainda nao recebidas no periodo.');
+  var pa=null;linhas.forEach(function(l){if(l.pAprov!==null&&(!pa||l.pAprov<pa.pAprov)) pa=l;});
+  if(pa&&pa.pAprov<100) ins.push('Pior aprovacao: '+lnk(pa)+', <b>'+rkFmt_(fPct,pa.pAprov)+'</b> ('+fmtN(pa.refugo)+' refugo, '+fmtN(pa.repasse)+' repasse, '+fmtN(pa.devolucao)+' devolucao).');
+  var neg=linhas.filter(function(l){return l.saldo<0;});
+  if(neg.length) ins.push('<b>'+fmtN(neg.length)+'</b> linha(s) com mais recebido do que enviado no periodo (retorno de sacos enviados antes da data inicial ou contagem a mais). Elas aparecem com saldo negativo.');
+  if(ins.length) html+='<div class="rk-panel"><div class="rk-ph" style="margin-bottom:10px"><div><h4>Leitura rapida</h4></div></div><ul class="rk-ins">'+ins.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul></div>';
   html+='<div class="rk-panel"><div class="rk-ph"><div><h4>Comparativo '+(rkGrupo==='pecaterc'?'por peca e terceiro':'por peca')+'</h4>'+
-    '<p>'+fmtN(topo.length)+' de '+fmtN(linhas.length)+' · ordenado por '+(mk==='peca'?'nome da peca':esc(rkMet_(mk).l.toLowerCase()))+' ('+(rkAsc?'crescente':'decrescente')+'). Clique numa barra para abrir a rastreabilidade.</p></div>'+
+    '<p>'+fmtN(topo.length)+' de '+fmtN(linhas.length)+' · ordenado por '+(mk==='peca'?'nome da peca':esc(rkMet_(mk).l.toLowerCase()))+' ('+(rkAsc?'crescente':'decrescente')+').'+(med!==null?' Linha tracejada = media por linha.':'')+' Clique numa barra para abrir a rastreabilidade.</p></div>'+
     '<div class="rk-seg" role="group" aria-label="Quantidade de linhas no grafico">'+[10,20,50,0].map(function(n){return '<button type="button" aria-pressed="'+(rkTop===n)+'" onclick="rkSetTop('+n+')">'+(n?'Top '+n:'Todas')+'</button>';}).join('')+'</div></div>'+
     '<div class="rk-cv" style="height:'+altura+'px"><canvas id="cRank"></canvas></div></div>';
   html+='<div class="rk-panel"><div class="rk-ph"><div><h4>Ranking completo</h4><p>'+fmtN(linhas.length)+' linha(s). Clique numa linha para ver a rastreabilidade.</p></div></div><div style="overflow-x:auto"><table class="rk-tbl"><thead><tr><th style="text-align:center;width:44px">#</th>'+rkTh_('peca','Peca','','rk-nm');
@@ -2875,8 +2902,14 @@ function renderRanking(){
   series.forEach(function(m){if(m.pct) topo.forEach(function(l){if(l[m.k]!==null&&l[m.k]>maxP) maxP=l[m.k];});});
   var topoP=maxP>=50?100:Math.max(5,Math.ceil(maxP*1.25/5)*5);
   var fonte='Inter,sans-serif';
-  var maxM={};
-  series.forEach(function(m){var mx=0;topo.forEach(function(l){if(l[m.k]!==null&&l[m.k]>mx) mx=l[m.k];});maxM[m.k]=mx;});
+  var maxM={},minM={},totM={};
+  series.forEach(function(m){
+    var mx=0,mn=0;
+    topo.forEach(function(l){var v=l[m.k];if(v===null) return;if(v>mx) mx=v;if(v<mn) mn=v;});
+    maxM[m.k]=mx;minM[m.k]=mn;
+  });
+  RK_METRICAS.forEach(function(m){var t=0;linhas.forEach(function(l){if(l[m.k]!==null) t+=l[m.k];});totM[m.k]=t;});
+  var cp=series.length*13/rowH;
   var rotulos={id:'rkVal',afterDatasetsDraw:function(ch){
     var c=ch.ctx;c.save();c.font='600 10px '+fonte;c.textBaseline='middle';c.fillStyle='rgba(238,242,239,.86)';
     ch.data.datasets.forEach(function(ds,i){
@@ -2891,28 +2924,57 @@ function renderRanking(){
     });
     c.restore();
   }};
-  var escalas={y:{ticks:{color:'#cdd5d0',font:{size:11,weight:'600',family:fonte}},grid:{display:false},border:{display:false}}};
-  if(temQ) escalas.x={position:'bottom',beginAtZero:true,grid:{color:'rgba(255,255,255,.06)'},border:{display:false},ticks:{color:'#7c8580',font:{size:10,family:fonte},callback:function(v){return fmtN(v);}},title:{display:temP,text:'Quantidade (pecas)',color:'#7c8580',font:{size:10,family:fonte}}};
-  if(temP) escalas.x2={position:temQ?'top':'bottom',min:0,max:topoP,grid:{drawOnChartArea:!temQ,color:'rgba(255,255,255,.06)'},border:{display:false},ticks:{color:'#7c8580',font:{size:10,family:fonte},callback:function(v){return v+'%';}},title:{display:temQ,text:'Percentual',color:'#7c8580',font:{size:10,family:fonte}}};
+  var nomes={id:'rkNom',afterDatasetsDraw:function(ch){
+    var c=ch.ctx,ys=ch.scales.y,a=ch.chartArea,gh=ys.height/Math.max(1,topo.length)*cp;
+    c.save();c.textBaseline='alphabetic';c.textAlign='left';
+    topo.forEach(function(l,i){
+      var y=ys.getPixelForValue(i)-gh/2-5,x=a.left+2,t;
+      c.font='600 10px '+fonte;c.fillStyle='#7c8580';t=(i+1)+'   ';c.fillText(t,x,y);x+=c.measureText(t).width;
+      c.font='700 11px '+fonte;c.fillStyle='#eef2ef';c.fillText(l.peca,x,y);x+=c.measureText(l.peca).width;
+      if(l.terc){c.font='600 10px '+fonte;c.fillStyle='#9aa39d';c.fillText('  ·  '+l.terc,x,y);}
+    });
+    c.restore();
+  }};
+  var linhaMed={id:'rkMed',afterDatasetsDraw:function(ch){
+    if(med===null) return;
+    var sc=ch.scales[mm.pct?'x2':'x'],a=ch.chartArea;
+    if(!sc) return;
+    var x=sc.getPixelForValue(med);
+    if(!isFinite(x)||x<a.left||x>a.right) return;
+    var c=ch.ctx;c.save();
+    c.strokeStyle='rgba(251,191,36,.8)';c.lineWidth=1;c.setLineDash([4,4]);
+    c.beginPath();c.moveTo(x,a.top);c.lineTo(x,a.bottom);c.stroke();
+    c.setLineDash([]);c.font='700 10px '+fonte;c.fillStyle='#fbbf24';c.textBaseline='bottom';
+    var dir=x>a.right-120;
+    c.textAlign=dir?'right':'left';
+    c.fillText('Media '+rkFmt_(mm,mm.pct?med:Math.round(med)),x+(dir?-6:6),a.bottom-3);
+    c.restore();
+  }};
+  function gridCor(c){return c.tick&&c.tick.value===0?'rgba(255,255,255,.32)':'rgba(255,255,255,.06)';}
+  function gridLw(c){return c.tick&&c.tick.value===0?1.5:1;}
+  var escalas={y:{ticks:{display:false},grid:{display:false},border:{display:false}}};
+  if(temQ) escalas.x={position:'bottom',beginAtZero:true,grid:{color:gridCor,lineWidth:gridLw},border:{display:false},ticks:{color:'#7c8580',font:{size:10,family:fonte},callback:function(v){return fmtN(v);}},title:{display:temP,text:'Quantidade (pecas)',color:'#7c8580',font:{size:10,family:fonte}}};
+  if(temP) escalas.x2={position:temQ?'top':'bottom',min:0,max:topoP,grid:{drawOnChartArea:!temQ,color:gridCor,lineWidth:gridLw},border:{display:false},ticks:{color:'#7c8580',font:{size:10,family:fonte},callback:function(v){return v+'%';}},title:{display:temQ,text:'Percentual',color:'#7c8580',font:{size:10,family:fonte}}};
   var reduz=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
   rkChart=new Chart(document.getElementById('cRank').getContext('2d'),{
     type:'bar',
-    plugins:[rotulos],
+    plugins:[nomes,rotulos,linhaMed],
     data:{
-      labels:topo.map(function(l){return rkGrupo==='pecaterc'?[l.peca,l.terc]:l.peca;}),
+      labels:topo.map(function(l){return l.peca+(l.terc?' · '+l.terc:'');}),
       datasets:series.map(function(m){
         return {
           label:m.l,
           data:topo.map(function(l){return l[m.k];}),
           xAxisID:m.pct?'x2':'x',
-          borderRadius:4,borderSkipped:false,barPercentage:.92,categoryPercentage:.8,maxBarThickness:18,
+          borderRadius:4,borderSkipped:false,barPercentage:.86,categoryPercentage:cp,maxBarThickness:14,
           backgroundColor:function(ctx){
-            var sc=ctx.chart.scales[m.pct?'x2':'x'];
-            if(!sc||!maxM[m.k]) return rkCor_(m,.85);
-            var x0=sc.getPixelForValue(0),x1=sc.getPixelForValue(maxM[m.k]);
+            var sc=ctx.chart.scales[m.pct?'x2':'x'],v=ctx.raw,neg=typeof v==='number'&&v<0;
+            var ref=neg?minM[m.k]:maxM[m.k];
+            if(!sc||!ref) return rkCor_(m,.85);
+            var x0=sc.getPixelForValue(0),x1=sc.getPixelForValue(ref);
             if(!isFinite(x0)||!isFinite(x1)||x0===x1) return rkCor_(m,.85);
             var g=ctx.chart.ctx.createLinearGradient(x0,0,x1,0);
-            g.addColorStop(0,rkCor_(m,.3));g.addColorStop(1,rkCor_(m,.95));
+            g.addColorStop(0,rkCor_(m,.3));g.addColorStop(1,rkCor_(m,neg?.6:.95));
             return g;
           },
           hoverBackgroundColor:rkCor_(m,1)
@@ -2922,7 +2984,7 @@ function renderRanking(){
     options:{
       indexAxis:'y',responsive:true,maintainAspectRatio:false,
       animation:reduz?false:{duration:700,easing:'easeOutQuart'},
-      layout:{padding:{right:58,top:2}},
+      layout:{padding:{left:2,right:58,top:4}},
       interaction:{mode:'index',axis:'y',intersect:false},
       onClick:function(ev,els,ch){var r=ch.getElementsAtEventForMode(ev,'index',{axis:'y',intersect:false},true);if(r&&r.length) abrirRkHist(r[0].index);},
       onHover:function(ev,els,ch){var r=ch.getElementsAtEventForMode(ev,'index',{axis:'y',intersect:false},false);if(ev.native&&ev.native.target) ev.native.target.style.cursor=(r&&r.length)?'pointer':'default';},
@@ -2934,8 +2996,16 @@ function renderRanking(){
           titleColor:'#eef2ef',bodyColor:'#cdd5d0',footerColor:'#7c8580',
           titleFont:{size:12,weight:'700',family:fonte},bodyFont:{size:11,family:fonte},footerFont:{size:10,weight:'500',family:fonte},boxPadding:4,
           callbacks:{
-            title:function(it){var l=topo[it[0].dataIndex];return l.peca+(l.terc?' · '+l.terc:'');},
-            label:function(c){return ' '+c.dataset.label+': '+rkFmt_(series[c.datasetIndex],c.raw);},
+            title:function(it){var i=it[0].dataIndex,l=topo[i];return '#'+(i+1)+'  '+l.peca+(l.terc?' · '+l.terc:'');},
+            label:function(c){
+              var m=series[c.datasetIndex],v=c.raw,t=' '+c.dataset.label+': '+rkFmt_(m,v);
+              if(!m.pct&&m.k!=='saldo'&&v!==null&&totM[m.k]>0) t+=' ('+(v/totM[m.k]*100).toFixed(1).replace('.',',')+'% do total)';
+              return t;
+            },
+            afterBody:function(it){
+              var l=topo[it[0].dataIndex];
+              return ['','Enviado '+fmtN(l.enviado)+'  ·  Recebido '+fmtN(l.recebido)+'  ·  Saldo '+fmtN(l.saldo),'Aprovadas '+fmtN(l.aprovadas)+'  ·  Refugo '+fmtN(l.refugo)+'  ·  Aprovacao '+rkFmt_(rkMet_('pAprov'),l.pAprov)];
+            },
             labelColor:function(c){var m=series[c.datasetIndex];return {borderColor:rkCor_(m),backgroundColor:rkCor_(m),borderRadius:3};},
             footer:function(){return 'Clique para ver a rastreabilidade';}
           }
