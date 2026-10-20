@@ -942,8 +942,11 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
           </div>
           <div style="margin-top:12px">
             <label>Pecas <span id="rkPecaCont" style="color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0"></span></label>
-            <input class="i" id="rkPecaFiltro" placeholder="Buscar peca..." autocomplete="off" oninput="renderRkPecaBox()" style="margin-bottom:8px">
-            <div id="rkPecaBox" style="display:flex;flex-wrap:wrap;gap:12px;padding:4px 2px 0;max-height:180px;overflow-y:auto"></div>
+            <div id="rkPecaChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+            <div style="position:relative">
+              <input class="i" id="rkPecaFiltro" placeholder="Buscar peca..." autocomplete="off" oninput="renderRkPecaBox()" onfocus="abrirRkPecaDrop()">
+              <div id="rkPecaBox" style="display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:30;background:var(--surf);border:1px solid var(--bdr2);border-radius:8px;max-height:260px;overflow-y:auto;box-shadow:var(--sh-lg)"></div>
+            </div>
           </div>
           <div style="margin-top:12px">
             <label>Terceiros (vazio = todos)</label>
@@ -2485,7 +2488,7 @@ function initRanking(){
   supabase.from('ferramentas').select('codigo').order('codigo').then(function(res){
     rkPecasCache=(res.data||[]).map(function(f){return f.codigo;});
     rkPecasSel=rkPecasSel.filter(function(p){return rkPecasCache.indexOf(p)!==-1;});
-    renderRkPecaBox();
+    renderRkPecaChips();
   });
   supabase.from('terceiros').select('nome').order('nome').then(function(res){
     var l=(res.data||[]).map(function(t){return t.nome;});
@@ -2495,27 +2498,39 @@ function initRanking(){
     }).join('');
   });
 }
-function rkAtualizaCont_(){
-  document.getElementById('rkPecaCont').textContent=rkPecasSel.length?'('+rkPecasSel.length+' selecionada'+(rkPecasSel.length>1?'s':'')+')':'';
-}
+function abrirRkPecaDrop(){document.getElementById('rkPecaBox').style.display='block';renderRkPecaBox();}
+function fecharRkPecaDrop(){document.getElementById('rkPecaBox').style.display='none';}
+document.addEventListener('click',function(e){
+  var box=document.getElementById('rkPecaBox'),inp=document.getElementById('rkPecaFiltro');
+  if(!box||box.style.display!=='block')return;
+  if(!box.contains(e.target)&&e.target!==inp) fecharRkPecaDrop();
+});
 function renderRkPecaBox(){
+  var box=document.getElementById('rkPecaBox');
+  if(box.style.display!=='block')return;
   var termo=(document.getElementById('rkPecaFiltro').value||'').trim().toLowerCase();
   var l=termo?rkPecasCache.filter(function(p){return p.toLowerCase().indexOf(termo)!==-1;}):rkPecasCache;
-  document.getElementById('rkPecaBox').innerHTML=l.length?l.map(function(p){
-    return '<label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--text2);cursor:pointer"><input type="checkbox" data-p="'+esc(p)+'"'+(rkPecasSel.indexOf(p)!==-1?' checked':'')+' onchange="toggleRkPeca(this.dataset.p,this.checked)">'+esc(p)+'</label>';
-  }).join(''):'<div class="empty">Nenhuma peca encontrada.</div>';
-  rkAtualizaCont_();
+  box.innerHTML=l.length?l.map(function(p){
+    var on=rkPecasSel.indexOf(p)!==-1;
+    return '<div onclick="event.stopPropagation();toggleRkPeca(this.dataset.p)" data-p="'+esc(p)+'" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;font-weight:500;color:'+(on?'var(--text)':'var(--text2)')+';cursor:pointer;border-bottom:1px solid var(--bdr)'+(on?';background:var(--bg3)':'')+'"><input type="checkbox" '+(on?'checked':'')+' style="pointer-events:none">'+esc(p)+'</div>';
+  }).join(''):'<div class="empty" style="padding:12px">Nenhuma peca encontrada.</div>';
 }
-function toggleRkPeca(p,on){
+function renderRkPecaChips(){
+  document.getElementById('rkPecaChips').innerHTML=rkPecasSel.map(function(p){
+    return '<span style="display:inline-flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--bdr2);border-radius:999px;padding:4px 6px 4px 10px;font-size:11px;color:var(--text)">'+esc(p)+'<span data-p="'+esc(p)+'" onclick="toggleRkPeca(this.dataset.p)" style="cursor:pointer;color:var(--text3);font-weight:700;padding:0 2px">&times;</span></span>';
+  }).join('');
+  document.getElementById('rkPecaCont').textContent=rkPecasSel.length?'('+rkPecasSel.length+' selecionada'+(rkPecasSel.length>1?'s':'')+')':'';
+}
+function toggleRkPeca(p){
   var ix=rkPecasSel.indexOf(p);
-  if(on&&ix===-1) rkPecasSel.push(p);
-  else if(!on&&ix!==-1) rkPecasSel.splice(ix,1);
-  rkAtualizaCont_();
+  if(ix===-1) rkPecasSel.push(p); else rkPecasSel.splice(ix,1);
+  renderRkPecaBox();
+  renderRkPecaChips();
 }
 function limparRanking(){
   document.getElementById('rkDi').value='';document.getElementById('rkDf').value='';
   document.getElementById('rkPecaFiltro').value='';
-  rkPecasSel=[];renderRkPecaBox();
+  rkPecasSel=[];renderRkPecaChips();fecharRkPecaDrop();
   document.querySelectorAll('.rk-terc:checked').forEach(function(c){c.checked=false;});
   document.getElementById('rankResult').innerHTML='';
   msg_('msgRank','');rkUltimo=null;
