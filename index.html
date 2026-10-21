@@ -1717,8 +1717,6 @@ function salvarEntrada(){
     var motivo=document.getElementById('entMotivo').value;
     var quemLimpou=document.getElementById('entQuemLimpou').value.trim();
     if(!conf||qtdDev===''){msg_('msgEnt','<div class="alert alert-err">Preencha o conferente e a quantidade contada.</div>');btn.disabled=false;return;}
-    var receb=String(entSacoAtual.quemRecebeu||'').trim().toUpperCase();
-    if(receb&&receb===String(conf).trim().toUpperCase()){msg_('msgEnt','<div class="alert alert-err">A inspecao precisa ser feita por outra pessoa: '+esc(entSacoAtual.quemRecebeu)+' registrou a chegada deste saco.</div>');btn.disabled=false;return;}
     if(!quemLimpou){msg_('msgEnt','<div class="alert alert-err">Preencha quem limpou.</div>');btn.disabled=false;return;}
     if(dif>0&&!motivo){msg_('msgEnt','<div class="alert alert-err">Diferenca detectada — selecione o motivo.</div>');btn.disabled=false;return;}
     if(motivo==='Repasse'&&Number(qtdRep)<=0){msg_('msgEnt','<div class="alert alert-err">Motivo Repasse selecionado — informe a Qtd Repasse.</div>');btn.disabled=false;return;}
