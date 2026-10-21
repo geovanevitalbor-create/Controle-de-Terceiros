@@ -965,6 +965,7 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
             <div class="kpi ks" style="cursor:pointer" onclick="abrirListaStatus('Devolucao','Devolucao')"><div class="kpi-bar"></div><div class="kpi-lbl">Devolucao</div><div class="kpi-val" id="rtDevol">-</div></div>
           </div>
           <p style="font-size:10.5px;color:var(--text3);margin-top:8px">Clique em um numero para ver a lista de sacos daquele status.</p>
+          <div id="msgRT"></div>
         </div>
         <div class="chart-row" style="grid-template-columns:1fr 1fr">
           <div class="chart-box"><h3>Status Atual (sacos)</h3><div class="chart-h"><canvas id="cDonutRT"></canvas></div></div>
@@ -1992,27 +1993,53 @@ function loadTempoReal(){
   var filtros={terceiro:document.getElementById('fTercRT').value,status:document.getElementById('fStatusRT').value,
     peca:document.getElementById('fPecaRT').value,num:'',di:'',df:'',lanc:''};
   ['rtSep','rtFora','rtInsp','rtConf','rtRep','rtDevol'].forEach(function(id){document.getElementById(id).textContent='...';});
-  rpc('get_dash',{p_filtros:filtros}).then(renderTempoReal).catch(function(e){console.error(e);});
+  msg_('msgRT','');
+  rpc('get_tempo_real',{p_filtros:filtros}).then(function(d){renderTempoReal(rtAdaptar_(d));}).catch(function(e){
+    ['rtSep','rtFora','rtInsp','rtConf','rtRep','rtDevol'].forEach(function(id){document.getElementById(id).textContent='-';});
+    msg_('msgRT','<div class="alert alert-err">'+esc(e.message)+'</div>');
+  });
   renderEmInspecao();
+}
+function rtAdaptar_(d){
+  var st=(d&&d.status)||{};
+  function q(nome,c){return Number((st[nome]||{})[c])||0;}
+  var tots={
+    separado:q('Separado','sacos'),emTerceiro:q('Em terceiro','sacos'),inspecao:q('Em Inspecao','sacos'),
+    conferido:q('Conferido/Finalizado','sacos'),repasse:q('Repasse','sacos'),devolucao:q('Devolucao','sacos'),
+    pecasSeparado:q('Separado','pecas'),pecasFora:q('Em terceiro','pecas'),pecasInspecao:q('Em Inspecao','pecas'),
+    pecasConferido:q('Conferido/Finalizado','pecas'),pecasRepasse:q('Repasse','pecas'),pecasDevolucao:q('Devolucao','pecas')
+  };
+  return {
+    tots:tots,
+    porStatus:[
+      {label:'Separado',v:tots.separado,cor:'#6b7280'},{label:'Em terceiro',v:tots.emTerceiro,cor:'#f59e0b'},
+      {label:'Em Inspecao',v:tots.inspecao,cor:'#0891b2'},{label:'Recebidos',v:tots.conferido,cor:'#16a34a'},
+      {label:'Repasse',v:tots.repasse,cor:'#8b5cf6'},{label:'Devolucao',v:tots.devolucao,cor:'#2563eb'}
+    ],
+    porTerc:((d&&d.porTerc)||[]).map(function(t){return {nome:t.nome,dados:{pecasFora:Number(t.pecas)||0}};})
+  };
 }
 function renderEmInspecao(){
   var terc=document.getElementById('fTercRT').value;
   var peca=document.getElementById('fPecaRT').value;
   var box=document.getElementById('tblEmInspecao');
+  var stSel=document.getElementById('fStatusRT');
+  if(stSel.value&&stSel.value!=='Em Inspecao'){box.innerHTML='<div class="empty">Filtro de status "'+esc(stSel.options[stSel.selectedIndex].text)+'" ativo: sacos em inspecao nao entram nesta visao.</div>';return;}
   box.innerHTML='<div class="load">Carregando...</div>';
-  var q=supabase.from('saidas').select('*').eq('status','Em Inspecao').order('data_label',{ascending:true}).limit(300);
+  var q=supabase.from('saidas').select('*').eq('status','Em Inspecao').order('data_recebimento',{ascending:true,nullsFirst:false}).limit(300);
   if(terc) q=q.eq('terceiro',terc);
   if(peca) q=q.eq('peca',peca);
   q.then(function(res){
     try{
       if(res.error) throw new Error(res.error.message);
-      var sacos=(res.data||[]).map(mapSacoSeparado_);
-      if(!sacos.length){box.innerHTML='<div class="empty">Nenhum saco em inspecao agora.</div>';return}
+      var rows=res.data||[];
+      if(!rows.length){box.innerHTML='<div class="empty">Nenhum saco em inspecao agora.</div>';return}
       var hoje=new Date();
       var html='<table><thead><tr><th>ID</th><th>Peca</th><th>Terceiro</th><th>Qtd</th><th>Chegou em</th><th>Dias em inspecao</th></tr></thead><tbody>';
-      sacos.forEach(function(s){
-        var dataParte=s.dataSep.split(' ')[0];
-        var dias=Math.max(0,Math.round((hoje-new Date(dataParte.split('/').reverse().join('-')))/86400000));
+      rows.forEach(function(r){
+        var s=mapSacoSeparado_(r),chegou=r.data_recebimento||r.data_label;
+        s.dataSep=fmtDT(chegou);
+        var dias=Math.max(0,Math.floor((hoje-new Date(chegou))/86400000));
         var dc=dias>7?'old':dias>3?'mid':'ok';
         html+='<tr style="cursor:pointer" onclick="verHistoricoSaco(\''+esc(s.id)+'\')"><td style="font-size:10px;color:var(--accent)">'+esc(s.id)+'</td><td>'+esc(s.peca)+'</td><td>'+esc(s.terceiro)+'</td><td>'+esc(String(s.qtdPecas))+'</td><td>'+esc(s.dataSep)+'</td><td><span class="dc '+dc+'">'+dias+'d</span></td></tr>';
       });
