@@ -346,6 +346,9 @@ tbody tr:hover td{background:rgba(0,131,62,.05);color:var(--text)}
 .rk-gh{padding:10px 12px 6px;font-size:11px;font-weight:600;color:var(--text3)}
 .rk-opt input{position:absolute;opacity:0;width:0;height:0}
 .rk-opt input:focus-visible+.rk-ck{outline:2px solid var(--green);outline-offset:2px}
+.msx-bus{padding:10px 12px 0;position:sticky;top:0;background:var(--surf);z-index:2}
+.msx-bus .i{padding:9px 11px}
+.msx-bus+.rk-drop-h{top:50px}
 .rk-tag{display:inline-block;margin-left:8px;padding:2px 9px;border-radius:999px;background:var(--bg3);border:1px solid var(--bdr);font-size:10.5px;font-style:normal;font-weight:600;color:var(--text2);vertical-align:1px}
 .rk-conta{font-size:12px;color:var(--text3);margin:10px 2px 0;line-height:1.6}
 .rk-conta b{color:var(--text2);font-weight:600}
@@ -934,17 +937,9 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
       </div>
       <div id="dpTempoReal">
         <div class="dash-filter" id="rtFilterTop">
-          <div><label>Terceiro</label><select class="i" id="fTercRT"><option value="">Todos</option></select></div>
-          <div><label>Peca</label><select class="i" id="fPecaRT"><option value="">Todos</option></select></div>
-          <div><label>Status</label>
-            <select class="i" id="fStatusRT">
-              <option value="">Todos</option><option value="Separado">Separado</option>
-              <option value="Em terceiro">Em terceiro</option>
-              <option value="Em Inspecao">Em Inspecao</option>
-              <option value="Conferido/Finalizado">Recebido</option>
-              <option value="Repasse">Repasse</option><option value="Devolucao">Devolucao</option>
-            </select>
-          </div>
+          <div style="flex:1;min-width:200px"><label>Terceiro</label><div id="msRtTerc"></div></div>
+          <div style="flex:1;min-width:200px"><label>Peca</label><div id="msRtPeca"></div></div>
+          <div style="flex:1;min-width:200px"><label>Status</label><div id="msRtStatus"></div></div>
           <div><label>&nbsp;</label><button class="btn btn-accent btn-sm" onclick="loadTempoReal()" style="padding:10px 16px">Aplicar</button></div>
           <div><label>&nbsp;</label><button class="btn btn-ghost btn-sm" onclick="limparTempoReal()" style="padding:10px 13px">Limpar</button></div>
         </div>
@@ -1385,7 +1380,7 @@ supabase.from('materia_prima').select('tipo').order('tipo').then(function(res){
 supabase.from('ferramentas').select('codigo').order('codigo').then(function(res){
   try{
     var l=(res.data||[]).map(function(f){return f.codigo;});
-    ['sPeca','fPeca','fPecaRT'].forEach(function(sid){
+    ['sPeca','fPeca'].forEach(function(sid){
       var s=document.getElementById(sid);
       l.forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=p;s.appendChild(o);});
     });
@@ -1989,9 +1984,63 @@ function loadDash(){
   rpc('get_dash',{p_filtros:filtros}).then(renderDash).catch(function(e){console.error(e);});
 }
 function limparDash(){['fTerc','fStatus','fNum','fDi','fDf','fPeca','fLanc'].forEach(function(id){document.getElementById(id).value='';});loadDash();}
+var MSX={};
+function msxMontar(id,opts,cfg){
+  var st=MSX[id]||(MSX[id]={sel:[]});
+  st.opts=opts;st.cfg=cfg;
+  st.sel=st.sel.filter(function(v){return opts.some(function(o){return o.v===v;});});
+  var w=document.getElementById(id);
+  w.className='rk-ms';
+  w.innerHTML='<button type="button" class="rk-trg" aria-haspopup="true" aria-expanded="false" onclick="rkMsToggle(\''+id+'\')"><span class="rk-trg-c"></span><b class="rk-trg-n"></b></button>'+
+    '<div class="rk-ms-panel">'+(cfg.busca?'<div class="msx-bus"><input class="i" placeholder="Buscar..." autocomplete="off" oninput="msxLista(\''+id+'\')"></div>':'')+
+    '<div class="rk-drop-h"><button type="button" class="cb edit" onclick="event.stopPropagation();msxTodas(\''+id+'\')">Selecionar todas</button><button type="button" class="cb del" onclick="event.stopPropagation();msxLimpar(\''+id+'\')">Limpar</button></div><div class="msx-l"></div></div>';
+  msxLista(id);msxTxt(id);
+}
+function msxLista(id){
+  var st=MSX[id],w=document.getElementById(id),inp=w.querySelector('.msx-bus input'),t=inp?inp.value.trim().toLowerCase():'';
+  var l=t?st.opts.filter(function(o){return o.l.toLowerCase().indexOf(t)!==-1;}):st.opts;
+  st.vis=l;
+  w.querySelector('.rk-drop-h .edit').textContent='Selecionar todas'+(t?' (filtradas)':'');
+  w.querySelector('.msx-l').innerHTML=l.length?l.map(function(o){
+    return '<label class="rk-opt"><input type="checkbox" value="'+esc(o.v)+'"'+(st.sel.indexOf(o.v)!==-1?' checked':'')+' onchange="msxMarcar(\''+id+'\',this)"><span class="rk-ck"></span>'+esc(o.l)+'</label>';
+  }).join(''):'<div class="empty" style="padding:12px">'+(st.opts.length?'Nada encontrado.':'Carregando...')+'</div>';
+}
+function msxTxt(id){
+  var st=MSX[id],w=document.getElementById(id),n=st.sel.length,tot=st.opts.length;
+  var lb=st.opts.filter(function(o){return st.sel.indexOf(o.v)!==-1;}).map(function(o){return o.l;});
+  var txt=!n?st.cfg.todos:(n===tot?st.cfg.todos+' ('+tot+')':n<=2?lb.join(', '):n+' '+st.cfg.unid);
+  w.querySelector('.rk-trg-c').innerHTML='<span class="rk-trg-t">'+esc(txt)+'</span>';
+  w.querySelector('.rk-trg-n').textContent=n&&n<tot?String(n):'';
+}
+function msxMarcar(id,inp){
+  var st=MSX[id],ix=st.sel.indexOf(inp.value);
+  if(inp.checked&&ix===-1) st.sel.push(inp.value);
+  if(!inp.checked&&ix!==-1) st.sel.splice(ix,1);
+  msxTxt(id);
+}
+function msxTodas(id){
+  var st=MSX[id];
+  (st.vis||st.opts).forEach(function(o){if(st.sel.indexOf(o.v)===-1) st.sel.push(o.v);});
+  msxLista(id);msxTxt(id);
+}
+function msxLimpar(id){var st=MSX[id];if(!st) return;st.sel=[];msxLista(id);msxTxt(id);}
+function msxSel(id){var st=MSX[id];if(!st||!st.sel.length||st.sel.length===st.opts.length) return [];return st.sel.slice();}
+var RT_STATUS=[{v:'Separado',l:'Separado'},{v:'Em terceiro',l:'Em terceiro'},{v:'Em Inspecao',l:'Em Inspecao'},{v:'Conferido/Finalizado',l:'Recebido'},{v:'Repasse',l:'Repasse'},{v:'Devolucao',l:'Devolucao'}];
+var rtFiltIni=false;
+function rtFiltrosInit_(){
+  if(rtFiltIni) return;
+  rtFiltIni=true;
+  var cT={todos:'Todos os terceiros',unid:'terceiros'},cP={todos:'Todas as pecas',unid:'pecas',busca:true};
+  msxMontar('msRtStatus',RT_STATUS,{todos:'Todos os status',unid:'status'});
+  msxMontar('msRtTerc',[],cT);
+  msxMontar('msRtPeca',[],cP);
+  supabase.from('terceiros').select('nome').order('nome').then(function(res){msxMontar('msRtTerc',(res.data||[]).map(function(t){return {v:t.nome,l:t.nome};}),cT);});
+  supabase.from('ferramentas').select('codigo').order('codigo').then(function(res){msxMontar('msRtPeca',(res.data||[]).map(function(f){return {v:f.codigo,l:f.codigo};}),cP);});
+}
 function loadTempoReal(){
-  var filtros={terceiro:document.getElementById('fTercRT').value,status:document.getElementById('fStatusRT').value,
-    peca:document.getElementById('fPecaRT').value,num:'',di:'',df:'',lanc:''};
+  rtFiltrosInit_();
+  rkMsFechar_();
+  var filtros={terceiros:msxSel('msRtTerc'),pecas:msxSel('msRtPeca'),status:msxSel('msRtStatus')};
   ['rtSep','rtFora','rtInsp','rtConf','rtRep','rtDevol'].forEach(function(id){document.getElementById(id).textContent='...';});
   msg_('msgRT','');
   rpc('get_tempo_real',{p_filtros:filtros}).then(function(d){renderTempoReal(rtAdaptar_(d));}).catch(function(e){
@@ -2020,15 +2069,13 @@ function rtAdaptar_(d){
   };
 }
 function renderEmInspecao(){
-  var terc=document.getElementById('fTercRT').value;
-  var peca=document.getElementById('fPecaRT').value;
+  var terc=msxSel('msRtTerc'),peca=msxSel('msRtPeca'),stF=msxSel('msRtStatus');
   var box=document.getElementById('tblEmInspecao');
-  var stSel=document.getElementById('fStatusRT');
-  if(stSel.value&&stSel.value!=='Em Inspecao'){box.innerHTML='<div class="empty">Filtro de status "'+esc(stSel.options[stSel.selectedIndex].text)+'" ativo: sacos em inspecao nao entram nesta visao.</div>';return;}
+  if(stF.length&&stF.indexOf('Em Inspecao')===-1){box.innerHTML='<div class="empty">Filtro de status sem "Em Inspecao": sacos em inspecao nao entram nesta visao.</div>';return;}
   box.innerHTML='<div class="load">Carregando...</div>';
   var q=supabase.from('saidas').select('*').eq('status','Em Inspecao').order('data_recebimento',{ascending:true,nullsFirst:false}).limit(300);
-  if(terc) q=q.eq('terceiro',terc);
-  if(peca) q=q.eq('peca',peca);
+  if(terc.length) q=q.in('terceiro',terc);
+  if(peca.length) q=q.in('peca',peca);
   q.then(function(res){
     try{
       if(res.error) throw new Error(res.error.message);
@@ -2048,7 +2095,7 @@ function renderEmInspecao(){
     }catch(err){box.innerHTML='<div class="alert alert-err">Erro: '+esc(err.message)+'</div>'}
   }).catch(function(e){box.innerHTML='<div class="alert alert-err">'+esc(e.message)+'</div>'});
 }
-function limparTempoReal(){['fTercRT','fStatusRT','fPecaRT'].forEach(function(id){document.getElementById(id).value='';});loadTempoReal();}
+function limparTempoReal(){['msRtTerc','msRtPeca','msRtStatus'].forEach(msxLimpar);loadTempoReal();}
 function setRtUnidade(u){
   rtUnidade=u;
   document.getElementById('btnRtSacos').className='btn btn-sm '+(u==='sacos'?'btn-accent':'btn-ghost');
@@ -2104,11 +2151,10 @@ function abrirListaStatus(statusValor,titulo){
   document.getElementById('statusListTitle').textContent='Sacos — '+titulo;
   document.getElementById('statusListBody').innerHTML='<div class="load">Carregando...</div>';
   document.getElementById('statusListModal').classList.add('open');
-  var terc=document.getElementById('fTercRT').value;
-  var peca=document.getElementById('fPecaRT').value;
+  var terc=msxSel('msRtTerc'),peca=msxSel('msRtPeca');
   var q=supabase.from('saidas').select('*').eq('status',statusValor).order('id',{ascending:false}).limit(300);
-  if(terc) q=q.eq('terceiro',terc);
-  if(peca) q=q.eq('peca',peca);
+  if(terc.length) q=q.in('terceiro',terc);
+  if(peca.length) q=q.in('peca',peca);
   q.then(function(res){
     try{
       if(res.error) throw new Error(res.error.message);
@@ -3074,7 +3120,7 @@ function recarregarFerramentasSelect(){
       s.innerHTML='<option value="">Selecione...</option>';
       l.forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=p;s.appendChild(o);});
       if(cv) s.value=cv;
-      ['fPeca','fPecaRT'].forEach(function(sid){
+      ['fPeca'].forEach(function(sid){
         var sf=document.getElementById(sid),cvf=sf.value;
         sf.innerHTML='<option value="">Todos</option>';
         l.forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=p;sf.appendChild(o);});
