@@ -315,6 +315,11 @@ tbody tr:hover td{background:rgba(0,131,62,.05);color:var(--text)}
 @media(max-width:900px){.rk-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:600px){.rk-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .kpi.ko .kpi-bar{background:#fb923c}
+.rk-tm-row .rk-lb-bar{position:relative;overflow:visible}
+.rk-tm-row .rk-lb-bar i{background:linear-gradient(90deg,rgba(251,146,60,.3),rgba(251,146,60,.95))}
+.rk-tm-row .rk-lb-bar s{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;border-radius:2px;background:#fbbf24;box-shadow:0 0 6px rgba(251,191,36,.6)}
+.rk-tm-row .rk-lb-val b small{font-size:12px;font-weight:600;color:var(--text3)}
+.rk-lb-val em.ruim{color:#f87171;background:rgba(220,38,38,.14);border-color:rgba(220,38,38,.4)}
 .rk-panel{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;box-shadow:var(--sh);padding:20px 20px 16px;margin-top:14px}
 .rk-ph{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
 .rk-ph h4{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.2px}
@@ -1079,6 +1084,7 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
           <div id="rkIns"></div>
           <div class="rk-panel"><div class="rk-ph" id="rkChartH"></div><div class="rk-cv" id="rkCv"><canvas id="cRank"></canvas></div><div id="rkSemGraf"></div></div>
           <div class="rk-panel" id="rkLbBox"><div class="rk-ph" id="rkLbH"></div><div class="rk-lb" id="rkLb"></div></div>
+          <div class="rk-panel" id="rkTmBox"><div class="rk-ph" id="rkTmH"></div><div class="rk-lb" id="rkTm"></div></div>
           <div class="rk-panel" id="rkMtBox"><div class="rk-ph" id="rkMtH"></div><div id="rkMtInfo"></div><div class="rk-mtw" id="rkMatriz"></div></div>
         </div>
       </div>
@@ -2670,7 +2676,7 @@ function rkTempos_(di,df){
   var f=new Date(df+'T12:00:00');f.setDate(f.getDate()+1);
   var ini=di+'T00:00:00-03:00',fim=rkDia_(f)+'T00:00:00-03:00';
   function q(a){
-    return supabase.from('saidas').select('peca,terceiro,data_saida_real,data_recebimento',a===0?{count:'exact'}:undefined)
+    return supabase.from('saidas').select('saco_id,peca,terceiro,data_saida_real,data_recebimento',a===0?{count:'exact'}:undefined)
       .gte('data_recebimento',ini).lt('data_recebimento',fim).not('data_saida_real','is',null)
       .order('id',{ascending:true}).range(a,a+999);
   }
@@ -2684,7 +2690,7 @@ function rkTempos_(di,df){
       rows.forEach(function(r){
         var sa=Date.parse(r.data_saida_real),ch=Date.parse(r.data_recebimento);
         if(!isFinite(sa)||!isFinite(ch)||ch<sa) return;
-        out.push({terc:r.terceiro||'(sem terceiro)',peca:r.peca||'',dia:new Date(ch-3*36e5).toISOString().slice(0,10),dias:(ch-sa)/864e5});
+        out.push({id:r.saco_id,terc:r.terceiro||'(sem terceiro)',peca:r.peca||'',sa:r.data_saida_real,ch:r.data_recebimento,dia:new Date(ch-3*36e5).toISOString().slice(0,10),dias:(ch-sa)/864e5});
       });
       return out;
     });
@@ -2794,6 +2800,7 @@ function renderRanking(){
     '<div class="rk-seg" role="group" aria-label="Quantidade de linhas no grafico">'+[10,20,50,0].map(function(n){return '<button type="button" aria-pressed="'+(RK.top===n)+'" onclick="rkSetTop('+n+')">'+(n?'Top '+n:'Todas')+'</button>';}).join('')+'</div>';
   rkGrafico_(topo,series,mk,med);
   rkLideres_();
+  rkTempoPainel_();
   rkMatriz_();
 }
 function rkLeitura_(linhas,mk){
@@ -2956,7 +2963,7 @@ function rkGrafico_(topo,series,mk,med){
 function rkSel(k,rol){
   RK.sel=(k&&RK.sel!==k)?k:null;
   if(rkChart) rkChart.update('none');
-  rkLideres_();rkMatriz_();
+  rkLideres_();rkTempoPainel_();rkMatriz_();
   var b=document.getElementById(rol===1?'rkLbBox':'rkMtBox');
   if(b&&RK.sel&&rol===1) b.scrollIntoView({behavior:'smooth',block:'nearest'});
   else if(b&&rol===2) b.scrollIntoView({block:'nearest'});
@@ -3006,10 +3013,66 @@ function rkLideres_(){
     var v=r.v,pAp=rkVal_(r.o,'pAprov'),w=v===null?0:m.pct?Math.min(100,Math.max(0,v)):(mx?Math.abs(v)/mx*100:0),sh=parte&&soma&&v!==null&&v>0?v/soma*100:null,lider=!!dir&&v!==null&&pos[i]===1,cls=(lider?' lider':'')+(temHl?(hl(r.t)?' on':' off'):'');
     return '<button type="button" class="rk-lb-row'+cls+'" data-t="'+esc(r.t)+'" onclick="rkLbTer(this.dataset.t)" title="Enviado '+fmtN(r.o.enviado)+' · Recebido '+fmtN(r.o.recebido)+' · Aprovadas '+fmtN(r.o.aprovadas)+' · Refugo '+fmtN(r.o.refugo)+' · clique para ver so este terceiro">'+
       '<span class="rk-lb-pos">'+(lider?RK_TROFEU:'')+pos[i]+'º</span>'+
-      '<span class="rk-lb-nm"><b>'+esc(r.t)+'</b><small>'+(m.dias?fmtN(r.o.tcnt)+' saco(s) retornado(s) no periodo':fmtN(r.o.sacos)+' saco(s) · aprovacao '+(pAp===null?'-':pAp.toFixed(1).replace('.',',')+'%'))+'</small></span>'+
+      '<span class="rk-lb-nm"><b>'+esc(r.t)+'</b><small>'+(m.dias?fmtN(r.o.tcnt)+' saco(s) retornado(s) no periodo':fmtN(r.o.sacos)+' saco(s) · aprovacao '+(pAp===null?'-':pAp.toFixed(1).replace('.',',')+'%')+(r.o.tcnt?' · retorno medio '+rkDias_(r.o.tsum/r.o.tcnt):''))+'</small></span>'+
       '<span class="rk-lb-bar">'+(w>0?'<i style="width:'+w.toFixed(1)+'%;background:linear-gradient(90deg,'+rkCor_(m,.3)+','+rkCor_(m,.95)+')"></i>':'')+'</span>'+
       '<span class="rk-lb-val"><b>'+rkFmt_(m,v)+'</b>'+(sh!==null?'<em>'+sh.toFixed(1).replace('.',',')+'%</em>':'')+'</span></button>';
   }).join('');
+}
+function rkTempoBase_(){
+  var fP=rkPecasSel,sr=null,pc=null,tc=null;
+  if(RK.sel) RK.linhas.forEach(function(r){if(r.key===RK.sel) sr=r;});
+  if(sr){if(RK.g!=='ter') pc=sr.peca;if(RK.g!=='peca') tc=sr.terc;}
+  var rows=(RK.tempos||[]).filter(function(x){
+    if(fP.length&&fP.indexOf(x.peca)===-1) return false;
+    if(pc&&x.peca!==pc) return false;
+    return true;
+  });
+  return {rows:rows,pc:pc,tc:tc};
+}
+function rkEstat_(a){
+  var v=a.map(function(x){return x.dias;}).sort(function(p,q){return p-q;}),s=0,n=v.length;
+  v.forEach(function(x){s+=x;});
+  return {n:n,med:s/n,mediana:n%2?v[(n-1)/2]:(v[n/2-1]+v[n/2])/2,min:v[0],max:v[n-1]};
+}
+function rkTempoPainel_(){
+  var box=document.getElementById('rkTmBox'),el=document.getElementById('rkTm');
+  if(!box) return;
+  var B=rkTempoBase_(),G={},fT=rkTercSel_(),mx=0;
+  if(!B.rows.length){box.style.display='none';return;}
+  box.style.display='';
+  B.rows.forEach(function(x){(G[x.terc]||(G[x.terc]=[])).push(x);});
+  var geral=rkEstat_(B.rows);
+  var L=Object.keys(G).map(function(k){var e=rkEstat_(G[k]);e.k=k;return e;});
+  L.sort(function(a,b){return (a.med-b.med)||a.k.localeCompare(b.k,'pt-BR');});
+  L.forEach(function(r){if(r.med>mx) mx=r.med;});
+  function hl(t){return B.tc?t===B.tc:fT.indexOf(t)!==-1;}
+  var temHl=L.some(function(r){return hl(r.k);}),mPos=mx?geral.med/mx*100:0;
+  document.getElementById('rkTmH').innerHTML='<div><h4>Tempo medio de retorno por terceiro'+(B.pc?' · '+esc(B.pc):'')+'</h4><p>Dias entre a saida do saco e a chegada na fabrica, media dos sacos que chegaram no periodo. Menos e melhor. Media de todos: <b>'+rkDias_(geral.med)+'</b> ('+fmtN(geral.n)+' sacos), marcada em amarelo na barra. Clique num terceiro para conferir os sacos e as datas.</p></div>';
+  el.innerHTML=L.map(function(r,i){
+    var lider=i===0,d=r.med-geral.med,w=mx?r.med/mx*100:0,cls=(lider?' lider':'')+(temHl?(hl(r.k)?' on':' off'):'');
+    return '<button type="button" class="rk-lb-row rk-tm-row'+cls+'" data-k="'+esc(r.k)+'" onclick="rkTempoSacos(this.dataset.k)" title="Conferir os sacos e as datas">'+
+      '<span class="rk-lb-pos">'+(lider?RK_TROFEU:'')+(i+1)+'º</span>'+
+      '<span class="rk-lb-nm"><b>'+esc(r.k)+'</b><small>'+fmtN(r.n)+' saco(s) · mediana '+rkDias_(r.mediana)+' · mais lento '+rkDias_(r.max)+'</small></span>'+
+      '<span class="rk-lb-bar"><i style="width:'+w.toFixed(1)+'%"></i><s style="left:'+mPos.toFixed(1)+'%"></s></span>'+
+      '<span class="rk-lb-val"><b>'+r.med.toFixed(1).replace('.',',')+'<small> dias</small></b><em class="'+(d>0.05?'ruim':'bom')+'">'+(Math.abs(d)<0.05?'na media':(d>0?'+':'-')+Math.abs(d).toFixed(1).replace('.',',')+' d')+'</em></span></button>';
+  }).join('');
+}
+function rkTempoSacos(k){
+  var B=rkTempoBase_(),a=B.rows.filter(function(x){return x.terc===k;});
+  if(!a.length) return;
+  var e=rkEstat_(a),g=rkEstat_(B.rows);
+  a=a.slice().sort(function(p,q){return q.dias-p.dias;});
+  function kp(cls,lbl,v){return '<div class="kpi '+cls+'"><div class="kpi-bar"></div><div class="kpi-lbl">'+lbl+'</div><div class="kpi-val">'+v+'</div></div>';}
+  document.getElementById('rkHistTitle').textContent='Tempo de retorno · '+k+(B.pc?' · '+B.pc:'');
+  document.getElementById('rkHistBody').innerHTML='<div style="font-size:12px;color:var(--text3);margin:-6px 0 12px">Sacos que chegaram entre '+rkDataBr_(RK.di)+' e '+rkDataBr_(RK.df)+', do mais lento para o mais rapido. Vermelho = acima da media de todos ('+rkDias_(g.med)+'). Clique num saco para ver o historico.</div>'+
+    '<div class="kpi-row" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">'+
+      kp('ko','Media',rkDias_(e.med))+kp('ka','Mediana',rkDias_(e.mediana))+kp('kg','Mais rapido',rkDias_(e.min))+kp('kf','Mais lento',rkDias_(e.max))+kp('kp','Sacos',fmtN(e.n))+
+    '</div>'+
+    '<div class="tbl-box" style="margin-top:10px;max-height:52vh;overflow:auto"><table><thead><tr><th>Saco</th><th>Peca</th><th>Saida</th><th>Chegada</th><th style="text-align:right">Dias</th></tr></thead><tbody>'+
+    a.map(function(x){
+      return '<tr style="cursor:pointer" onclick="verHistoricoSaco(\''+esc(x.id)+'\')"><td style="font-size:10px;color:var(--accent)">'+esc(x.id)+'</td><td>'+esc(x.peca)+'</td><td>'+fmtDT(x.sa)+'</td><td>'+fmtDT(x.ch)+'</td><td style="text-align:right;font-weight:700;color:'+(x.dias>g.med?'#f87171':'#4ade80')+'">'+x.dias.toFixed(1).replace('.',',')+'</td></tr>';
+    }).join('')+'</tbody></table></div>';
+  document.getElementById('rkHistModal').classList.add('open');
 }
 function rkCel_(m,v){
   if(v===null||v===undefined) return '<span class="rk-z">-</span>';
@@ -3025,7 +3088,7 @@ function rkMatriz_(){
   var B=RK.bk,BL=B.lista,L=RK.linhas,sx=-1,TB={},TG=rkZ_();
   L.forEach(function(r,i){if(r.key===RK.sel) sx=i;});
   var R=sx>=0?[sx]:L.map(function(r,i){return i;});
-  var ML=sx>=0?RK_METRICAS.filter(function(m){return !m.pct||RK.met.indexOf(m.k)!==-1;}):RK.met.map(rkMet_);
+  var ML=sx>=0?RK_METRICAS.filter(function(m){return (!m.pct&&!m.dias)||RK.met.indexOf(m.k)!==-1;}):RK.met.map(rkMet_);
   RK.mtML=ML;RK.mtR=R;
   function dias(m,o){return BL.map(function(b){var c=o[b.k],v=c?rkVal_(c,m.k):(m.pct||m.dias?null:0);return '<td class="rk-c'+(b.fds?' fds':'')+'">'+rkCel_(m,v)+'</td>';}).join('');}
   document.getElementById('rkMtH').innerHTML='<div><h4>Matriz por '+B.tipo+'</h4><p>'+(sx>=0?'1 de '+fmtN(L.length)+' linha(s)':fmtN(L.length)+' linha(s) na ordem do ranking')+' · em pecas.'+(sx>=0?'':' Clique no nome para ver so a linha, com todas as metricas.')+(B.tipo!=='dia'?' Periodo longo: colunas agrupadas por '+B.tipo+'.':'')+'</p></div><button type="button" class="btn btn-ghost btn-sm" onclick="rkBaixarExcel()">Baixar Excel</button>';
