@@ -311,7 +311,10 @@ tbody tr:hover td{background:rgba(0,131,62,.05);color:var(--text)}
 .rk-filtro b{color:var(--text)}
 .rk-filtro button{border:1px solid var(--bdr2);background:transparent;color:var(--text);font:600 12px 'Inter',sans-serif;padding:0 12px;min-height:32px;border-radius:8px;cursor:pointer;transition:border-color .15s}
 .rk-filtro button:hover{border-color:var(--accent)}
-.rk-kpis{margin-top:14px;margin-bottom:0;grid-template-columns:repeat(auto-fit,minmax(125px,1fr))}
+.rk-kpis{margin-top:14px;margin-bottom:0;grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:900px){.rk-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:600px){.rk-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi.ko .kpi-bar{background:#fb923c}
 .rk-panel{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;box-shadow:var(--sh);padding:20px 20px 16px;margin-top:14px}
 .rk-ph{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
 .rk-ph h4{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.2px}
@@ -2401,7 +2404,7 @@ function loadPecaHist(){
   }).catch(function(e){document.getElementById('pecaHistResult').innerHTML='<div class="alert alert-err">'+esc(e.message)+'</div>';});
 }
 var rkPecasCache=[],rkPecasSel=[],rkChart=null;
-var RK={di:'',df:'',g:'peca',sort:'recebido',asc:false,top:20,card:null,prev:null,met:['recebido'],sel:null,movs:null,sacos:{},linhas:[],bk:null,tercTab:[],tercDados:[],tAg:null,tAp:null,req:0,iniciado:false,mtML:null,mtR:null};
+var RK={di:'',df:'',g:'peca',sort:'recebido',asc:false,top:20,card:null,prev:null,met:['recebido'],sel:null,movs:null,tempos:[],sacos:{},linhas:[],bk:null,tercTab:[],tercDados:[],tAg:null,tAp:null,req:0,iniciado:false,mtML:null,mtR:null};
 var RK_CAMPOS=['enviado','recebido','aprovadas','refugo','repasse','devolucao','diferenca'];
 var RK_METRICAS=[
   {k:'enviado',l:'Enviado',rgb:'245,158,11',f:'enviado'},
@@ -2414,22 +2417,27 @@ var RK_METRICAS=[
   {k:'saldo',l:'Saldo',rgb:'20,184,166'},
   {k:'pAprov',l:'% Aprovacao',pct:true,rgb:'74,222,128'},
   {k:'pRefugo',l:'% Refugo',pct:true,rgb:'248,113,113'},
-  {k:'pRepasse',l:'% Repasse',pct:true,rgb:'167,139,250'}
+  {k:'pRepasse',l:'% Repasse',pct:true,rgb:'167,139,250'},
+  {k:'tmed',l:'Tempo de retorno (dias)',dias:true,rgb:'251,146,60'}
 ];
 var RK_TROFEU='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4z"/><path d="M17 5h3v2a3 3 0 01-3 3M7 5H4v2a3 3 0 003 3"/></svg>';
 function rkMet_(k){for(var i=0;i<RK_METRICAS.length;i++) if(RK_METRICAS[i].k===k) return RK_METRICAS[i];return null;}
 function rkCor_(m,a){return 'rgba('+m.rgb+','+(a===undefined?1:a)+')';}
+function rkEixo_(m){return m.pct?'x2':m.dias?'x3':'x';}
+function rkDias_(v){return v===null||v===undefined?'-':v.toFixed(1).replace('.',',')+' dias';}
 function rkFmt_(m,v){
   if(v===null||v===undefined) return '-';
   if(m&&m.pct) return v.toFixed(1).replace('.',',')+'%';
+  if(m&&m.dias) return v.toFixed(1).replace('.',',')+' d';
   return fmtN(v);
 }
-function rkZ_(){var o={sacos:0};RK_CAMPOS.forEach(function(c){o[c]=0;});return o;}
-function rkAdd_(a,b){RK_CAMPOS.forEach(function(c){a[c]+=b[c]||0;});}
+function rkZ_(){var o={sacos:0,tsum:0,tcnt:0};RK_CAMPOS.forEach(function(c){o[c]=0;});return o;}
+function rkAdd_(a,b){RK_CAMPOS.forEach(function(c){a[c]+=b[c]||0;});a.tsum+=b.tsum||0;a.tcnt+=b.tcnt||0;}
 function rkVal_(t,k){
   var m=rkMet_(k);
   if(k==='saldo') return t.enviado-t.recebido;
   if(m.pct){var b=t.aprovadas+t.refugo+t.repasse+t.devolucao;if(!b) return null;return (k==='pAprov'?t.aprovadas:k==='pRefugo'?t.refugo:t.repasse)/b*100;}
+  if(m.dias) return t.tcnt?t.tsum/t.tcnt:null;
   return t[m.f];
 }
 function rkDia_(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -2482,8 +2490,9 @@ function renderRkMetricas(){
     return '<div class="rk-opt'+(on?' on':'')+'" role="checkbox" aria-checked="'+on+'" tabindex="0" data-k="'+m.k+'" style="--c:'+rkCor_(m)+'" onclick="event.stopPropagation();toggleRkMet(this.dataset.k)" onkeydown="if(event.key===\' \'||event.key===\'Enter\'){event.preventDefault();toggleRkMet(this.dataset.k)}"><span class="rk-ck"></span><i class="rk-dot"></i>'+esc(m.l)+'</div>';
   }
   panel.innerHTML='<div class="rk-drop-h"><button type="button" class="cb edit" onclick="event.stopPropagation();rkMetAcao(\'q\')">Todas as quantidades</button><button type="button" class="cb del" onclick="event.stopPropagation();rkMetAcao(\'s\')">So a da ordenacao</button></div>'+
-    '<div class="rk-gh">Quantidades</div>'+RK_METRICAS.filter(function(m){return !m.pct;}).map(opt).join('')+
-    '<div class="rk-gh">Percentuais (eixo de cima)</div>'+RK_METRICAS.filter(function(m){return m.pct;}).map(opt).join('');
+    '<div class="rk-gh">Quantidades</div>'+RK_METRICAS.filter(function(m){return !m.pct&&!m.dias;}).map(opt).join('')+
+    '<div class="rk-gh">Percentuais (eixo de cima)</div>'+RK_METRICAS.filter(function(m){return m.pct;}).map(opt).join('')+
+    '<div class="rk-gh">Tempo (eixo proprio)</div>'+RK_METRICAS.filter(function(m){return m.dias;}).map(opt).join('');
   panel.scrollTop=st;
   var sel=RK.met.map(rkMet_);
   document.getElementById('rkMetTrg').innerHTML='<span class="rk-dots">'+sel.map(function(m){return '<i style="--c:'+rkCor_(m)+'"></i>';}).join('')+'</span><span class="rk-trg-t">'+sel.map(function(m){return esc(m.l);}).join(', ')+'</span>';
@@ -2501,7 +2510,7 @@ function toggleRkMet(k){
   renderRanking();
 }
 function rkMetAcao(t){
-  RK.met=t==='q'?RK_METRICAS.filter(function(m){return !m.pct;}).map(function(m){return m.k;}):[rkMet_(RK.sort)?RK.sort:'recebido'];
+  RK.met=t==='q'?RK_METRICAS.filter(function(m){return !m.pct&&!m.dias;}).map(function(m){return m.k;}):[rkMet_(RK.sort)?RK.sort:'recebido'];
   renderRkMetricas();
   renderRanking();
 }
@@ -2641,15 +2650,44 @@ function rkCarregar_(){
   if(!rkPecasCache.length){msg_('msgRank','<div class="alert alert-warn">Nenhuma peca cadastrada em Ferramentas.</div>');return;}
   var req=++RK.req;
   msg_('msgRank','<div class="load">Carregando o periodo...</div>');
-  rpc('get_matriz_peca',{p_pecas:rkPecasCache.slice(),p_terceiros:[],p_di:di,p_df:df}).then(function(d){
+  Promise.all([
+    rpc('get_matriz_peca',{p_pecas:rkPecasCache.slice(),p_terceiros:[],p_di:di,p_df:df}),
+    rkTempos_(di,df).catch(function(e){return {erro:(e&&e.message)||String(e)};})
+  ]).then(function(rs){
     if(req!==RK.req) return;
-    msg_('msgRank','');
+    var d=rs[0],tp=rs[1];
+    msg_('msgRank',tp&&tp.erro?'<div class="alert alert-warn">Tempo de retorno indisponivel: '+esc(tp.erro)+'</div>':'');
     RK.di=di;RK.df=df;
+    RK.tempos=tp&&tp.erro?[]:tp;
     rkPrep_(d);
     renderRanking();
   }).catch(function(e){
     if(req!==RK.req) return;
     msg_('msgRank','<div class="alert alert-err">'+esc((e&&e.message)||String(e))+'</div>');
+  });
+}
+function rkTempos_(di,df){
+  var f=new Date(df+'T12:00:00');f.setDate(f.getDate()+1);
+  var ini=di+'T00:00:00-03:00',fim=rkDia_(f)+'T00:00:00-03:00';
+  function q(a){
+    return supabase.from('saidas').select('peca,terceiro,data_saida_real,data_recebimento',a===0?{count:'exact'}:undefined)
+      .gte('data_recebimento',ini).lt('data_recebimento',fim).not('data_saida_real','is',null)
+      .order('id',{ascending:true}).range(a,a+999);
+  }
+  return q(0).then(function(r0){
+    if(r0.error) throw new Error(r0.error.message);
+    var ps=[];
+    for(var a=1000;a<(r0.count||0);a+=1000) ps.push(q(a));
+    return Promise.all(ps).then(function(rs){
+      var rows=(r0.data||[]).slice(),out=[];
+      rs.forEach(function(r){if(r.error) throw new Error(r.error.message);rows=rows.concat(r.data||[]);});
+      rows.forEach(function(r){
+        var sa=Date.parse(r.data_saida_real),ch=Date.parse(r.data_recebimento);
+        if(!isFinite(sa)||!isFinite(ch)||ch<sa) return;
+        out.push({terc:r.terceiro||'(sem terceiro)',peca:r.peca||'',dia:new Date(ch-3*36e5).toISOString().slice(0,10),dias:(ch-sa)/864e5});
+      });
+      return out;
+    });
   });
 }
 function rkPrep_(d){
@@ -2669,6 +2707,7 @@ function rkPrep_(d){
       });
     });
   });
+  (RK.tempos||[]).forEach(function(x){ter[x.terc]=1;});
   RK.movs=movs;RK.sacos=sacos;RK.bk=rkBuckets_(RK.di,RK.df);
   RK.tercDados=Object.keys(ter);
   rkTercMontar_();
@@ -2687,8 +2726,17 @@ function rkDados_(){
     rkAdd_(o.d[b]||(o.d[b]=rkZ_()),m.v);rkAdd_(o.t,m.v);rkAdd_(TT,m.v);
     o.pares[m.terc+'|'+m.peca]=1;pTT[m.terc+'|'+m.peca]=1;
   });
+  (RK.tempos||[]).forEach(function(m){
+    if(fT.length&&fT.indexOf(m.terc)===-1) return;
+    if(fP.length&&fP.indexOf(m.peca)===-1) return;
+    var k=rkKey_(m),o=G[k];
+    if(!o) o=G[k]={key:k,peca:RK.g==='ter'?'':m.peca,terc:RK.g==='peca'?'':m.terc,t:rkZ_(),d:{},pares:{}};
+    var b=B.de(m.dia),db=o.d[b]||(o.d[b]=rkZ_());
+    db.tsum+=m.dias;db.tcnt++;o.t.tsum+=m.dias;o.t.tcnt++;TT.tsum+=m.dias;TT.tcnt++;
+    o.pares[m.terc+'|'+m.peca]=1;pTT[m.terc+'|'+m.peca]=1;
+  });
   var L=Object.keys(G).map(function(k){var o=G[k];o.t.sacos=rkSomaSacos_(o.pares);return o;}).filter(function(o){
-    return RK_CAMPOS.some(function(c){return o.t[c]!==0;});
+    return o.t.tcnt>0||RK_CAMPOS.some(function(c){return o.t[c]!==0;});
   });
   TT.sacos=rkSomaSacos_(pTT);
   return {L:L,TT:TT};
@@ -2711,7 +2759,8 @@ function renderRanking(){
     kpi('refugo','kf','Refugo',fmtN(TT.refugo),'pecas')+
     kpi('repasse','kr','Repasse',fmtN(TT.repasse),'pecas')+
     kpi('devolucao','ks','Devolucao',fmtN(TT.devolucao),'pecas')+
-    kpi('pAprov','kc','Aprovacao',pA===null?'-':pA.toFixed(1).replace('.',',')+'%','');
+    kpi('pAprov','kc','Aprovacao',pA===null?'-':pA.toFixed(1).replace('.',',')+'%','')+
+    kpi('tmed','ko','Tempo medio retorno',TT.tcnt?(TT.tsum/TT.tcnt).toFixed(1).replace('.',','):'-',TT.tcnt?'dias':'');
   var ag=(TT.recebido+TT.diferenca)-TT.aprovadas-TT.refugo-TT.repasse-TT.devolucao;
   document.getElementById('rkConta').innerHTML='Conta do periodo: <b>Enviado '+fmtN(TT.enviado)+'</b> - <b>Recebido '+fmtN(TT.recebido)+'</b> = <b>'+fmtN(TT.enviado-TT.recebido)+' ficou com terceiros</b> &nbsp;·&nbsp; Recebido '+fmtN(TT.recebido)+(TT.diferenca?(TT.diferenca>0?' + ':' - ')+fmtN(Math.abs(TT.diferenca))+' diferenca de contagem':'')+' = Aprovadas '+fmtN(TT.aprovadas)+' + Refugo '+fmtN(TT.refugo)+' + Repasse '+fmtN(TT.repasse)+' + Devolucao '+fmtN(TT.devolucao)+' + '+fmtN(ag)+' aguardando inspecao';
   var linhas=D.L.map(function(o){
@@ -2721,8 +2770,8 @@ function renderRanking(){
   }),info='';
   if(RK.card){
     var cm=rkMet_(RK.card),n0=linhas.length;
-    linhas=linhas.filter(function(r){return r[RK.card]!==null&&(cm.pct||r[RK.card]!==0);});
-    info='<div class="rk-filtro"><span>Filtrando por <b>'+esc(cm.l)+'</b> '+(cm.pct?'(somente linhas com inspecao concluida)':'diferente de zero')+' · '+fmtN(linhas.length)+' de '+fmtN(n0)+' linha(s)</span><button type="button" onclick="rkCardSet(\''+RK.card+'\')">Limpar filtro</button></div>';
+    linhas=linhas.filter(function(r){return r[RK.card]!==null&&(cm.pct||cm.dias||r[RK.card]!==0);});
+    info='<div class="rk-filtro"><span>Filtrando por <b>'+esc(cm.l)+'</b> '+(cm.pct?'(somente linhas com inspecao concluida)':cm.dias?'(somente linhas com retorno no periodo)':'diferente de zero')+' · '+fmtN(linhas.length)+' de '+fmtN(n0)+' linha(s)</span><button type="button" onclick="rkCardSet(\''+RK.card+'\')">Limpar filtro</button></div>';
   }
   document.getElementById('rkFiltroInfo').innerHTML=info;
   var mk=RK.sort,nm=function(r){return RK.g==='ter'?r.terc:r.peca;};
@@ -2750,7 +2799,7 @@ function renderRanking(){
 function rkLeitura_(linhas,mk){
   var mm=rkMet_(mk),fPct=rkMet_('pAprov'),ins=[];
   function lnk(l){return '<button type="button" class="rk-lk" onclick="rkSelIx('+linhas.indexOf(l)+',2)">'+esc(rkNome_(l))+'</button>';}
-  if(mm&&!mm.pct&&mk!=='saldo'&&mk!=='dif'&&linhas.length>5){
+  if(mm&&!mm.pct&&!mm.dias&&mk!=='saldo'&&mk!=='dif'&&linhas.length>5){
     var tot=0;linhas.forEach(function(l){tot+=l[mk];});
     if(tot>0){
       var top5=linhas.map(function(l){return l[mk];}).sort(function(x,y){return y-x;}).slice(0,5).reduce(function(x,y){return x+y;},0);
@@ -2761,6 +2810,12 @@ function rkLeitura_(linhas,mk){
   if(ms) ins.push('Maior saldo com terceiro: '+lnk(ms)+', <b>'+fmtN(ms.saldo)+'</b> pecas enviadas e ainda nao recebidas no periodo.');
   var pa=null;linhas.forEach(function(l){if(l.pAprov!==null&&(!pa||l.pAprov<pa.pAprov)) pa=l;});
   if(pa&&pa.pAprov<100) ins.push('Pior aprovacao: '+lnk(pa)+', <b>'+rkFmt_(fPct,pa.pAprov)+'</b> ('+fmtN(pa.refugo)+' refugo, '+fmtN(pa.repasse)+' repasse, '+fmtN(pa.devolucao)+' devolucao).');
+  var tl=linhas.filter(function(l){return l.tmed!==null&&l.t.tcnt>=3;});
+  if(tl.length>1){
+    var lento=tl[0],rapido=tl[0];
+    tl.forEach(function(l){if(l.tmed>lento.tmed) lento=l;if(l.tmed<rapido.tmed) rapido=l;});
+    ins.push('Retorno mais lento: '+lnk(lento)+', <b>'+rkDias_(lento.tmed)+'</b> em media ('+fmtN(lento.t.tcnt)+' sacos). Mais rapido: '+lnk(rapido)+', <b>'+rkDias_(rapido.tmed)+'</b> ('+fmtN(rapido.t.tcnt)+' sacos).');
+  }
   var neg=linhas.filter(function(l){return l.saldo<0;});
   if(neg.length) ins.push('<b>'+fmtN(neg.length)+'</b> linha(s) com mais recebido do que enviado no periodo (retorno de sacos enviados antes da data inicial ou contagem a mais). Elas aparecem com saldo negativo.');
   document.getElementById('rkIns').innerHTML=ins.length?'<div class="rk-panel"><div class="rk-ph" style="margin-bottom:10px"><div><h4>Leitura rapida</h4></div></div><ul class="rk-ins">'+ins.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul></div>':'';
@@ -2777,8 +2832,8 @@ function rkGrafico_(topo,series,mk,med){
   function eSel(j){return !!RK.sel&&!!topo[j]&&topo[j].key===RK.sel;}
   function dim(j){return !!RK.sel&&!!topo[j]&&topo[j].key!==RK.sel&&topo.some(function(x){return x.key===RK.sel;});}
   var rowH=series.length*13+30,cp=series.length*13/rowH;
-  box.style.height=Math.max(220,topo.length*rowH+110)+'px';
-  var temQ=series.some(function(m){return !m.pct;}),temP=series.some(function(m){return m.pct;});
+  var temQ=series.some(function(m){return !m.pct&&!m.dias;}),temP=series.some(function(m){return m.pct;}),temD=series.some(function(m){return m.dias;});
+  box.style.height=Math.max(220,topo.length*rowH+110+((temQ&&temP&&temD)?40:0))+'px';
   var maxP=0;
   series.forEach(function(m){if(m.pct) topo.forEach(function(l){if(l[m.k]!==null&&l[m.k]>maxP) maxP=l[m.k];});});
   var topoP=maxP>=50?100:Math.max(5,Math.ceil(maxP*1.25/5)*5);
@@ -2819,7 +2874,7 @@ function rkGrafico_(topo,series,mk,med){
   }};
   var linhaMed={id:'rkMed',afterDatasetsDraw:function(ch){
     if(med===null||!mm) return;
-    var sc=ch.scales[mm.pct?'x2':'x'],a=ch.chartArea;
+    var sc=ch.scales[rkEixo_(mm)],a=ch.chartArea;
     if(!sc) return;
     var x=sc.getPixelForValue(med);
     if(!isFinite(x)||x<a.left||x>a.right) return;
@@ -2829,7 +2884,7 @@ function rkGrafico_(topo,series,mk,med){
     c.setLineDash([]);c.font='700 10px '+fonte;c.fillStyle='#fbbf24';c.textBaseline='bottom';
     var dir=x>a.right-120;
     c.textAlign=dir?'right':'left';
-    c.fillText('Media '+rkFmt_(mm,mm.pct?med:Math.round(med)),x+(dir?-6:6),a.bottom-3);
+    c.fillText('Media '+rkFmt_(mm,(mm.pct||mm.dias)?med:Math.round(med)),x+(dir?-6:6),a.bottom-3);
     c.restore();
   }};
   function gridCor(c){return c.tick&&c.tick.value===0?'rgba(255,255,255,.32)':'rgba(255,255,255,.06)';}
@@ -2837,6 +2892,7 @@ function rkGrafico_(topo,series,mk,med){
   var escalas={y:{ticks:{display:false},grid:{display:false},border:{display:false}}};
   if(temQ) escalas.x={position:'bottom',beginAtZero:true,grid:{color:gridCor,lineWidth:gridLw},border:{display:false},ticks:{color:'#7c8580',font:{size:10,family:fonte},callback:function(v){return fmtN(v);}},title:{display:temP,text:'Quantidade (pecas)',color:'#7c8580',font:{size:10,family:fonte}}};
   if(temP) escalas.x2={position:temQ?'top':'bottom',min:0,max:topoP,grid:{drawOnChartArea:!temQ,color:gridCor,lineWidth:gridLw},border:{display:false},ticks:{color:'#7c8580',font:{size:10,family:fonte},callback:function(v){return v+'%';}},title:{display:temQ,text:'Percentual',color:'#7c8580',font:{size:10,family:fonte}}};
+  if(temD) escalas.x3={position:(temQ||temP)?'top':'bottom',beginAtZero:true,grid:{drawOnChartArea:!(temQ||temP),color:gridCor,lineWidth:gridLw},border:{display:false},ticks:{color:'#7c8580',font:{size:10,family:fonte},callback:function(v){return fmtN(v)+' d';}},title:{display:temQ||temP,text:'Dias',color:'#7c8580',font:{size:10,family:fonte}}};
   var reduz=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
   rkChart=new Chart(document.getElementById('cRank').getContext('2d'),{
     type:'bar',
@@ -2847,11 +2903,11 @@ function rkGrafico_(topo,series,mk,med){
         return {
           label:m.l,
           data:topo.map(function(l){return l[m.k];}),
-          xAxisID:m.pct?'x2':'x',
+          xAxisID:rkEixo_(m),
           borderRadius:4,borderSkipped:false,barPercentage:.86,categoryPercentage:cp,maxBarThickness:14,
           backgroundColor:function(ctx){
             if(dim(ctx.dataIndex)) return rkCor_(m,.14);
-            var sc=ctx.chart.scales[m.pct?'x2':'x'],v=ctx.raw,neg=typeof v==='number'&&v<0;
+            var sc=ctx.chart.scales[rkEixo_(m)],v=ctx.raw,neg=typeof v==='number'&&v<0;
             var ref=neg?minM[m.k]:maxM[m.k];
             if(!sc||!ref) return rkCor_(m,.85);
             var x0=sc.getPixelForValue(0),x1=sc.getPixelForValue(ref);
@@ -2882,12 +2938,12 @@ function rkGrafico_(topo,series,mk,med){
             title:function(it){var i=it[0].dataIndex;return '#'+(i+1)+'  '+rkNome_(topo[i]);},
             label:function(c){
               var m=series[c.datasetIndex],v=c.raw,t=' '+c.dataset.label+': '+rkFmt_(m,v);
-              if(!m.pct&&m.k!=='saldo'&&m.k!=='dif'&&v!==null&&totM[m.k]>0) t+=' ('+(v/totM[m.k]*100).toFixed(1).replace('.',',')+'% do total)';
+              if(!m.pct&&!m.dias&&m.k!=='saldo'&&m.k!=='dif'&&v!==null&&totM[m.k]>0) t+=' ('+(v/totM[m.k]*100).toFixed(1).replace('.',',')+'% do total)';
               return t;
             },
             afterBody:function(it){
               var l=topo[it[0].dataIndex];
-              return ['','Enviado '+fmtN(l.enviado)+'  ·  Recebido '+fmtN(l.recebido)+'  ·  Saldo '+fmtN(l.saldo),'Aprovadas '+fmtN(l.aprovadas)+'  ·  Refugo '+fmtN(l.refugo)+'  ·  Aprovacao '+rkFmt_(rkMet_('pAprov'),l.pAprov)];
+              return ['','Enviado '+fmtN(l.enviado)+'  ·  Recebido '+fmtN(l.recebido)+'  ·  Saldo '+fmtN(l.saldo),'Aprovadas '+fmtN(l.aprovadas)+'  ·  Refugo '+fmtN(l.refugo)+'  ·  Aprovacao '+rkFmt_(rkMet_('pAprov'),l.pAprov),l.tmed!==null?'Tempo medio de retorno '+rkDias_(l.tmed)+' ('+fmtN(l.t.tcnt)+' sacos)':'Sem retorno no periodo'];
             },
             labelColor:function(c){var m=series[c.datasetIndex];return {borderColor:rkCor_(m),backgroundColor:rkCor_(m),borderRadius:3};},
             footer:function(){return 'Clique para ver o dia a dia na matriz';}
@@ -2914,7 +2970,7 @@ function rkLbTer(t){
 function rkLideres_(){
   var el=document.getElementById('rkLb');
   if(!el||!RK.movs) return;
-  var mk=rkMet_(RK.sort)?RK.sort:'recebido',m=rkMet_(mk),dir={enviado:1,recebido:1,aprovadas:1,pAprov:1,refugo:-1,repasse:-1,devolucao:-1,pRefugo:-1,pRepasse:-1}[mk]||0,asc=dir<0,fP=rkPecasSel,fT=rkTercSel_(),G={},P={},sr=null,pc=null,tc=null;
+  var mk=rkMet_(RK.sort)?RK.sort:'recebido',m=rkMet_(mk),dir={enviado:1,recebido:1,aprovadas:1,pAprov:1,refugo:-1,repasse:-1,devolucao:-1,pRefugo:-1,pRepasse:-1,tmed:-1}[mk]||0,asc=dir<0,fP=rkPecasSel,fT=rkTercSel_(),G={},P={},sr=null,pc=null,tc=null;
   if(RK.sel) RK.linhas.forEach(function(r){if(r.key===RK.sel) sr=r;});
   if(sr){if(RK.g!=='ter') pc=sr.peca;if(RK.g!=='peca') tc=sr.terc;}
   RK.movs.forEach(function(x){
@@ -2923,8 +2979,15 @@ function rkLideres_(){
     rkAdd_(G[x.terc]||(G[x.terc]=rkZ_()),x.v);
     (P[x.terc]||(P[x.terc]={}))[x.terc+'|'+x.peca]=1;
   });
+  (RK.tempos||[]).forEach(function(x){
+    if(fP.length&&fP.indexOf(x.peca)===-1) return;
+    if(pc&&x.peca!==pc) return;
+    var o=G[x.terc]||(G[x.terc]=rkZ_());
+    o.tsum+=x.dias;o.tcnt++;
+    (P[x.terc]||(P[x.terc]={}))[x.terc+'|'+x.peca]=1;
+  });
   var L=Object.keys(G).map(function(t){var o=G[t];o.sacos=rkSomaSacos_(P[t]);return {t:t,o:o,v:rkVal_(o,mk)};}).filter(function(r){
-    return RK_CAMPOS.some(function(c){return r.o[c]!==0;});
+    return r.o.tcnt>0||RK_CAMPOS.some(function(c){return r.o[c]!==0;});
   });
   L.sort(function(a,b){
     if(a.v===null&&b.v===null) return a.t.localeCompare(b.t);
@@ -2932,25 +2995,25 @@ function rkLideres_(){
     if(b.v===null) return -1;
     return (asc?a.v-b.v:b.v-a.v)||a.t.localeCompare(b.t);
   });
-  var soma=0,mx=0,parte=!m.pct&&mk!=='saldo'&&mk!=='dif',pos=[];
+  var soma=0,mx=0,parte=!m.pct&&!m.dias&&mk!=='saldo'&&mk!=='dif',pos=[];
   L.forEach(function(r,i){pos.push(i&&r.v===L[i-1].v?pos[i-1]:i+1);});
   L.forEach(function(r){if(r.v!==null){if(r.v>0) soma+=r.v;if(Math.abs(r.v)>mx) mx=Math.abs(r.v);}});
   function hl(t){return tc?t===tc:fT.indexOf(t)!==-1;}
   var temHl=L.some(function(r){return hl(r.t);});
-  document.getElementById('rkLbH').innerHTML='<div><h4>Ranking de terceiros'+(pc?' · '+esc(pc):'')+'</h4><p>'+(dir?'Quem esta ganhando em':'Terceiros por')+' <b>'+esc(m.l.toLowerCase())+'</b>'+(m.pct?'':' (pecas)')+(dir<0?' · menos e melhor':dir?'':' · maior primeiro')+(parte?' · % = participacao de cada terceiro no total':'')+(pc?' · so a peca selecionada':'')+'. Clique num terceiro para ver so ele na tela.</p></div>'+(fT.length?'<button type="button" class="btn btn-ghost btn-sm" onclick="rkLbTer(null)">Todos os terceiros</button>':'');
+  document.getElementById('rkLbH').innerHTML='<div><h4>Ranking de terceiros'+(pc?' · '+esc(pc):'')+'</h4><p>'+(dir?'Quem esta ganhando em':'Terceiros por')+' <b>'+esc(m.l.toLowerCase())+'</b>'+(m.pct||m.dias?'':' (pecas)')+(dir<0?' · menos e melhor':dir?'':' · maior primeiro')+(parte?' · % = participacao de cada terceiro no total':'')+(pc?' · so a peca selecionada':'')+'. Clique num terceiro para ver so ele na tela.</p></div>'+(fT.length?'<button type="button" class="btn btn-ghost btn-sm" onclick="rkLbTer(null)">Todos os terceiros</button>':'');
   if(!L.length){el.innerHTML='<div class="empty">Nenhuma movimentacao de terceiros para os filtros escolhidos.</div>';return;}
   el.innerHTML=L.map(function(r,i){
     var v=r.v,pAp=rkVal_(r.o,'pAprov'),w=v===null?0:m.pct?Math.min(100,Math.max(0,v)):(mx?Math.abs(v)/mx*100:0),sh=parte&&soma&&v!==null&&v>0?v/soma*100:null,lider=!!dir&&v!==null&&pos[i]===1,cls=(lider?' lider':'')+(temHl?(hl(r.t)?' on':' off'):'');
     return '<button type="button" class="rk-lb-row'+cls+'" data-t="'+esc(r.t)+'" onclick="rkLbTer(this.dataset.t)" title="Enviado '+fmtN(r.o.enviado)+' · Recebido '+fmtN(r.o.recebido)+' · Aprovadas '+fmtN(r.o.aprovadas)+' · Refugo '+fmtN(r.o.refugo)+' · clique para ver so este terceiro">'+
       '<span class="rk-lb-pos">'+(lider?RK_TROFEU:'')+pos[i]+'º</span>'+
-      '<span class="rk-lb-nm"><b>'+esc(r.t)+'</b><small>'+fmtN(r.o.sacos)+' saco(s) · aprovacao '+(pAp===null?'-':pAp.toFixed(1).replace('.',',')+'%')+'</small></span>'+
+      '<span class="rk-lb-nm"><b>'+esc(r.t)+'</b><small>'+(m.dias?fmtN(r.o.tcnt)+' saco(s) retornado(s) no periodo':fmtN(r.o.sacos)+' saco(s) · aprovacao '+(pAp===null?'-':pAp.toFixed(1).replace('.',',')+'%'))+'</small></span>'+
       '<span class="rk-lb-bar">'+(w>0?'<i style="width:'+w.toFixed(1)+'%;background:linear-gradient(90deg,'+rkCor_(m,.3)+','+rkCor_(m,.95)+')"></i>':'')+'</span>'+
       '<span class="rk-lb-val"><b>'+rkFmt_(m,v)+'</b>'+(sh!==null?'<em>'+sh.toFixed(1).replace('.',',')+'%</em>':'')+'</span></button>';
   }).join('');
 }
 function rkCel_(m,v){
   if(v===null||v===undefined) return '<span class="rk-z">-</span>';
-  if(m.pct) return '<span style="color:'+rkCor_(m)+'">'+rkFmt_(m,v)+'</span>';
+  if(m.pct||m.dias) return '<span style="color:'+rkCor_(m)+'">'+rkFmt_(m,v)+'</span>';
   if(!v) return '<span class="rk-z">0</span>';
   if(m.k==='saldo') return '<b style="color:'+(v>0?'var(--amber)':'var(--green)')+'">'+(v>0?'+':'')+fmtN(v)+'</b>';
   if(m.k==='dif') return '<b style="color:'+(v>0?'#fbbf24':'#f87171')+'">'+(v>0?'+':'')+fmtN(v)+'</b>';
@@ -2964,7 +3027,7 @@ function rkMatriz_(){
   var R=sx>=0?[sx]:L.map(function(r,i){return i;});
   var ML=sx>=0?RK_METRICAS.filter(function(m){return !m.pct||RK.met.indexOf(m.k)!==-1;}):RK.met.map(rkMet_);
   RK.mtML=ML;RK.mtR=R;
-  function dias(m,o){return BL.map(function(b){var c=o[b.k],v=c?rkVal_(c,m.k):(m.pct?null:0);return '<td class="rk-c'+(b.fds?' fds':'')+'">'+rkCel_(m,v)+'</td>';}).join('');}
+  function dias(m,o){return BL.map(function(b){var c=o[b.k],v=c?rkVal_(c,m.k):(m.pct||m.dias?null:0);return '<td class="rk-c'+(b.fds?' fds':'')+'">'+rkCel_(m,v)+'</td>';}).join('');}
   document.getElementById('rkMtH').innerHTML='<div><h4>Matriz por '+B.tipo+'</h4><p>'+(sx>=0?'1 de '+fmtN(L.length)+' linha(s)':fmtN(L.length)+' linha(s) na ordem do ranking')+' · em pecas.'+(sx>=0?'':' Clique no nome para ver so a linha, com todas as metricas.')+(B.tipo!=='dia'?' Periodo longo: colunas agrupadas por '+B.tipo+'.':'')+'</p></div><button type="button" class="btn btn-ghost btn-sm" onclick="rkBaixarExcel()">Baixar Excel</button>';
   document.getElementById('rkMtInfo').innerHTML=sx>=0?'<div class="rk-filtro"><span>Mostrando so <b>#'+(sx+1)+' '+esc(rkNome_(L[sx]))+'</b>, com todas as metricas</span><span class="rk-fbt"><button type="button" onclick="abrirRkHist('+sx+')">Rastreabilidade dos sacos</button><button type="button" onclick="rkSel(null)">Mostrar todas as linhas</button></span></div>':'';
   var h='<table class="rk-mt"><thead><tr><th class="rk-s1">'+(RK.g==='ter'?'Terceiro':RK.g==='pecaterc'?'Peca · Terceiro':'Peca')+'</th><th class="rk-s2">Metrica</th>'+BL.map(function(b){return '<th class="rk-d'+(b.fds?' fds':'')+'"'+(b.a!==b.b?' title="'+b.a.slice(8)+'/'+b.a.slice(5,7)+' a '+b.b.slice(8)+'/'+b.b.slice(5,7)+'"':'')+'>'+b.lbl+'<small>'+b.sub+'</small></th>';}).join('')+'<th class="rk-tot">Total</th></tr></thead><tbody>';
@@ -2987,7 +3050,7 @@ function rkMatriz_(){
   el.innerHTML=h+'</table>';
   el.scrollLeft=sl;el.scrollTop=st;
 }
-function rkXv_(m,v){if(v===null||v===undefined) return '';return m.pct?Math.round(v*10)/10:v;}
+function rkXv_(m,v){if(v===null||v===undefined) return '';return (m.pct||m.dias)?Math.round(v*10)/10:v;}
 function rkBaixarExcel(){
   if(!RK.movs||!RK.linhas.length){msg_('msgRank','<div class="alert alert-warn">Nao ha dados para baixar.</div>');return;}
   var BL=RK.bk.lista,ML=RK.mtML||RK.met.map(rkMet_),R=RK.mtR||RK.linhas.map(function(r,i){return i;}),TB={},TG=rkZ_();
@@ -2997,7 +3060,7 @@ function rkBaixarExcel(){
   BL.forEach(function(b){head.push(b.a===b.b?rkDataBr_(b.a):rkDataBr_(b.a)+' a '+rkDataBr_(b.b));});
   head.push('Total');
   var aoa=[head];
-  function vals(m,o,tot){var row=[];BL.forEach(function(b){var c=o[b.k];row.push(rkXv_(m,c?rkVal_(c,m.k):(m.pct?null:0)));});row.push(rkXv_(m,rkVal_(tot,m.k)));return row;}
+  function vals(m,o,tot){var row=[];BL.forEach(function(b){var c=o[b.k];row.push(rkXv_(m,c?rkVal_(c,m.k):(m.pct||m.dias?null:0)));});row.push(rkXv_(m,rkVal_(tot,m.k)));return row;}
   R.forEach(function(ix){
     var r=RK.linhas[ix];
     rkAdd_(TG,r.t);
