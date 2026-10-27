@@ -335,6 +335,24 @@ tbody tr:hover td{background:rgba(0,131,62,.05);color:var(--text)}
 .rk-lb-tbt:focus-visible{outline:2px solid #fb923c;outline-offset:2px}
 .rk-lb-sem{font-size:11.5px;color:var(--text3)}
 .rk-lb-val em.ruim{color:#f87171;background:rgba(220,38,38,.14);border-color:rgba(220,38,38,.4)}
+.login-modal.rk-tmm{max-width:none;width:min(1320px,96vw);height:92vh;padding:22px 24px 20px;display:flex;flex-direction:column;gap:14px;text-align:left;overflow:hidden}
+.rk-tmm-h{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.rk-tmm-h h3{font-size:19px;margin-bottom:6px}
+.rk-tmm-h p{margin:0;line-height:1.5;max-width:110ch}
+.rk-tmm-h p b{color:var(--text2)}
+.rk-tmm-f{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;align-items:end}
+.rk-tmm-dl{display:flex;gap:8px}
+.rk-tmm-dl .btn{white-space:nowrap}
+#rkTmMsg:empty{display:none}
+.rk-tmm .kpi-row{margin:0;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.rk-tmm-t{flex:1;min-height:0;overflow:auto;border:1px solid var(--bdr);border-radius:11px}
+.rk-tmm-t table{font-size:12.5px;min-width:640px}
+.rk-tmm-t th{position:sticky;top:0;z-index:2;background:#141a16}
+.rk-tmm-t tbody tr{cursor:pointer}
+.rk-tmm-t tbody tr:hover td{background:rgba(0,131,62,.07)}
+.rk-tmm-t td.sc{font-size:11px;color:var(--accent);font-weight:600}
+.rk-tmm-t td.d{text-align:right;font-weight:700}
+@media(max-width:700px){.login-modal.rk-tmm{width:100vw;height:100dvh;border-radius:0;padding:16px 14px;overflow-y:auto}.rk-tmm-f{grid-template-columns:1fr 1fr}.rk-tmm-f>.rk-field:last-child{grid-column:1/-1}.rk-tmm-t{flex:none;max-height:75dvh}}
 @media(max-width:700px){.rk-lb-row.rk-lb2{grid-template-columns:44px 1fr;grid-template-areas:"pos nm" "pos mx"}.rk-lb-mx{grid-template-columns:1fr auto;gap:5px 10px}.rk-lb-mx>:nth-child(1){grid-row:1;grid-column:1}.rk-lb-mx>:nth-child(2){grid-row:2;grid-column:1/-1}.rk-lb-mx>:nth-child(3){grid-row:1;grid-column:2}.rk-lb-mx>:nth-child(4){grid-row:3;grid-column:1;margin-top:4px}.rk-lb-mx>:nth-child(5){grid-row:4;grid-column:1/-1}.rk-lb-mx>:nth-child(6){grid-row:3;grid-column:2;margin-top:4px}.rk-lb-mx .rk-lb-val.p b{font-size:15px}}
 .rk-panel{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;box-shadow:var(--sh);padding:20px 20px 16px;margin-top:14px}
 .rk-ph{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
@@ -1290,6 +1308,24 @@ var SCAN_ID_INICIAL = new URLSearchParams(window.location.search).get('id') || '
     <button class="btn btn-ghost" onclick="document.getElementById('rkHistModal').classList.remove('open')" style="margin-top:14px">Fechar</button>
   </div>
 </div>
+<div class="login-overlay" id="rkTmModal">
+  <div class="login-modal rk-tmm" role="dialog" aria-modal="true" aria-labelledby="rkTmTitle">
+    <div class="rk-tmm-h">
+      <div><h3 id="rkTmTitle">Tempo de retorno</h3><p id="rkTmSub"></p></div>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('rkTmModal').classList.remove('open')">Fechar</button>
+    </div>
+    <div class="rk-tmm-f">
+      <div class="rk-field"><span class="rk-lbl">Terceiro</span><select class="i" id="rkTmTerc" onchange="rkTmTerc_()"></select></div>
+      <div class="rk-field"><span class="rk-lbl">Pecas <small>vazio = todas</small></span><div id="rkTmPeca"></div></div>
+      <div class="rk-field"><span class="rk-lbl">Faixa de dias</span><select class="i" id="rkTmFx" onchange="rkTmRender_()"></select></div>
+      <div class="rk-field"><span class="rk-lbl">Buscar saco</span><input class="i" id="rkTmBusca" placeholder="Ex.: SC-260710" autocomplete="off" oninput="rkTmRender_()"></div>
+      <div class="rk-field"><span class="rk-lbl">Baixar</span><div class="rk-tmm-dl"><select class="i" id="rkTmFmt"><option value="xlsx">Excel (.xlsx)</option><option value="pdf">PDF</option></select><button type="button" class="btn btn-accent btn-sm" onclick="rkTmBaixar()">Baixar</button></div></div>
+    </div>
+    <div id="rkTmMsg"></div>
+    <div class="kpi-row" id="rkTmKpis"></div>
+    <div class="rk-tmm-t" id="rkTmTab"></div>
+  </div>
+</div>
 <div class="login-overlay" id="lancDetailModal">
   <div class="login-modal" style="max-width:640px;max-height:85vh;overflow-y:auto;text-align:left">
     <h3 style="margin-bottom:14px">Historico do Saco</h3>
@@ -2041,13 +2077,15 @@ function msxMarcar(id,inp){
   if(inp.checked&&ix===-1) st.sel.push(inp.value);
   if(!inp.checked&&ix!==-1) st.sel.splice(ix,1);
   msxTxt(id);
+  if(st.cfg.change) st.cfg.change();
 }
 function msxTodas(id){
   var st=MSX[id];
   (st.vis||st.opts).forEach(function(o){if(st.sel.indexOf(o.v)===-1) st.sel.push(o.v);});
   msxLista(id);msxTxt(id);
+  if(st.cfg.change) st.cfg.change();
 }
-function msxLimpar(id){var st=MSX[id];if(!st) return;st.sel=[];msxLista(id);msxTxt(id);}
+function msxLimpar(id){var st=MSX[id];if(!st) return;st.sel=[];msxLista(id);msxTxt(id);if(st.cfg.change) st.cfg.change();}
 function msxSel(id){var st=MSX[id];if(!st||!st.sel.length||st.sel.length===st.opts.length) return [];return st.sel.slice();}
 var RT_STATUS=[{v:'Separado',l:'Separado'},{v:'Em terceiro',l:'Em terceiro'},{v:'Em Inspecao',l:'Em Inspecao'},{v:'Conferido/Finalizado',l:'Recebido'},{v:'Repasse',l:'Repasse'},{v:'Devolucao',l:'Devolucao'}];
 var rtFiltIni=false;
@@ -3049,22 +3087,124 @@ function rkEstat_(a){
   v.forEach(function(x){s+=x;});
   return {n:n,med:s/n,mediana:n%2?v[(n-1)/2]:(v[n/2-1]+v[n/2])/2,min:v[0],max:v[n-1]};
 }
+var RK_TM_FX=[['','Todos os sacos'],['acima','Acima da media de todos'],['abaixo','Na media ou abaixo'],['0-7','Ate 7 dias'],['7-15','Mais de 7 ate 15 dias'],['15-30','Mais de 15 ate 30 dias'],['30-','Mais de 30 dias']];
+var RK_PDF_LIBS=['https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js','https://cdn.jsdelivr.net/npm/jspdf-autotable@5.0.8/dist/jspdf.plugin.autotable.min.js'];
 function rkTempoSacos(k){
-  var all=RK.tempos||[],a=all.filter(function(x){return x.terc===k;});
-  if(!a.length) return;
-  var e=rkEstat_(a),g=rkEstat_(all);
-  a=a.slice().sort(function(p,q){return q.dias-p.dias;});
+  var all=RK.tempos||[],C={};
+  if(!all.length) return;
+  all.forEach(function(x){C[x.terc]=(C[x.terc]||0)+1;});
+  var s=document.getElementById('rkTmTerc'),g=rkEstat_(all);
+  s.innerHTML='<option value="">Todos os terceiros ('+fmtN(all.length)+')</option>'+Object.keys(C).sort(function(a,b){return a.localeCompare(b,'pt-BR');}).map(function(t){return '<option value="'+esc(t)+'">'+esc(t)+' ('+fmtN(C[t])+')</option>';}).join('');
+  s.value=k||'';
+  document.getElementById('rkTmFx').innerHTML=RK_TM_FX.map(function(o){return '<option value="'+o[0]+'">'+o[1]+(o[0]==='acima'?' ('+rkDias_(g.med)+')':'')+'</option>';}).join('');
+  document.getElementById('rkTmBusca').value='';
+  document.getElementById('rkTmMsg').innerHTML='';
+  if(MSX.rkTmPeca) MSX.rkTmPeca.sel=[];
+  rkTmTerc_();
+  document.getElementById('rkTmModal').classList.add('open');
+}
+function rkTmTerc_(){
+  var t=document.getElementById('rkTmTerc').value,P={};
+  (RK.tempos||[]).forEach(function(x){if(!t||x.terc===t) P[x.peca]=1;});
+  msxMontar('rkTmPeca',Object.keys(P).sort(function(a,b){return a.localeCompare(b,'pt-BR',{numeric:true});}).map(function(p){return {v:p,l:p};}),{todos:'Todas as pecas',unid:'pecas',busca:true,change:rkTmRender_});
+  rkTmRender_();
+}
+function rkTmDt_(x,k){return x[k+'F']||(x[k+'F']=fmtDT(x[k]));}
+function rkTmFiltrar_(){
+  var all=RK.tempos||[],t=document.getElementById('rkTmTerc').value,ps=msxSel('rkTmPeca'),fx=document.getElementById('rkTmFx').value,bu=document.getElementById('rkTmBusca').value.trim().toLowerCase(),g=rkEstat_(all),lim=fx&&fx!=='acima'&&fx!=='abaixo'?fx.split('-'):null;
+  var rows=all.filter(function(x){
+    if(t&&x.terc!==t) return false;
+    if(ps.length&&ps.indexOf(x.peca)===-1) return false;
+    if(bu&&String(x.id).toLowerCase().indexOf(bu)===-1) return false;
+    if(fx==='acima') return x.dias>g.med;
+    if(fx==='abaixo') return x.dias<=g.med;
+    if(lim) return (+lim[0]===0||x.dias>+lim[0])&&(lim[1]===''||x.dias<=+lim[1]);
+    return true;
+  }).sort(function(p,q){return q.dias-p.dias;});
+  return {rows:rows,t:t,ps:ps,fx:fx,bu:bu,g:g};
+}
+function rkTmRender_(){
+  var F=rkTmFiltrar_(),R=F.rows,e=R.length?rkEstat_(R):null,tc=!F.t;
+  RK.tmF=F;
   function kp(cls,lbl,v){return '<div class="kpi '+cls+'"><div class="kpi-bar"></div><div class="kpi-lbl">'+lbl+'</div><div class="kpi-val">'+v+'</div></div>';}
-  document.getElementById('rkHistTitle').textContent='Tempo de retorno · '+k;
-  document.getElementById('rkHistBody').innerHTML='<div style="font-size:12px;color:var(--text3);margin:-6px 0 12px">Sacos que chegaram entre '+rkDataBr_(RK.di)+' e '+rkDataBr_(RK.df)+', do mais lento para o mais rapido. Vermelho = acima da media de todos ('+rkDias_(g.med)+'). Clique num saco para ver o historico.</div>'+
-    '<div class="kpi-row" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">'+
-      kp('ko','Media',rkDias_(e.med))+kp('ka','Mediana',rkDias_(e.mediana))+kp('kg','Mais rapido',rkDias_(e.min))+kp('kf','Mais lento',rkDias_(e.max))+kp('kp','Sacos',fmtN(e.n))+
-    '</div>'+
-    '<div class="tbl-box" style="margin-top:10px;max-height:52vh;overflow:auto"><table><thead><tr><th>Saco</th><th>Peca</th><th>Saida</th><th>Chegada</th><th style="text-align:right">Dias</th></tr></thead><tbody>'+
-    a.map(function(x){
-      return '<tr style="cursor:pointer" onclick="verHistoricoSaco(\''+esc(x.id)+'\')"><td style="font-size:10px;color:var(--accent)">'+esc(x.id)+'</td><td>'+esc(x.peca)+'</td><td>'+fmtDT(x.sa)+'</td><td>'+fmtDT(x.ch)+'</td><td style="text-align:right;font-weight:700;color:'+(x.dias>g.med?'#f87171':'#4ade80')+'">'+x.dias.toFixed(1).replace('.',',')+'</td></tr>';
-    }).join('')+'</tbody></table></div>';
-  document.getElementById('rkHistModal').classList.add('open');
+  document.getElementById('rkTmTitle').textContent='Tempo de retorno · '+(F.t||'Todos os terceiros');
+  document.getElementById('rkTmSub').innerHTML='Sacos que chegaram entre '+rkDataBr_(RK.di)+' e '+rkDataBr_(RK.df)+', do mais lento para o mais rapido. Vermelho = acima da media de todos os terceiros (<b>'+rkDias_(F.g.med)+'</b>). Clique num saco para ver o historico.';
+  document.getElementById('rkTmKpis').innerHTML=kp('ko','Media',e?rkDias_(e.med):'-')+kp('ka','Mediana',e?rkDias_(e.mediana):'-')+kp('kg','Mais rapido',e?rkDias_(e.min):'-')+kp('kf','Mais lento',e?rkDias_(e.max):'-')+kp('kp','Sacos',fmtN(R.length));
+  document.getElementById('rkTmTab').innerHTML=R.length?'<table><thead><tr><th>Saco</th>'+(tc?'<th>Terceiro</th>':'')+'<th>Peca</th><th>Saida</th><th>Chegada</th><th style="text-align:right">Dias</th></tr></thead><tbody>'+
+    R.map(function(x){
+      return '<tr onclick="verHistoricoSaco(\''+esc(x.id)+'\')"><td class="sc">'+esc(x.id)+'</td>'+(tc?'<td>'+esc(x.terc)+'</td>':'')+'<td>'+esc(x.peca)+'</td><td>'+rkTmDt_(x,'sa')+'</td><td>'+rkTmDt_(x,'ch')+'</td><td class="d" style="color:'+(x.dias>F.g.med?'#f87171':'#4ade80')+'">'+x.dias.toFixed(1).replace('.',',')+'</td></tr>';
+    }).join('')+'</tbody></table>'
+    :'<div class="empty" style="padding:28px">Nenhum saco para os filtros escolhidos.</div>';
+}
+function rkTmInfo_(F){
+  var fx=RK_TM_FX.filter(function(o){return o[0]===F.fx;})[0];
+  return {
+    e:rkEstat_(F.rows),
+    titulo:'Tempo de retorno · '+(F.t||'Todos os terceiros'),
+    periodo:'Sacos que chegaram entre '+rkDataBr_(RK.di)+' e '+rkDataBr_(RK.df),
+    filtros:'Pecas: '+(F.ps.length?F.ps.join(', '):'todas')+' · Faixa: '+(fx?fx[1]:'Todos os sacos')+(F.bu?' · Busca: '+F.bu:''),
+    arq:'Tempo_retorno_'+(F.t||'todos').replace(/[^A-Za-z0-9]+/g,'_')+'_'+RK.di+'_a_'+RK.df
+  };
+}
+function rkTmBaixar(){
+  var F=RK.tmF,box=document.getElementById('rkTmMsg');
+  if(!F||!F.rows.length){box.innerHTML='<div class="alert alert-warn">Nao ha sacos para baixar com esses filtros.</div>';return;}
+  if(document.getElementById('rkTmFmt').value!=='pdf'){box.innerHTML='';rkTmXlsx_(F);return;}
+  box.innerHTML='<div class="load">Gerando PDF...</div>';
+  rkPdfLibs_().then(function(){rkTmPdf_(F);box.innerHTML='';}).catch(function(err){box.innerHTML='<div class="alert alert-err">'+esc((err&&err.message)||String(err))+'</div>';});
+}
+function rkTmXlsx_(F){
+  var I=rkTmInfo_(F),e=I.e,r1=function(v){return Math.round(v*10)/10;};
+  function ser(x,k){var m=/^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})/.exec(rkTmDt_(x,k));return m?(Date.UTC(+m[3],+m[2]-1,+m[1],+m[4],+m[5])-Date.UTC(1899,11,30))/864e5:'';}
+  var aoa=[['Saco','Terceiro','Peca','Saida','Chegada','Dias','Situacao']].concat(F.rows.map(function(x){return [x.id,x.terc,x.peca,ser(x,'sa'),ser(x,'ch'),r1(x.dias),x.dias>F.g.med?'Acima da media':'Na media ou abaixo'];}));
+  var ws=XLSX.utils.aoa_to_sheet(aoa);
+  for(var i=1;i<aoa.length;i++){['D','E'].forEach(function(c){var cel=ws[c+(i+1)];if(cel&&cel.t==='n') cel.z='dd/mm/yyyy hh:mm';});if(ws['F'+(i+1)]) ws['F'+(i+1)].z='0.0';}
+  ws['!cols']=[{wch:18},{wch:16},{wch:18},{wch:17},{wch:17},{wch:8},{wch:20}];
+  ws['!autofilter']={ref:'A1:G'+aoa.length};
+  var rs=XLSX.utils.aoa_to_sheet([[I.titulo],[I.periodo],[I.filtros],[],['Sacos',F.rows.length],['Media (dias)',r1(e.med)],['Mediana (dias)',r1(e.mediana)],['Mais rapido (dias)',r1(e.min)],['Mais lento (dias)',r1(e.max)],['Media de todos os terceiros (dias)',r1(F.g.med)]]);
+  rs['!cols']=[{wch:36},{wch:14}];
+  var wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Sacos');
+  XLSX.utils.book_append_sheet(wb,rs,'Resumo');
+  XLSX.writeFile(wb,I.arq+'.xlsx');
+}
+function rkPdfLibs_(){
+  if(window.jspdf&&window.jspdf.jsPDF&&window.jspdf.jsPDF.API.autoTable) return Promise.resolve();
+  return RK_PDF_LIBS.reduce(function(p,src){
+    return p.then(function(){
+      if(src.indexOf('autotable')===-1&&window.jspdf&&window.jspdf.jsPDF) return;
+      return new Promise(function(ok,err){
+        var sc=document.createElement('script');
+        sc.src=src;sc.onload=ok;sc.onerror=function(){sc.remove();err(new Error('Nao foi possivel carregar o gerador de PDF. Verifique a internet e tente de novo.'));};
+        document.head.appendChild(sc);
+      });
+    });
+  },Promise.resolve());
+}
+function rkTmPdf_(F){
+  var I=rkTmInfo_(F),e=I.e,tc=!F.t,doc=new window.jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4',compress:true}),W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight(),cs={},ger=fmtDT(new Date().toISOString());
+  doc.setFont('helvetica','bold');doc.setFontSize(15);doc.setTextColor(20);
+  doc.text(I.titulo,14,16);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(90);
+  var l1=doc.splitTextToSize(I.periodo+' · '+I.filtros,W-28);
+  doc.text(l1,14,22);
+  var y=22+l1.length*4.2;
+  doc.setTextColor(40);
+  doc.text('Sacos: '+fmtN(F.rows.length)+'   Media: '+rkDias_(e.med)+'   Mediana: '+rkDias_(e.mediana)+'   Mais rapido: '+rkDias_(e.min)+'   Mais lento: '+rkDias_(e.max)+'   Media de todos os terceiros: '+rkDias_(F.g.med),14,y+1);
+  var head=['Saco'].concat(tc?['Terceiro']:[],['Peca','Saida','Chegada','Dias']),nd=head.length-1;
+  cs[nd]={halign:'right',fontStyle:'bold'};
+  doc.autoTable({
+    head:[head],
+    body:F.rows.map(function(x){return [x.id].concat(tc?[x.terc]:[],[x.peca,rkTmDt_(x,'sa'),rkTmDt_(x,'ch'),x.dias.toFixed(1).replace('.',',')]);}),
+    startY:y+6,margin:{left:14,right:14,bottom:14},theme:'striped',
+    styles:{fontSize:8.5,cellPadding:1.8,textColor:40},
+    headStyles:{fillColor:[0,131,62],textColor:255,fontStyle:'bold'},
+    columnStyles:cs,
+    didParseCell:function(d){if(d.section==='body'&&d.column.index===nd) d.cell.styles.textColor=F.rows[d.row.index].dias>F.g.med?[220,38,38]:[22,163,74];},
+    didDrawPage:function(){doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(120);doc.text('Gerado em '+ger+' · Vermelho = acima da media de todos os terceiros',14,H-7);doc.text('Pagina '+doc.internal.getNumberOfPages()+' de {total}',W-14,H-7,{align:'right'});}
+  });
+  if(typeof doc.putTotalPages==='function') doc.putTotalPages('{total}');
+  doc.save(I.arq+'.pdf');
 }
 function rkCel_(m,v){
   if(v===null||v===undefined) return '<span class="rk-z">-</span>';
