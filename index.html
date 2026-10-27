@@ -2991,20 +2991,14 @@ function rkLbTer(t){
 function rkLideres_(){
   var el=document.getElementById('rkLb');
   if(!el||!RK.movs) return;
-  var mk=rkMet_(RK.sort)?RK.sort:'recebido',m=rkMet_(mk),dir={enviado:1,recebido:1,aprovadas:1,pAprov:1,refugo:-1,repasse:-1,devolucao:-1,pRefugo:-1,pRepasse:-1,tmed:-1}[mk]||0,asc=dir<0,fP=rkPecasSel,fT=rkTercSel_(),G={},P={},T={},TT=[],sr=null,pc=null,tc=null;
+  var mk=rkMet_(RK.sort)?RK.sort:'recebido',m=rkMet_(mk),dir={enviado:1,recebido:1,aprovadas:1,pAprov:1,refugo:-1,repasse:-1,devolucao:-1,pRefugo:-1,pRepasse:-1,tmed:-1}[mk]||0,asc=dir<0,fT=rkTercSel_(),G={},P={},T={},TT=[];
   if(!m.dias) RK.lbQ=mk;
   var mq=rkMet_(RK.lbQ||'recebido');
-  if(RK.sel) RK.linhas.forEach(function(r){if(r.key===RK.sel) sr=r;});
-  if(sr){if(RK.g!=='ter') pc=sr.peca;if(RK.g!=='peca') tc=sr.terc;}
   RK.movs.forEach(function(x){
-    if(fP.length&&fP.indexOf(x.peca)===-1) return;
-    if(pc&&x.peca!==pc) return;
     rkAdd_(G[x.terc]||(G[x.terc]=rkZ_()),x.v);
     (P[x.terc]||(P[x.terc]={}))[x.terc+'|'+x.peca]=1;
   });
   (RK.tempos||[]).forEach(function(x){
-    if(fP.length&&fP.indexOf(x.peca)===-1) return;
-    if(pc&&x.peca!==pc) return;
     var o=G[x.terc]||(G[x.terc]=rkZ_());
     o.tsum+=x.dias;o.tcnt++;
     (T[x.terc]||(T[x.terc]=[])).push(x);TT.push(x);
@@ -3026,13 +3020,13 @@ function rkLideres_(){
     if(r.q!==null){if(r.q>0) soma+=r.q;if(Math.abs(r.q)>mx) mx=Math.abs(r.q);}
     if(r.tm!==null&&r.tm>mxT) mxT=r.tm;
   });
-  function hl(t){return tc?t===tc:fT.indexOf(t)!==-1;}
-  var temHl=L.some(function(r){return hl(r.t);}),mPos=temT&&mxT?geral.med/mxT*100:0,pq=m.dias?' s':' p',pt=m.dias?' p':' s';
-  document.getElementById('rkLbH').innerHTML='<div><h4>Ranking de terceiros'+(pc?' · '+esc(pc):'')+'</h4><p>'+(dir?'Quem esta ganhando em':'Terceiros por')+' <b>'+esc(m.l.toLowerCase())+'</b>'+(m.pct||m.dias?'':' (pecas)')+(dir<0?' · menos e melhor':dir?'':' · maior primeiro')+(parte?' · % = participacao de cada terceiro no total':'')+(pc?' · so a peca selecionada':'')+'.'+(temT?' Barra laranja = tempo medio de retorno (dias da saida ate a chegada na fabrica); a marca amarela e a media de todos: <b>'+rkDias_(geral.med)+'</b>.':'')+' Clique num terceiro para ver so ele na tela'+(temT?', ou no tempo dele para conferir os sacos e as datas':'')+'.</p></div>'+
+  function hl(t){return fT.indexOf(t)!==-1;}
+  var mPos=temT&&mxT?geral.med/mxT*100:0,pq=m.dias?' s':' p',pt=m.dias?' p':' s';
+  document.getElementById('rkLbH').innerHTML='<div><h4>Ranking de terceiros</h4><p>'+(dir?'Quem esta ganhando em':'Terceiros por')+' <b>'+esc(m.l.toLowerCase())+'</b>'+(m.pct||m.dias?'':' (pecas)')+(dir<0?' · menos e melhor':dir?'':' · maior primeiro')+(parte?' · % = participacao de cada terceiro no total':'')+'. Geral do periodo: nao muda com os filtros de peca e terceiro.'+(temT?' Barra laranja = tempo medio de retorno (dias da saida ate a chegada na fabrica); a marca amarela e a media de todos: <b>'+rkDias_(geral.med)+'</b>.':'')+' Clique num terceiro para ver so ele na tela'+(temT?', ou no tempo dele para conferir os sacos e as datas':'')+'.</p></div>'+
     '<div class="rk-fbt">'+(temT?'<div class="rk-seg" role="group" aria-label="Ordenar o ranking por"><button type="button" aria-pressed="'+!m.dias+'" onclick="rkLbOrd(\''+mq.k+'\')">'+esc(mq.l)+'</button><button type="button" aria-pressed="'+!!m.dias+'" onclick="rkLbOrd(\'tmed\')">Tempo de retorno</button></div>':'')+(fT.length?'<button type="button" class="btn btn-ghost btn-sm" onclick="rkLbTer(null)">Todos os terceiros</button>':'')+'</div>';
   if(!L.length){el.innerHTML='<div class="empty">Nenhuma movimentacao de terceiros para os filtros escolhidos.</div>';return;}
   el.innerHTML=L.map(function(r,i){
-    var q=r.q,tm=r.tm,pAp=rkVal_(r.o,'pAprov'),wq=q===null?0:mq.pct?Math.min(100,Math.max(0,q)):(mx?Math.abs(q)/mx*100:0),sh=parte&&soma&&q!==null&&q>0?q/soma*100:null,lider=!!dir&&r.v!==null&&pos[i]===1,cls=(lider?' lider':'')+(temHl?(hl(r.t)?' on':' off'):'');
+    var q=r.q,tm=r.tm,pAp=rkVal_(r.o,'pAprov'),wq=q===null?0:mq.pct?Math.min(100,Math.max(0,q)):(mx?Math.abs(q)/mx*100:0),sh=parte&&soma&&q!==null&&q>0?q/soma*100:null,lider=!!dir&&r.v!==null&&pos[i]===1,cls=(lider?' lider':'')+(hl(r.t)?' on':'');
     var lin='<span class="rk-lb-l'+pq+'">'+esc(mq.l)+'</span>'+
       '<span class="rk-lb-bar'+pq+'">'+(wq>0?'<i style="width:'+wq.toFixed(1)+'%;background:linear-gradient(90deg,'+rkCor_(mq,.3)+','+rkCor_(mq,.95)+')"></i>':'')+'</span>'+
       '<span class="rk-lb-val'+pq+'"><b>'+rkFmt_(mq,q)+'</b>'+(sh!==null?'<em>'+sh.toFixed(1).replace('.',',')+'%</em>':'')+'</span>';
@@ -3050,29 +3044,18 @@ function rkLideres_(){
   }).join('');
 }
 function rkLbOrd(k){document.getElementById('rkMetrica').value=k;rkSetSort(k);}
-function rkTempoBase_(){
-  var fP=rkPecasSel,sr=null,pc=null,tc=null;
-  if(RK.sel) RK.linhas.forEach(function(r){if(r.key===RK.sel) sr=r;});
-  if(sr){if(RK.g!=='ter') pc=sr.peca;if(RK.g!=='peca') tc=sr.terc;}
-  var rows=(RK.tempos||[]).filter(function(x){
-    if(fP.length&&fP.indexOf(x.peca)===-1) return false;
-    if(pc&&x.peca!==pc) return false;
-    return true;
-  });
-  return {rows:rows,pc:pc,tc:tc};
-}
 function rkEstat_(a){
   var v=a.map(function(x){return x.dias;}).sort(function(p,q){return p-q;}),s=0,n=v.length;
   v.forEach(function(x){s+=x;});
   return {n:n,med:s/n,mediana:n%2?v[(n-1)/2]:(v[n/2-1]+v[n/2])/2,min:v[0],max:v[n-1]};
 }
 function rkTempoSacos(k){
-  var B=rkTempoBase_(),a=B.rows.filter(function(x){return x.terc===k;});
+  var all=RK.tempos||[],a=all.filter(function(x){return x.terc===k;});
   if(!a.length) return;
-  var e=rkEstat_(a),g=rkEstat_(B.rows);
+  var e=rkEstat_(a),g=rkEstat_(all);
   a=a.slice().sort(function(p,q){return q.dias-p.dias;});
   function kp(cls,lbl,v){return '<div class="kpi '+cls+'"><div class="kpi-bar"></div><div class="kpi-lbl">'+lbl+'</div><div class="kpi-val">'+v+'</div></div>';}
-  document.getElementById('rkHistTitle').textContent='Tempo de retorno · '+k+(B.pc?' · '+B.pc:'');
+  document.getElementById('rkHistTitle').textContent='Tempo de retorno · '+k;
   document.getElementById('rkHistBody').innerHTML='<div style="font-size:12px;color:var(--text3);margin:-6px 0 12px">Sacos que chegaram entre '+rkDataBr_(RK.di)+' e '+rkDataBr_(RK.df)+', do mais lento para o mais rapido. Vermelho = acima da media de todos ('+rkDias_(g.med)+'). Clique num saco para ver o historico.</div>'+
     '<div class="kpi-row" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">'+
       kp('ko','Media',rkDias_(e.med))+kp('ka','Mediana',rkDias_(e.mediana))+kp('kg','Mais rapido',rkDias_(e.min))+kp('kf','Mais lento',rkDias_(e.max))+kp('kp','Sacos',fmtN(e.n))+
